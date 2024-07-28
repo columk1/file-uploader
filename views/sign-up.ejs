@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up</title>
+</head>
+<body>
+  <div class="formContainer">
+    <form novalidate action="/register" method="POST" class="form">
+      <h2 class="title">Sign Up</h2>
+      <p>Already have an account? <a href="/login">Log in</a></p>
+
+      <div class="inputContainer">
+        <label for="username" class="label">Username <span class="red">*</span></label>
+        <input
+          type="text"
+          name="username"
+          id="username"
+          class="input"
+          placeholder="figroll26"
+          required
+          <% if (locals.usernameError) { %>autofocus<% } %>
+          value="<%= locals.username %>"
+        />
+        <p class="errorIcon"><img src="/icons/error.svg" alt="error icon" /></p>
+        <span class="<%= locals.usernameError ? "error active" : "error" %>"><%= locals.usernameError %></span>
+      </div>
+
+      <div class="inputContainer">
+        <label for="password" class="label">Password <span class="red">*</span></label>
+        <input
+          type="password"
+          name="password"
+          id="password"
+          class="input"
+          placeholder="12345678"
+          required
+          minlength="8"
+        />
+        <p class="errorIcon"><img src="/icons/error.svg" alt="error icon" /></p>
+        <span class="error">Error message</span>
+      </div>
+
+      <div class="inputContainer">
+        <label for="confirm_password" class="label" data-help=" (passwords don't match) "
+          >Confirm Password <span class="red">*</span></label
+        >
+        <input
+          type="password"
+          name="confirmPassword"
+          id="confirmPassword"
+          class="input"
+          placeholder="12345678"
+          required
+        />
+        <p class="errorIcon"><img src="/icons/error.svg" alt="error icon" /></p>
+        <span class="error">Error message</span>
+      </div>
+      <div class="required"><span class="red">*</span> required</div>
+
+      <input type="submit" class="submitBtn" value="Create Account" />
+    </form>
+  </div>
+</body>
+</html>

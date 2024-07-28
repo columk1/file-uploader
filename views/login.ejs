@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login</title>
+</head>
+<body>
+  <div class="formContainer">
+
+    <% if (locals.currentUser) { %>
+      <h2 class="title">Welcome back <%= currentUser.username %></h1>
+      <a href="/logout">Log out</a>
+    <% } else { %>
+
+      <form novalidate action="/login" method="POST" class="form">
+        <h2 class="title">Log in</h2>
+        <p>Don't have an account yet? <a href="/sign-up">Sign up</a></p>
+
+        <div class="inputContainer">
+          <label for="email" class="label">Username <span class="red">*</span></label>
+          <input
+            type="text"
+            name="username"
+            id="username"
+            class="input"
+            required
+            autofocus
+          />
+          <p class="errorIcon"><img src="/icons/error.svg" alt="error icon" /></p>
+          <span class="error">Error message</span>
+        </div>
+
+        <div class="inputContainer">
+          <label for="password" class="label">Password <span class="red">*</span></label>
+          <input
+            type="password"
+            name="password"
+            id="password"
+            class="input"
+            required
+          />
+          <p class="errorIcon"><img src="/icons/error.svg" alt="error icon" /></p>
+          <span class="error" %>Error message</span>
+        </div>
+
+        <input type="submit" class="submitBtn" value="Log in" />
+        <div class="authentication-error">
+        <span class="<%= locals.errors ? "error active" : "error" %>"><%= locals.errors %></span>
+      </form>
+      </div>
+
+    <% } %>
+</body>
+</html>
