@@ -6,6 +6,8 @@ import passport from 'passport'
 import { Strategy as LocalStrategy } from 'passport-local'
 import path from 'path'
 import morgan from 'morgan'
+import { PrismaSessionStore } from '@quixo3/prisma-session-store'
+import { PrismaClient } from '@prisma/client'
 
 const PORT = process.env.PORT || 3000
 
@@ -22,6 +24,30 @@ app.set('view engine', 'ejs')
 app.use(express.static(path.join(__dirname, 'public')))
 app.use(express.urlencoded({ extended: true }))
 app.use(morgan('dev'))
+app.use(
+  session({
+    cookie: {
+      maxAge: 7 * 24 * 60 * 60 * 1000, // ms
+    },
+    secret: process.env.SESSION_SECRET || 'keyboard cat',
+    resave: false,
+    saveUninitialized: true,
+    store: new PrismaSessionStore(new PrismaClient(), {
+      checkPeriod: 2 * 60 * 1000, //ms
+      dbRecordIdIsSessionId: true,
+      dbRecordIdFunction: undefined,
+    }),
+  })
+)
+
+declare global {
+  namespace Express {
+    interface User {
+      username: string
+      id?: number | undefined
+    }
+  }
+}
 
 passport.use(
   new LocalStrategy(async (username, password, done) => {
@@ -60,8 +86,11 @@ passport.deserializeUser(async (id, done) => {
   }
 })
 
+app.use(passport.session())
+app.use(passport.initialize())
+
 app.get('/', (req: Request, res: Response) => {
-  res.send('Express + TypeScript Server')
+  res.render('home')
 })
 
 app.get('/sign-up', (req, res) => res.render('sign-up'))
@@ -85,6 +114,10 @@ app.post(
     failureRedirect: '/login',
   })
 )
+
+app.get('/logout', (req, res, next) => {
+  req.logout((err) => (err ? next(err) : res.redirect('/')))
+})
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
