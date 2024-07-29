@@ -7,8 +7,11 @@
 </head>
 <body>
   <h1>Express & Typescript</h1>
-  <form action="/logout" method="GET">
-    <input type="submit" value="Log out" />
-  </form>
+  <% if (locals.currentUser) { %>
+    <h2 class="title">Welcome back <%= currentUser.username %></h1>
+    <a href="/logout">Log out</a>
+  <% } else { %>
+
+  <% } %>
 </body>
 </html>

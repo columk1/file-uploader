@@ -89,6 +89,13 @@ passport.deserializeUser(async (id, done) => {
 app.use(passport.session())
 app.use(passport.initialize())
 
+// Add the current logged in user to res.locals
+app.use((req, res, next) => {
+  console.log('USER: ' + req.user)
+  res.locals.currentUser = req.user
+  next()
+})
+
 app.get('/', (req: Request, res: Response) => {
   res.render('home')
 })
