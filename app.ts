@@ -11,6 +11,8 @@ import { PrismaClient } from '@prisma/client'
 
 const PORT = process.env.PORT || 3000
 
+const prisma = new PrismaClient()
+
 const { Pool } = pg
 
 const pool = new Pool({
@@ -32,7 +34,7 @@ app.use(
     secret: process.env.SESSION_SECRET || 'keyboard cat',
     resave: false,
     saveUninitialized: true,
-    store: new PrismaSessionStore(new PrismaClient(), {
+    store: new PrismaSessionStore(prisma, {
       checkPeriod: 2 * 60 * 1000, //ms
       dbRecordIdIsSessionId: true,
       dbRecordIdFunction: undefined,
@@ -53,9 +55,7 @@ passport.use(
   new LocalStrategy(async (username, password, done) => {
     console.log('New Local Strategy')
     try {
-      const { rows } = await pool.query('SELECT * FROM users WHERE username = $1', [username])
-      const user = rows[0]
-
+      const user = await prisma.user.findFirst({ where: { username } })
       if (!user) {
         console.log('Incorrect username')
         return done(null, false, { message: 'Username not found' })
@@ -77,8 +77,7 @@ passport.serializeUser((user, done) => done(null, user.id))
 
 passport.deserializeUser(async (id, done) => {
   try {
-    const { rows } = await pool.query('SELECT * FROM users WHERE id = $1', [id])
-    const user = rows[0]
+    const user = await prisma.user.findUnique({ where: { id } })
 
     done(null, user)
   } catch (err) {
@@ -91,7 +90,7 @@ app.use(passport.initialize())
 
 // Add the current logged in user to res.locals
 app.use((req, res, next) => {
-  console.log('USER: ' + req.user)
+  console.log(req.user)
   res.locals.currentUser = req.user
   next()
 })
@@ -103,10 +102,12 @@ app.get('/', (req: Request, res: Response) => {
 app.get('/sign-up', (req, res) => res.render('sign-up'))
 app.post('/sign-up', async (req, res, next) => {
   try {
-    await pool.query('INSERT INTO users (username, password) VALUES ($1, $2)', [
-      req.body.username,
-      req.body.password,
-    ])
+    await prisma.user.create({
+      data: {
+        username: req.body.username,
+        password: req.body.password,
+      },
+    })
     res.redirect('/')
   } catch (err) {
     console.log(err)
