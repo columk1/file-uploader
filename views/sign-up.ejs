@@ -1,17 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sign Up</title>
-</head>
-<body>
-  <div class="formContainer">
-    <form novalidate action="/sign-up" method="POST" class="form">
+<%- include('header') -%>
+<main>
+  <div class="form-container">
+    <form novalidate action="/sign-up" method="POST" id="sign-up-form"class="input-validation-required">
       <h2 class="title">Sign Up</h2>
       <p>Already have an account? <a href="/login">Log in</a></p>
 
-      <div class="inputContainer">
+      <div class="input-container">
         <label for="username" class="label">Username <span class="red">*</span></label>
         <input
           type="text"
@@ -20,14 +14,15 @@
           class="input"
           placeholder="figroll26"
           required
+          minlength="3"
           <% if (locals.usernameError) { %>autofocus<% } %>
           value="<%= locals.username %>"
         />
-        <p class="errorIcon"><img src="/icons/error.svg" alt="error icon" /></p>
+        <p class="error-icon"><img src="/icons/error.svg" alt="error icon" /></p>
         <span class="<%= locals.usernameError ? "error active" : "error" %>"><%= locals.usernameError %></span>
       </div>
 
-      <div class="inputContainer">
+      <div class="input-container">
         <label for="password" class="label">Password <span class="red">*</span></label>
         <input
           type="password"
@@ -38,29 +33,137 @@
           required
           minlength="8"
         />
-        <p class="errorIcon"><img src="/icons/error.svg" alt="error icon" /></p>
+        <p class="error-icon"><img src="/icons/error.svg" alt="error icon" /></p>
         <span class="error">Error message</span>
       </div>
 
-      <div class="inputContainer">
-        <label for="confirm_password" class="label" data-help=" (passwords don't match) "
+      <div class="input-container">
+        <label for="confirm-password" class="label" data-help=" (passwords don't match) "
           >Confirm Password <span class="red">*</span></label
         >
         <input
           type="password"
-          name="confirmPassword"
-          id="confirmPassword"
+          name="confirm-password"
+          id="confirm-password"
           class="input"
           placeholder="12345678"
           required
         />
-        <p class="errorIcon"><img src="/icons/error.svg" alt="error icon" /></p>
+        <p class="error-icon"><img src="/icons/error.svg" alt="error icon" /></p>
         <span class="error">Error message</span>
       </div>
-      <div class="required"><span class="red">*</span> required</div>
 
-      <input type="submit" class="submitBtn" value="Create Account" />
+      <input type="submit" class="submit-btn" value="Create Account" />
     </form>
   </div>
-</body>
-</html>
+</main>
+<%- include('footer') -%>
+
+<script>
+const form = document.getElementById('sign-up-form')
+const username = document.getElementById('username')
+const usernameError = document.querySelector('#username ~ span.error')
+const password = document.getElementById('password')
+const passwordError = document.querySelector('#password ~ span.error')
+const confirmPassword = document.getElementById('confirm-password')
+const confirmPasswordError = document.querySelector('#confirm-password ~ span.error')
+
+function validateUsername() {
+  if (username.validity.valid) {
+    usernameError.className = 'error' // Reset the visual state of the message
+    usernameError.previousElementSibling.className = 'error-icon active-icon'
+    usernameError.previousElementSibling.firstChild.src = '/icons/check.svg'
+  } else {
+    // If there is still an error, show the correct error
+    usernameError.textContent = getusernameError()
+    usernameError.className = 'error active'
+    usernameError.previousElementSibling.className = 'error-icon active-icon'
+    usernameError.previousElementSibling.firstChild.src = '/icons/error.svg'
+  }
+}
+
+const getusernameError = () => {
+  return username.validity.valueMissing
+    ? 'username is required'
+    : username.validity.typeMismatch
+    ? 'Please enter a valid username'
+    : username.validity.tooShort
+    ? `username should be at least ${username.minLength} characters;`
+    : ''
+}
+
+function validatePassword() {
+  if (password.validity.valid) {
+    passwordError.className = 'error'
+    passwordError.previousElementSibling.className = 'error-icon active-icon'
+    passwordError.previousElementSibling.firstChild.src = '/icons/check.svg'
+  } else {
+    passwordError.textContent = getPasswordError()
+    passwordError.className = 'error active'
+    passwordError.previousElementSibling.firstChild.src = '/icons/error.svg'
+    passwordError.previousElementSibling.className = 'error-icon active-icon'
+  }
+  if (confirmPassword.value) validateConfirmPassword()
+}
+
+function validateConfirmPassword() {
+  if (password.value !== confirmPassword.value) {
+    confirmPassword.setCustomValidity("Passwords Don't Match")
+  } else {
+    confirmPassword.setCustomValidity('')
+    password.setCustomValidity('')
+  }
+  if (confirmPassword.validity.valid) {
+    confirmPasswordError.className = 'error'
+    confirmPasswordError.previousElementSibling.className = 'error-icon active-icon'
+    confirmPasswordError.previousElementSibling.firstChild.src = '/icons/check.svg'
+  } else {
+    confirmPasswordError.textContent = confirmPassword.validationMessage
+    confirmPasswordError.className = 'error active'
+    confirmPasswordError.previousElementSibling.firstChild.src = '/icons/error.svg'
+    confirmPasswordError.previousElementSibling.className = 'error-icon active-icon'
+  }
+}
+
+const getPasswordError = () => {
+  return password.validity.valueMissing
+    ? 'Password is required'
+    : password.validity.tooShort
+    ? `Password should be at least ${password.minLength} characters`
+    : confirmPassword.validationMessage
+}
+
+username.addEventListener('change', validateUsername)
+username.onchange = () => {
+  username.removeEventListener('change', validateUsername)
+  username.addEventListener('input', validateUsername)
+}
+
+password.addEventListener('change', validatePassword)
+password.onchange = () => {
+  password.removeEventListener('change', validatePassword)
+  password.addEventListener('input', validatePassword)
+}
+
+confirmPassword.addEventListener('change', validateConfirmPassword)
+confirmPassword.onchange = () => {
+  confirmPassword.removeEventListener('change', validateConfirmPassword)
+  confirmPassword.addEventListener('input', validateConfirmPassword)
+}
+
+form.addEventListener('submit', (event) => {
+  // Only allow submission if all fields are valid
+  if (!username.validity.valid) {
+    event.preventDefault() // Prevent submission
+    validateUsername() // Display an appropriate error message
+  }
+  if (!password.validity.valid) {
+    event.preventDefault()
+    validatePassword() 
+  }
+  if (!confirmPassword.validity.valid) {
+    event.preventDefault() 
+    validateConfirmPassword() 
+  }
+})
+</script>
