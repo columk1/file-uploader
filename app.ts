@@ -8,6 +8,7 @@ import path from 'path'
 import morgan from 'morgan'
 import { PrismaSessionStore } from '@quixo3/prisma-session-store'
 import { PrismaClient } from '@prisma/client'
+import bcrypt from 'bcrypt'
 
 const PORT = process.env.PORT || 3000
 
@@ -60,8 +61,8 @@ passport.use(
         console.log('Incorrect username')
         return done(null, false, { message: 'Username not found' })
       }
-      // const match = await bcrypt.compare(password, user.password)
-      if (user.password !== password) {
+      const match = await bcrypt.compare(password, user.password)
+      if (!match) {
         console.log('Incorrect password')
         return done(null, false, { message: 'Incorrect password' })
       }
@@ -102,10 +103,11 @@ app.get('/', (req: Request, res: Response) => {
 app.get('/sign-up', (req, res) => res.render('sign-up'))
 app.post('/sign-up', async (req, res, next) => {
   try {
+    const hashedPassword = await bcrypt.hash(req.body.password, 10)
     await prisma.user.create({
       data: {
         username: req.body.username,
-        password: req.body.password,
+        password: hashedPassword,
       },
     })
     res.redirect('/')
