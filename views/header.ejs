@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en" class="sl-theme-dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.16.0/cdn/shoelace-autoloader.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.16.0/cdn/themes/dark.css" />
+  <link rel='stylesheet' href='/stylesheets/styles.css' />
+  <title><%= title %></title>
+</head>
+<body>
+  <header>
+    <div class="logo">
+    <h1>File Uploader</h1>
+  </div>
+  <nav class="nav">
+    <% if (currentUser) { %>
+      <button onclick="window.location.href='/logout'">Logout</button>
+    <% } else { %>
+    <button onclick="window.location.href='/login'">Login</button>
+    <button onclick="window.location.href='/sign-up'">Sign Up</button>
+    <% } %>
+  </nav>
+  </header>

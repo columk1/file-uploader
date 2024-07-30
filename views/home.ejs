@@ -1,17 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
-</head>
-<body>
+<%- include('header') -%>
+<main>
   <h1>Express & Typescript</h1>
   <% if (locals.currentUser) { %>
     <h2 class="title">Welcome back <%= currentUser.username %></h1>
-    <a href="/logout">Log out</a>
+    <sl-button href='/logout'>Log out</sl-button>
   <% } else { %>
 
   <% } %>
-</body>
-</html>
+</main>
+<%- include('footer') -%>
