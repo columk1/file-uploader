@@ -1,55 +1,45 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login</title>
-</head>
-<body>
-  <div class="formContainer">
+<%- include('header.ejs') %>
+<main>
+  <div class="form-container">
 
     <% if (locals.currentUser) { %>
       <h2 class="title">Welcome back <%= currentUser.username %></h1>
       <a href="/logout">Log out</a>
     <% } else { %>
 
-      <form novalidate action="/login" method="POST" class="form">
+      <form action="/login" method="POST" class="input-validation-required">
         <h2 class="title">Log in</h2>
         <p>Don't have an account yet? <a href="/sign-up">Sign up</a></p>
 
-        <div class="inputContainer">
-          <label for="email" class="label">Username <span class="red">*</span></label>
-          <input
-            type="text"
+        <div class="input-container">
+          <sl-input
             name="username"
-            id="username"
-            class="input"
+            label="Username"
             required
             autofocus
-          />
-          <p class="errorIcon"><img src="/icons/error.svg" alt="error icon" /></p>
+          ></sl-input>
+          <p class="error-icon"><img src="/icons/error.svg" alt="error icon" /></p>
           <span class="error">Error message</span>
         </div>
-
-        <div class="inputContainer">
+        <br />
+        <div class="input-container">
           <label for="password" class="label">Password <span class="red">*</span></label>
-          <input
+          <sl-input
             type="password"
             name="password"
-            id="password"
-            class="input"
             required
-          />
-          <p class="errorIcon"><img src="/icons/error.svg" alt="error icon" /></p>
+          ></sl-input>
+          <p class="error-icon"><img src="/icons/error.svg" alt="error icon" /></p>
           <span class="error" %>Error message</span>
         </div>
-
-        <input type="submit" class="submitBtn" value="Log in" />
+        <br />
+        <!-- <input type="submit" class="submitBtn" value="Log in" /> -->
+        <sl-button type="submit">Log in</sl-button>
         <div class="authentication-error">
         <span class="<%= locals.errors ? "error active" : "error" %>"><%= locals.errors %></span>
       </form>
-      </div>
+    </div>
 
-    <% } %>
-</body>
-</html>
+  <% } %>
+</main>
+<%- include('footer.ejs') %>
