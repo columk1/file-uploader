@@ -1,0 +1,63 @@
+:root {
+  --red: rgb(237, 53, 72);
+}
+
+body {
+  height: 100vh;
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+  background-image: conic-gradient(from 0deg at 0% 0%, #000000 0%, #362746 100%);
+}
+
+header {
+  margin-bottom: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+nav {
+  display: flex;
+  gap: 1rem;
+}
+
+footer {
+  min-height: 1rem;
+  margin-top: 1rem;
+}
+
+main {
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.page-title {
+  display: grid;
+  place-items: center;
+  margin-bottom: 1rem;
+}
+
+.error-icon,
+.check-icon {
+  display: none;
+  position: relative;
+  top: 5px;
+  margin-left: -32px;
+  z-index: 10;
+}
+
+.error {
+  display: none;
+  margin-top: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--red);
+}
+
+.active {
+  display: block;
+}
+
+.active-icon {
+  display: inline;
+}
