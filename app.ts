@@ -97,10 +97,11 @@ app.use((req, res, next) => {
 })
 
 app.get('/', (req: Request, res: Response) => {
-  res.render('home')
+  res.render('home', { title: 'File Uploader' })
 })
 
-app.get('/sign-up', (req, res) => res.render('sign-up'))
+app.get('/sign-up', (req, res) => res.render('sign-up', { title: 'Sign Up' }))
+
 app.post('/sign-up', async (req, res, next) => {
   try {
     const hashedPassword = await bcrypt.hash(req.body.password, 10)
@@ -116,10 +117,15 @@ app.post('/sign-up', async (req, res, next) => {
     return next(err)
   }
 })
-app.get('/login', (req, res) => res.render('login'))
+app.get('/login', (req, res) => {
+  res.render('login', { title: 'Login', errors: req.session.messages })
+  req.session.messages = undefined
+})
+
 app.post(
   '/login',
   passport.authenticate('local', {
+    failureMessage: true,
     successRedirect: '/',
     failureRedirect: '/login',
   })
