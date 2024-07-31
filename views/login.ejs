@@ -13,27 +13,29 @@
 
         <div class="input-container">
           <sl-input
+            id="username"
             name="username"
             label="Username"
             required
             autofocus
+            value="<%= locals.username %>"
           ></sl-input>
           <p class="error-icon"><img src="/icons/error.svg" alt="error icon" /></p>
-          <span class="error">Error message</span>
+          <span id='username-error' class="<%= locals.usernameError ? "error active" : "error" %>"><%= locals.usernameError %></span>
         </div>
         <br />
         <div class="input-container">
           <label for="password" class="label">Password <span class="red">*</span></label>
           <sl-input
             type="password"
+            id="password"
             name="password"
             required
           ></sl-input>
           <p class="error-icon"><img src="/icons/error.svg" alt="error icon" /></p>
-          <span class="error" %>Error message</span>
+          <span id='password-error' class="<%= locals.passwordError ? "error active" : "error" %>"><%= locals.passwordError %></span>
         </div>
         <br />
-        <!-- <input type="submit" class="submitBtn" value="Log in" /> -->
         <sl-button type="submit">Log in</sl-button>
         <div class="authentication-error">
         <span class="<%= locals.errors ? "error active" : "error" %>"><%= locals.errors %></span>
@@ -43,3 +45,25 @@
   <% } %>
 </main>
 <%- include('footer.ejs') %>
+<script type="module">
+  await Promise.all([
+    customElements.whenDefined('sl-input')
+  ]).then(() => {
+  const username = document.getElementById('username')
+  const password = document.getElementById('password')
+  const usernameError = document.getElementById('username-error')
+  const passwordError = document.getElementById('password-error')
+
+  const removeError = (e) => {
+    e.textContent = ''
+    e.classList.remove('active')
+    console.log(e.classList)
+  }
+
+  const onInput = (e) => removeError(e)
+
+  username.addEventListener('sl-input', () => onInput(usernameError), { once: true })
+
+  password.addEventListener('sl-input', () => onInput(passwordError), { once: true })
+  })
+</script>
