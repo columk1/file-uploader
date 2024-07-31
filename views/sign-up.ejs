@@ -1,30 +1,32 @@
 <%- include('header') -%>
 <main>
   <div class="form-container">
-    <form novalidate action="/sign-up" method="POST" id="sign-up-form"class="input-validation-required">
+    <form novalidate action="/sign-up" method="POST" id="sign-up-form" class="input-validation-required validity-styles">
       <h2 class="title">Sign Up</h2>
       <p>Already have an account? <a href="/login">Log in</a></p>
 
       <div class="input-container">
         <label for="username" class="label">Username <span class="red">*</span></label>
-        <input
-          type="text"
+        <sl-input
           name="username"
           id="username"
-          class="input"
           placeholder="figroll26"
           required
           minlength="3"
+          autocomplete="new-username"
           <% if (locals.usernameError) { %>autofocus<% } %>
           value="<%= locals.username %>"
-        />
+        >
+        <sl-icon slot="suffix" name="exclamation-circle" class="error-icon"></sl-icon>
+      </sl-input>
         <p class="error-icon"><img src="/icons/error.svg" alt="error icon" /></p>
         <span class="<%= locals.usernameError ? "error active" : "error" %>"><%= locals.usernameError %></span>
       </div>
+      <br/>
 
       <div class="input-container">
         <label for="password" class="label">Password <span class="red">*</span></label>
-        <input
+        <sl-input
           type="password"
           name="password"
           id="password"
@@ -32,138 +34,167 @@
           placeholder="12345678"
           required
           minlength="8"
-        />
+          autocomplete="new-password"
+        >
+        <sl-icon slot="suffix" name="exclamation-circle" class="error-icon"></sl-icon>
+        </sl-input>
         <p class="error-icon"><img src="/icons/error.svg" alt="error icon" /></p>
         <span class="error">Error message</span>
       </div>
+      <br/>
 
       <div class="input-container">
         <label for="confirm-password" class="label" data-help=" (passwords don't match) "
           >Confirm Password <span class="red">*</span></label
         >
-        <input
+        <sl-input
           type="password"
           name="confirm-password"
           id="confirm-password"
           class="input"
           placeholder="12345678"
           required
-        />
+          autocomplete="new-password"
+        >
+        <sl-icon slot="suffix" name="exclamation-circle" class="error-icon"></sl-icon>
+        </sl-input>
         <p class="error-icon"><img src="/icons/error.svg" alt="error icon" /></p>
         <span class="error">Error message</span>
       </div>
+      <br/>
+      </form>
 
-      <input type="submit" class="submit-btn" value="Create Account" />
+      <sl-button type="submit">Create Account</sl-button>
     </form>
   </div>
 </main>
 <%- include('footer') -%>
 
-<script>
-const form = document.getElementById('sign-up-form')
-const username = document.getElementById('username')
-const usernameError = document.querySelector('#username ~ span.error')
-const password = document.getElementById('password')
-const passwordError = document.querySelector('#password ~ span.error')
-const confirmPassword = document.getElementById('confirm-password')
-const confirmPasswordError = document.querySelector('#confirm-password ~ span.error')
+<script type="module">
+  await Promise.all([
+    customElements.whenDefined('sl-input')
+  ]).then(() => {
+    const form = document.getElementById('sign-up-form')
+    const username = document.getElementById('username')
+    const usernameErrorIcon = document.querySelector('#username > sl-icon')
+    const usernameError = document.querySelector('#username ~ span.error')
+    const password = document.getElementById('password')
+    const passwordErrorIcon = document.querySelector('#password > sl-icon')
+    const passwordError = document.querySelector('#password ~ span.error')
+    const confirmPassword = document.getElementById('confirm-password')
+    const confirmPasswordErrorIcon = document.querySelector('#confirm-password > sl-icon')
+    const confirmPasswordError = document.querySelector('#confirm-password ~ span.error')
 
-function validateUsername() {
-  if (username.validity.valid) {
-    usernameError.className = 'error' // Reset the visual state of the message
-    usernameError.previousElementSibling.className = 'error-icon active-icon'
-    usernameError.previousElementSibling.firstChild.src = '/icons/check.svg'
-  } else {
-    // If there is still an error, show the correct error
-    usernameError.textContent = getusernameError()
-    usernameError.className = 'error active'
-    usernameError.previousElementSibling.className = 'error-icon active-icon'
-    usernameError.previousElementSibling.firstChild.src = '/icons/error.svg'
-  }
-}
+    function validateUsername() {
+      if (username.validity.valid) {
+        username.helpText = ''
+        usernameError.className = 'error' // Reset the visual state of the message
+        usernameErrorIcon.className = 'error-icon active-icon'
+        usernameErrorIcon.name = 'check-circle'
+        usernameError.previousElementSibling.firstChild.src = '/icons/check.svg'
+      } else {
+        // If there is still an error, show the correct error
+        // usernameError.textContent = getusernameError()
+        // usernameError.className = 'error active'
+        username.helpText = getusernameError()
+        usernameErrorIcon.className = 'error-icon active-icon'
+        usernameErrorIcon.name = 'exclamation-circle'
+        usernameError.previousElementSibling.firstChild.src = '/icons/error.svg'
+      }
+    }
 
-const getusernameError = () => {
-  return username.validity.valueMissing
-    ? 'username is required'
-    : username.validity.typeMismatch
-    ? 'Please enter a valid username'
-    : username.validity.tooShort
-    ? `username should be at least ${username.minLength} characters;`
-    : ''
-}
+    const getusernameError = () => {
+      return username.validity.valueMissing
+        ? 'Username is required'
+        : username.validity.typeMismatch
+        ? 'Please enter a valid username'
+        : username.validity.tooShort
+        ? `Username should be at least ${username.minlength} characters`
+        : ''
+    }
 
-function validatePassword() {
-  if (password.validity.valid) {
-    passwordError.className = 'error'
-    passwordError.previousElementSibling.className = 'error-icon active-icon'
-    passwordError.previousElementSibling.firstChild.src = '/icons/check.svg'
-  } else {
-    passwordError.textContent = getPasswordError()
-    passwordError.className = 'error active'
-    passwordError.previousElementSibling.firstChild.src = '/icons/error.svg'
-    passwordError.previousElementSibling.className = 'error-icon active-icon'
-  }
-  if (confirmPassword.value) validateConfirmPassword()
-}
+    function validatePassword() {
+      if (password.validity.valid) {
+        password.helpText = ''
+        // passwordError.className = 'error'
+        // passwordErrorIcon.className = 'error-icon active-icon'
+        passwordErrorIcon.name = 'check-circle'
+        passwordError.previousElementSibling.firstChild.src = '/icons/check.svg'
+      } else {
+        // passwordError.textContent = getPasswordError()
+        password.helpText = getPasswordError()
+        // passwordError.className = 'error active'
+        passwordErrorIcon.classList.add('active-icon')
+        passwordErrorIcon.name = 'exclamation-circle'
+        passwordError.previousElementSibling.firstChild.src = '/icons/error.svg'
+      }
+      if (confirmPassword.value) validateConfirmPassword()
+    }
 
-function validateConfirmPassword() {
-  if (password.value !== confirmPassword.value) {
-    confirmPassword.setCustomValidity("Passwords Don't Match")
-  } else {
-    confirmPassword.setCustomValidity('')
-    password.setCustomValidity('')
-  }
-  if (confirmPassword.validity.valid) {
-    confirmPasswordError.className = 'error'
-    confirmPasswordError.previousElementSibling.className = 'error-icon active-icon'
-    confirmPasswordError.previousElementSibling.firstChild.src = '/icons/check.svg'
-  } else {
-    confirmPasswordError.textContent = confirmPassword.validationMessage
-    confirmPasswordError.className = 'error active'
-    confirmPasswordError.previousElementSibling.firstChild.src = '/icons/error.svg'
-    confirmPasswordError.previousElementSibling.className = 'error-icon active-icon'
-  }
-}
+    function validateConfirmPassword() {
+      if (password.value !== confirmPassword.value) {
+        confirmPassword.setCustomValidity("Passwords Don't Match")
+        console.log(confirmPassword.validity)
+      } else {
+        confirmPassword.setCustomValidity('')
+        password.setCustomValidity('')
+      }
+      if (confirmPassword.validity.valid) {
+        confirmPassword.helpText = ''
+        // confirmPasswordError.className = 'error'
+        // confirmPasswordErrorIcon.className = 'error-icon active-icon'
+        confirmPasswordErrorIcon.name = 'check-circle'
+        confirmPasswordError.previousElementSibling.firstChild.src = '/icons/check.svg'
+      } else {
+        // confirmPasswordError.textContent = confirmPassword.validationMessage
+        // confirmPasswordError.className = 'error active'
+        confirmPassword.helpText = confirmPassword.validationMessage
+        confirmPasswordErrorIcon.classList.add('active-icon')
+        confirmPasswordErrorIcon.name = 'exclamation-circle'
+        confirmPasswordError.previousElementSibling.firstChild.src = '/icons/error.svg'
+      }
+    }
 
-const getPasswordError = () => {
-  return password.validity.valueMissing
-    ? 'Password is required'
-    : password.validity.tooShort
-    ? `Password should be at least ${password.minLength} characters`
-    : confirmPassword.validationMessage
-}
+    const getPasswordError = () => {
+      return password.validity.valueMissing
+        ? 'Password is required'
+        : password.validity.tooShort
+        ? `Password should be at least ${password.minlength} characters`
+        : confirmPassword.validationMessage
+    }
 
-username.addEventListener('change', validateUsername)
-username.onchange = () => {
-  username.removeEventListener('change', validateUsername)
-  username.addEventListener('input', validateUsername)
-}
+    username.addEventListener('sl-change', validateUsername)
+    username.addEventListener('sl-change', () => {
+      username.removeEventListener('sl-change', validateUsername)
+      username.addEventListener('input', validateUsername)
+    })
 
-password.addEventListener('change', validatePassword)
-password.onchange = () => {
-  password.removeEventListener('change', validatePassword)
-  password.addEventListener('input', validatePassword)
-}
+    password.addEventListener('sl-change', validatePassword)
+    password.addEventListener('sl-change', () => {
+      password.removeEventListener('sl-change', validatePassword)
+      password.addEventListener('input', validatePassword)
+    })
 
-confirmPassword.addEventListener('change', validateConfirmPassword)
-confirmPassword.onchange = () => {
-  confirmPassword.removeEventListener('change', validateConfirmPassword)
-  confirmPassword.addEventListener('input', validateConfirmPassword)
-}
+    confirmPassword.addEventListener('sl-change', validateConfirmPassword)
+    confirmPassword.addEventListener('sl-change', () => {
+      confirmPassword.removeEventListener('sl-change', validateConfirmPassword)
+      confirmPassword.addEventListener('input', validateConfirmPassword)
+    })
 
-form.addEventListener('submit', (event) => {
-  // Only allow submission if all fields are valid
-  if (!username.validity.valid) {
-    event.preventDefault() // Prevent submission
-    validateUsername() // Display an appropriate error message
-  }
-  if (!password.validity.valid) {
-    event.preventDefault()
-    validatePassword() 
-  }
-  if (!confirmPassword.validity.valid) {
-    event.preventDefault() 
-    validateConfirmPassword() 
-  }
-})
+    form.addEventListener('submit', (event) => {
+      // Only allow submission if all fields are valid
+      if (!username.validity.valid) {
+        event.preventDefault() // Prevent submission
+        validateUsername() // Display an appropriate error message
+      }
+      if (!password.validity.valid) {
+        event.preventDefault()
+        validatePassword() 
+      }
+      if (!confirmPassword.validity.valid) {
+        event.preventDefault() 
+        validateConfirmPassword() 
+      }
+    })
+  })
 </script>
