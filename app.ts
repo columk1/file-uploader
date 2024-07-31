@@ -10,6 +10,21 @@ import { PrismaSessionStore } from '@quixo3/prisma-session-store'
 import { PrismaClient } from '@prisma/client'
 import bcrypt from 'bcrypt'
 
+declare global {
+  namespace Express {
+    interface User {
+      username: string
+      id?: number | undefined
+    }
+  }
+}
+
+declare module 'express-session' {
+  interface Session {
+    messages?: string[]
+  }
+}
+
 const PORT = process.env.PORT || 3000
 
 const prisma = new PrismaClient()
@@ -42,15 +57,6 @@ app.use(
     }),
   })
 )
-
-declare global {
-  namespace Express {
-    interface User {
-      username: string
-      id?: number | undefined
-    }
-  }
-}
 
 passport.use(
   new LocalStrategy(async (username, password, done) => {
@@ -118,8 +124,21 @@ app.post('/sign-up', async (req, res, next) => {
   }
 })
 app.get('/login', (req, res) => {
-  res.render('login', { title: 'Login', errors: req.session.messages })
+  let usernameError, passwordError
+  const { messages } = req.session
+  console.log({ messages })
+  if (messages) {
+    if (messages[0].includes('Username')) {
+      usernameError = messages[0]
+    } else {
+      if (messages[0].includes('password')) {
+        passwordError = messages[0]
+      }
+    }
+  }
   req.session.messages = undefined
+  console.log(req.session.messages)
+  res.render('login', { title: 'Login', usernameError, passwordError })
 })
 
 app.post(
