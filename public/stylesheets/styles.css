@@ -40,10 +40,6 @@ main {
 .error-icon,
 .check-icon {
   display: none;
-  /* position: relative;
-  top: 5px;
-  margin-left: -32px;
-  z-index: 10; */
 }
 
 .error {

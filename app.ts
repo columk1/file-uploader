@@ -102,11 +102,20 @@ app.use((req, res, next) => {
   next()
 })
 
-app.get('/', (req: Request, res: Response) => {
+const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
+  if (req.isAuthenticated()) return next()
+  res.redirect('/login')
+}
+
+app.get('/', isAuthenticated, (req: Request, res: Response) => {
+  if (!req.isAuthenticated()) return res.redirect('/login')
   res.render('home', { title: 'File Uploader' })
 })
 
-app.get('/sign-up', (req, res) => res.render('sign-up', { title: 'Sign Up' }))
+app.get('/sign-up', (req, res) => {
+  if (req.isAuthenticated()) return res.redirect('/')
+  res.render('sign-up', { title: 'Sign Up' })
+})
 
 app.post('/sign-up', async (req, res, next) => {
   try {
@@ -124,6 +133,7 @@ app.post('/sign-up', async (req, res, next) => {
   }
 })
 app.get('/login', (req, res) => {
+  if (req.isAuthenticated()) return res.redirect('/')
   let usernameError, passwordError
   const { messages } = req.session
   console.log({ messages })
