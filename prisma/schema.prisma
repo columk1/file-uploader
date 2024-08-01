@@ -11,8 +11,28 @@ model User {
   id       Int     @id @default(autoincrement())
   username String  @unique 
   password String 
+  documents Entity[]
 
   @@map("users")
+}
+
+model Entity {
+  id              Int       @id @default(autoincrement())
+  name            String
+  type            EntityType
+  size            Int?
+  mimeType        String?
+  parentId        Int?      // Optional field for parent folder
+  userId          Int
+  user            User      @relation(fields: [userId], references: [id])
+
+  parentFolder  Entity? @relation("EntityParent", fields: [parentId], references: [id])
+  childEntities  Entity[] @relation("EntityParent")
+
+  @@index([parentId])
+  @@index([userId])
+
+  @@map("entities")
 }
 
 model Session {
@@ -22,4 +42,9 @@ model Session {
   expiresAt   DateTime
 
   @@map("sessions")
+}
+
+enum EntityType {
+  FOLDER
+  FILE
 }
