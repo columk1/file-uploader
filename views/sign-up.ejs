@@ -94,8 +94,6 @@
         usernameError.previousElementSibling.firstChild.src = '/icons/check.svg'
       } else {
         // If there is still an error, show the correct error
-        // usernameError.textContent = getusernameError()
-        // usernameError.className = 'error active'
         username.helpText = getusernameError()
         usernameErrorIcon.className = 'error-icon active-icon'
         usernameErrorIcon.name = 'exclamation-circle'
@@ -116,14 +114,10 @@
     function validatePassword() {
       if (password.validity.valid) {
         password.helpText = ''
-        // passwordError.className = 'error'
-        // passwordErrorIcon.className = 'error-icon active-icon'
         passwordErrorIcon.name = 'check-circle'
         passwordError.previousElementSibling.firstChild.src = '/icons/check.svg'
       } else {
-        // passwordError.textContent = getPasswordError()
         password.helpText = getPasswordError()
-        // passwordError.className = 'error active'
         passwordErrorIcon.classList.add('active-icon')
         passwordErrorIcon.name = 'exclamation-circle'
         passwordError.previousElementSibling.firstChild.src = '/icons/error.svg'
@@ -141,13 +135,9 @@
       }
       if (confirmPassword.validity.valid) {
         confirmPassword.helpText = ''
-        // confirmPasswordError.className = 'error'
-        // confirmPasswordErrorIcon.className = 'error-icon active-icon'
         confirmPasswordErrorIcon.name = 'check-circle'
         confirmPasswordError.previousElementSibling.firstChild.src = '/icons/check.svg'
       } else {
-        // confirmPasswordError.textContent = confirmPassword.validationMessage
-        // confirmPasswordError.className = 'error active'
         confirmPassword.helpText = confirmPassword.validationMessage
         confirmPasswordErrorIcon.classList.add('active-icon')
         confirmPasswordErrorIcon.name = 'exclamation-circle'
