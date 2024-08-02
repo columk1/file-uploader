@@ -15,10 +15,12 @@
   </div>
   <nav class="nav">
     <% if (currentUser) { %>
-      <button onclick="window.location.href='/logout'">Logout</button>
+      <sl-tooltip content="Logout">
+        <sl-icon-button name="box-arrow-right" href="/logout" label="Logout" style="font-size: 1.25rem;">Logout</sl-icon-button>
+      </sl-tooltip>
     <% } else { %>
-    <button onclick="window.location.href='/login'">Login</button>
-    <button onclick="window.location.href='/sign-up'">Sign Up</button>
+    <sl-button onclick="window.location.href='/login'">Login</sl-button>
+    <sl-button onclick="window.location.href='/sign-up'">Sign Up</sl-button>
     <% } %>
   </nav>
   </header>
