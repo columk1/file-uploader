@@ -2,20 +2,19 @@ import 'dotenv/config.js'
 import express, { Request, Response, NextFunction } from 'express'
 import prisma from './prisma/prisma'
 import session from 'express-session'
-import passport from 'passport'
-import localStrategy from './auth/strategies/local'
+import passport from './auth/passportConfig'
 import path from 'path'
 import morgan from 'morgan'
 import { PrismaSessionStore } from '@quixo3/prisma-session-store'
-import bcrypt from 'bcrypt'
 import multer from 'multer'
+import authRouter from './routers/authRouter'
 
 const PORT = process.env.PORT || 3000
+const __dirname = import.meta.dirname
 
 const upload = multer({ dest: './public/data/uploads/' })
 
 const app = express()
-const __dirname = import.meta.dirname
 app.set('views', __dirname + '/views')
 app.set('view engine', 'ejs')
 app.use(express.static(path.join(__dirname, 'public')))
@@ -37,20 +36,6 @@ app.use(
   })
 )
 
-passport.use(localStrategy)
-
-passport.serializeUser((user, done) => done(null, user.id))
-
-passport.deserializeUser(async (id: number, done) => {
-  try {
-    const user = await prisma.user.findUnique({ where: { id } })
-
-    done(null, user)
-  } catch (err) {
-    done(err)
-  }
-})
-
 app.use(passport.session())
 app.use(passport.initialize())
 
@@ -62,6 +47,7 @@ app.use((req, res, next) => {
 
 const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
   if (req.isAuthenticated()) return next()
+  console.log('redirecting to login')
   res.redirect('/login')
 }
 
@@ -86,7 +72,6 @@ const getPathSegments = async (entityId: number) => {
 
 // TODO: Add params for filters
 app.get('/', isAuthenticated, async (req: Request, res: Response) => {
-  if (!req.isAuthenticated()) return res.redirect('/login')
   const files = await prisma.entity.findMany({
     where: { userId: req.user?.id, parentId: null },
     orderBy: { type: 'asc' },
@@ -95,7 +80,7 @@ app.get('/', isAuthenticated, async (req: Request, res: Response) => {
   res.render('dashboard', { title: 'File Uploader', files })
 })
 
-app.get('/favicon.ico', (req, res) => res.status(204))
+app.use(authRouter)
 
 app.get('/:entityId', isAuthenticated, async (req: Request, res: Response) => {
   const id = Number(req.params.entityId)
@@ -112,62 +97,11 @@ app.get('/:entityId', isAuthenticated, async (req: Request, res: Response) => {
   res.render('dashboard', {
     title: 'File Uploader',
     id,
+    type: entity.type,
     files: entity.childEntities,
     parentFolder: { name: 'root', id: entity.parentId },
     pathSegments,
   })
-})
-
-app.get('/sign-up', (req, res) => {
-  if (req.isAuthenticated()) return res.redirect('/')
-  res.render('sign-up', { title: 'Sign Up' })
-})
-
-app.post('/sign-up', async (req, res, next) => {
-  try {
-    const hashedPassword = await bcrypt.hash(req.body.password, 10)
-    await prisma.user.create({
-      data: {
-        username: req.body.username,
-        password: hashedPassword,
-      },
-    })
-    res.redirect('/')
-  } catch (err) {
-    console.log(err)
-    return next(err)
-  }
-})
-app.get('/login', (req, res) => {
-  if (req.isAuthenticated()) return res.redirect('/')
-  let usernameError, passwordError
-  const { messages } = req.session
-  console.log({ messages })
-  if (messages) {
-    if (messages[0].includes('Username')) {
-      usernameError = messages[0]
-    } else {
-      if (messages[0].includes('password')) {
-        passwordError = messages[0]
-      }
-    }
-  }
-  req.session.messages = undefined
-  console.log(req.session.messages)
-  res.render('login', { title: 'Login', usernameError, passwordError })
-})
-
-app.post(
-  '/login',
-  passport.authenticate('local', {
-    failureMessage: true,
-    successRedirect: '/',
-    failureRedirect: '/login',
-  })
-)
-
-app.get('/logout', (req, res, next) => {
-  req.logout((err) => (err ? next(err) : res.redirect('/')))
 })
 
 app.post('/upload', isAuthenticated, upload.single('uploaded_file'), async (req, res) => {
@@ -210,7 +144,7 @@ app.post('/new', async (req, res) => {
     },
   })
   console.log(newFolder)
-  res.redirect('/')
+  res.redirect(`/${newFolder.id}`)
 })
 
 // catch 404 and forward to error handler
