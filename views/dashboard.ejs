@@ -35,12 +35,14 @@
           </div>
         </button>
       <% } %>
+      <% if (locals.type === 'FOLDER') { %>
       <form action="/new" method="post">
         <input type="hidden" name="parentId" value="<%= locals.id || null %>"></input>
         <sl-button type="submit"class="card-btn">
           <sl-icon class="card-icon"name="folder-plus"></sl-icon>
         </sl-button>
       </form>
+      <% } %>
     </div>
   <% } else { %>
 
