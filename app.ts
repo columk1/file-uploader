@@ -1,40 +1,16 @@
 import 'dotenv/config.js'
 import express, { Request, Response, NextFunction } from 'express'
-import pg from 'pg'
+import prisma from './prisma/prisma'
 import session from 'express-session'
 import passport from 'passport'
-import { Strategy as LocalStrategy } from 'passport-local'
+import localStrategy from './auth/strategies/local'
 import path from 'path'
 import morgan from 'morgan'
 import { PrismaSessionStore } from '@quixo3/prisma-session-store'
-import { PrismaClient } from '@prisma/client'
 import bcrypt from 'bcrypt'
 import multer from 'multer'
 
-declare global {
-  namespace Express {
-    interface User {
-      username: string
-      id?: number | undefined
-    }
-  }
-}
-
-declare module 'express-session' {
-  interface Session {
-    messages?: string[]
-  }
-}
-
 const PORT = process.env.PORT || 3000
-
-const prisma = new PrismaClient()
-
-const { Pool } = pg
-
-const pool = new Pool({
-  connectionString: process.env.PG_URI,
-})
 
 const upload = multer({ dest: './public/data/uploads/' })
 
@@ -61,27 +37,7 @@ app.use(
   })
 )
 
-passport.use(
-  new LocalStrategy(async (username, password, done) => {
-    console.log('New Local Strategy')
-    try {
-      const user = await prisma.user.findFirst({ where: { username } })
-      if (!user) {
-        console.log('Incorrect username')
-        return done(null, false, { message: 'Username not found' })
-      }
-      const match = await bcrypt.compare(password, user.password)
-      if (!match) {
-        console.log('Incorrect password')
-        return done(null, false, { message: 'Incorrect password' })
-      }
-      console.log('Found user')
-      return done(null, user)
-    } catch (err) {
-      return done(err)
-    }
-  })
-)
+passport.use(localStrategy)
 
 passport.serializeUser((user, done) => done(null, user.id))
 
