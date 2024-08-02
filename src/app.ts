@@ -1,13 +1,13 @@
 import 'dotenv/config.js'
 import express, { Request, Response, NextFunction } from 'express'
-import prisma from './prisma/prisma'
+import prisma from 'src/prisma/prisma'
 import session from 'express-session'
-import passport from './auth/passportConfig'
+import passport from 'src/auth/passportConfig'
 import path from 'path'
 import morgan from 'morgan'
 import { PrismaSessionStore } from '@quixo3/prisma-session-store'
 import multer from 'multer'
-import authRouter from './routers/authRouter'
+import authRouter from 'src/routers/authRouter'
 
 const PORT = process.env.PORT || 3000
 

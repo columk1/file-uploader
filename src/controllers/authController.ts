@@ -1,6 +1,6 @@
 import asyncHandler from 'express-async-handler'
-import passport from '../auth/passportConfig'
-import prisma from '../prisma/prisma'
+import passport from 'src/auth/passportConfig'
+import prisma from 'src/prisma/prisma'
 import bcrypt from 'bcrypt'
 
 export const login = asyncHandler(async (req, res, next) => {

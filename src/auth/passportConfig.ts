@@ -1,6 +1,6 @@
 import passport from 'passport'
 import localStrategy from './strategies/local'
-import prisma from '../prisma/prisma'
+import prisma from 'src/prisma/prisma'
 
 const configurePassport = () => {
   passport.use(localStrategy)
