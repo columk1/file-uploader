@@ -31,3 +31,7 @@ dist-ssr
 # Tests
 
 tests
+
+# Sandbox directory
+
+sandbox
