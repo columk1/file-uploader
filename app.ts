@@ -9,6 +9,7 @@ import morgan from 'morgan'
 import { PrismaSessionStore } from '@quixo3/prisma-session-store'
 import { PrismaClient } from '@prisma/client'
 import bcrypt from 'bcrypt'
+import multer from 'multer'
 
 declare global {
   namespace Express {
@@ -34,6 +35,8 @@ const { Pool } = pg
 const pool = new Pool({
   connectionString: process.env.PG_URI,
 })
+
+const upload = multer({ dest: './public/data/uploads/' })
 
 const app = express()
 const __dirname = import.meta.dirname
@@ -82,7 +85,7 @@ passport.use(
 
 passport.serializeUser((user, done) => done(null, user.id))
 
-passport.deserializeUser(async (id, done) => {
+passport.deserializeUser(async (id: number, done) => {
   try {
     const user = await prisma.user.findUnique({ where: { id } })
 
@@ -97,7 +100,6 @@ app.use(passport.initialize())
 
 // Add the current logged in user to res.locals
 app.use((req, res, next) => {
-  console.log(req.user)
   res.locals.currentUser = req.user
   next()
 })
@@ -107,9 +109,57 @@ const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
   res.redirect('/login')
 }
 
-app.get('/', isAuthenticated, (req: Request, res: Response) => {
+const getPathSegments = async (entityId: number) => {
+  const pathSegments: string[] = []
+
+  async function buildPath(id: number) {
+    const entity = await prisma.entity.findUnique({
+      where: { id },
+      include: { parentFolder: true },
+    })
+    if (entity) {
+      pathSegments.unshift(entity.name)
+      if (entity.parentId) {
+        await buildPath(entity.parentId)
+      }
+    }
+  }
+  await buildPath(entityId)
+  return pathSegments
+}
+
+// TODO: Add params for filters
+app.get('/', isAuthenticated, async (req: Request, res: Response) => {
   if (!req.isAuthenticated()) return res.redirect('/login')
-  res.render('home', { title: 'File Uploader' })
+  const files = await prisma.entity.findMany({
+    where: { userId: req.user?.id, parentId: null },
+    orderBy: { type: 'asc' },
+  })
+
+  res.render('dashboard', { title: 'File Uploader', files })
+})
+
+app.get('/favicon.ico', (req, res) => res.status(204))
+
+app.get('/:entityId', isAuthenticated, async (req: Request, res: Response) => {
+  const id = Number(req.params.entityId)
+  if (!id) return res.redirect('/')
+
+  const entity = await prisma.entity.findUnique({
+    where: { id },
+    include: { childEntities: true },
+  })
+  if (!entity) return res.status(404).send('Not found')
+
+  const pathSegments = await getPathSegments(+req.params.entityId)
+  console.log({ pathSegments })
+  res.render('dashboard', {
+    title: 'File Uploader',
+    id,
+    files: entity.childEntities,
+    parentFolder: { name: 'root', id: entity.parentId },
+    pathSegments,
+  })
 })
 
 app.get('/sign-up', (req, res) => {
@@ -162,6 +212,49 @@ app.post(
 
 app.get('/logout', (req, res, next) => {
   req.logout((err) => (err ? next(err) : res.redirect('/')))
+})
+
+app.post('/upload', isAuthenticated, upload.single('uploaded_file'), async (req, res) => {
+  // req.file is the name of your file in the form, 'uploaded_file'
+  if (!req.file) return res.status(400).send({ errors: [{ message: 'No file uploaded' }] })
+  const { originalname, mimetype, size } = req.file
+
+  const id = req.user?.id
+  if (!id) return res.status(500).send({ errors: [{ message: 'Unauthorized' }] })
+
+  const { path } = req.body
+
+  // add to database using prisma
+  const file = await prisma.entity.create({
+    data: {
+      type: 'FILE',
+      name: originalname,
+      mimeType: mimetype,
+      size,
+      userId: id,
+      parentId: path ? +path : null,
+    },
+  })
+  res.redirect(`/${path}`)
+
+  console.log(req.file, req.body)
+  console.log(file)
+})
+
+app.post('/new', async (req, res) => {
+  const id = req.user?.id
+  if (!id) return res.status(500).send({ errors: [{ message: 'Unauthorized' }] })
+
+  const newFolder = await prisma.entity.create({
+    data: {
+      type: 'FOLDER',
+      name: req.body.name || Date.now().toString(),
+      userId: id,
+      parentId: +req.body.parentId || null,
+    },
+  })
+  console.log(newFolder)
+  res.redirect('/')
 })
 
 // catch 404 and forward to error handler

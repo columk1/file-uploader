@@ -1,0 +1,49 @@
+<%- include('header') -%>
+<main>
+  <% if (locals.currentUser) { %>
+    <% console.dir(locals.pathSegments) %>
+    <h2 class="title">Welcome back <%= currentUser.username %></h2>
+    <sl-breadcrumb>
+      <sl-breadcrumb-item href="/"><%= `${currentUser.username}'s files` %></sl-breadcrumb-item>
+      <% if (locals?.pathSegments?.length > 0) { 
+        %>
+        
+        <% 
+        // TODO: figure out this path logic
+        locals.pathSegments.forEach((segment) => {  %>
+          <sl-breadcrumb-item href="<%= segment %>"><%= segment %></sl-breadcrumb-item>
+       <% }) %>
+      <% } %>
+    </sl-breadcrumb>
+      <form action="/upload" enctype="multipart/form-data" method="post">
+        <div class="form-group">
+          <input type="file" name="uploaded_file"></input>
+          <input type="hidden" name="path" value="<%= locals?.path %>"></input>
+          <sl-button type="submit" value="Get me the stats!">Upload</sl-button>
+        </div>
+      </form>
+      <br />
+      <div class='card-container'>
+      <% for (var i = 0; i < files.length; i++) { 
+        const icon = files[i].type === 'FILE' ? 'file-earmark' : 'folder'%>
+        <button onclick="window.location.href='/<%= files[i].id %>'" class="btn card-btn">
+          <div class="card-overview">
+            <sl-icon class="card-icon" name=<%= icon %>></sl-icon>
+            <small><%= files[i].name %></small>
+            <!-- <small><%= files[i].mimeType %></small><br />
+            <small><%= files[i].size %></small> -->
+          </div>
+        </button>
+      <% } %>
+      <form action="/new" method="post">
+        <input type="hidden" name="parentId" value="<%= locals.id || null %>"></input>
+        <sl-button type="submit"class="card-btn">
+          <sl-icon class="card-icon"name="folder-plus"></sl-icon>
+        </sl-button>
+      </form>
+    </div>
+  <% } else { %>
+
+  <% } %>
+</main>
+<%- include('footer') -%>
