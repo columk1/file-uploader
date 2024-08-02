@@ -11,9 +11,3 @@ namespace Express {
     session: Session
   }
 }
-
-// declare module 'express-session' {
-//   interface Session {
-//     messages?: string[]
-//   }
-// }
