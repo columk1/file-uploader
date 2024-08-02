@@ -10,14 +10,13 @@ import multer from 'multer'
 import authRouter from './routers/authRouter'
 
 const PORT = process.env.PORT || 3000
-const __dirname = import.meta.dirname
 
 const upload = multer({ dest: './public/data/uploads/' })
 
 const app = express()
 app.set('views', __dirname + '/views')
 app.set('view engine', 'ejs')
-app.use(express.static(path.join(__dirname, 'public')))
+app.use(express.static(path.join(__dirname, '../public')))
 app.use(express.urlencoded({ extended: true }))
 app.use(morgan('dev'))
 app.use(
@@ -47,7 +46,6 @@ app.use((req, res, next) => {
 
 const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
   if (req.isAuthenticated()) return next()
-  console.log('redirecting to login')
   res.redirect('/login')
 }
 
@@ -128,7 +126,7 @@ app.post('/upload', isAuthenticated, upload.single('uploaded_file'), async (req,
   res.redirect(`/${path}`)
 
   console.log(req.file, req.body)
-  console.log(file)
+  console.log({ file })
 })
 
 app.post('/new', async (req, res) => {

@@ -16,7 +16,6 @@ export const renderLogin = asyncHandler(async (req, res) => {
   if (req.isAuthenticated()) return res.redirect('/')
   let usernameError, passwordError
   const { messages } = req.session
-  console.log({ messages })
   if (messages) {
     if (messages[0].includes('Username')) {
       usernameError = messages[0]
@@ -27,7 +26,6 @@ export const renderLogin = asyncHandler(async (req, res) => {
     }
   }
   req.session.messages = undefined
-  console.log(req.session.messages)
   res.render('login', { title: 'Login', usernameError, passwordError })
 })
 
@@ -36,7 +34,6 @@ export const logout = asyncHandler(async (req, res, next) => {
 })
 
 export const signup = asyncHandler(async (req, res, next) => {
-  console.log('signing up')
   const hashedPassword = await bcrypt.hash(req.body.password, 10)
   await prisma.user.create({
     data: {

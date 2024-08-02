@@ -107,6 +107,7 @@ input[type='file']::file-selector-button:active {
 .card-container {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 1rem;
 }
 
