@@ -4,6 +4,7 @@
 
 body {
   height: 100vh;
+  margin: 0;
   font-family: 'Roboto', sans-serif;
   font-size: 14px;
   background-image: conic-gradient(from 0deg at 0% 0%, #000000 0%, #362746 100%);
@@ -14,11 +15,17 @@ header {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
+  border-bottom: 1px solid var(--sl-color-neutral-200);
+}
+
+.logo {
+  padding: 0 1rem;
 }
 
 nav {
   display: flex;
   gap: 1rem;
+  padding: 0 1rem;
 }
 
 footer {
@@ -61,6 +68,94 @@ main {
 
 .invalid {
   color: var(--sl-color-danger-600);
+}
+
+.btn,
+input[type='file']::file-selector-button {
+  background-color: var(--sl-color-neutral-0);
+  border-color: var(--sl-input-border-color);
+  height: auto;
+  min-height: var(--sl-input-height-medium);
+  font-size: var(--sl-button-font-size-medium);
+  line-height: calc(var(--sl-input-height-medium) - var(--sl-input-border-width) * 2);
+  border-radius: var(--sl-input-border-radius-medium);
+  color: var(--sl-color-neutral-700);
+  border-style: solid;
+  border-width: var(--sl-input-border-width);
+}
+
+.btn:hover,
+input[type='file']::file-selector-button:hover {
+  background-color: var(--sl-color-primary-50);
+  border-color: var(--sl-color-primary-300);
+  color: var(--sl-color-primary-700);
+}
+
+.btn:focus-visible,
+input[type='file']::file-selector-button:focus-visible {
+  outline: var(--sl-focus-ring);
+  outline-offset: var(--sl-focus-ring-offset);
+}
+
+.btn:active,
+input[type='file']::file-selector-button:active {
+  background-color: var(--sl-color-primary-100);
+  border-color: var(--sl-color-primary-400);
+  color: var(--sl-color-primary-700);
+}
+
+.card-container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.card-btn {
+  min-height: 80px;
+}
+
+sl-button.card-btn {
+  min-width: 110px;
+  min-height: 80px;
+  --sl-input-height-medium: 80px;
+}
+
+sl-button.card-btn::part(base) {
+  min-height: 80px;
+}
+
+.card-overview {
+  min-width: 110px;
+  max-height: 80px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-icon {
+  margin: 0 auto;
+  padding: 0.75rem 0 0 0;
+  font-size: 1.25rem;
+}
+
+/* Mostly base button styles from Shoelace since they have no file input support yet */
+input[type='file']::file-selector-button {
+  margin-right: 1rem;
+  display: inline-flex;
+  align-items: stretch;
+  justify-content: center;
+  width: 50%;
+  padding: 2rem;
+  font-family: var(--sl-input-font-family);
+  font-weight: var(--sl-font-weight-semibold);
+  text-decoration: none;
+  user-select: none;
+  -webkit-user-select: none;
+  white-space: nowrap;
+  vertical-align: middle;
+  padding: 0;
+  cursor: pointer;
 }
 
 /* user invalid styles */
