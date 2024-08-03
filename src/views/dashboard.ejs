@@ -9,7 +9,6 @@
         %>
         
         <% 
-        // TODO: figure out this path logic
         locals.pathSegments.forEach((segment) => {  %>
           <sl-breadcrumb-item href="<%= segment %>"><%= segment %></sl-breadcrumb-item>
        <% }) %>
@@ -35,13 +34,29 @@
           </div>
         </button>
       <% } %>
-      <% if (locals.type === 'FOLDER') { %>
-      <form action="/new" method="post">
-        <input type="hidden" name="parentId" value="<%= locals.id || null %>"></input>
-        <sl-button type="submit"class="card-btn">
+      <% if (!locals.type || locals.type === 'FOLDER') { %>
+        <sl-dialog label="New Folder" class="dialog-focus">
+          <form action="/new" method="post">
+            <input type="hidden" name="parentId" value="<%= locals.id || null %>"></input>
+            <sl-input name="name" label="Name"autofocus placeholder=""></sl-input>
+            </br>
+            <sl-button type="submit" slot="footer" variant="primary">Create Folder</sl-button>
+          </form>
+        </sl-dialog>
+        <sl-button class="card-btn">
           <sl-icon class="card-icon"name="folder-plus"></sl-icon>
         </sl-button>
-      </form>
+
+<script>
+  const dialog = document.querySelector('.dialog-focus');
+  const input = dialog.querySelector('sl-input');
+  const openButton = dialog.nextElementSibling;
+  const closeButton = dialog.querySelector('sl-button[slot="footer"]');
+
+  openButton.addEventListener('click', () => dialog.show());
+  closeButton.addEventListener('click', () => dialog.hide());
+</script>
+
       <% } %>
     </div>
   <% } else { %>

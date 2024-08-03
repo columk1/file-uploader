@@ -215,3 +215,11 @@ sl-input[data-user-invalid] > sl-icon {
   border-color: var(--sl-color-success-600);
   box-shadow: 0 0 0 var(--sl-focus-ring-width) var(--sl-color-success-300);
 }
+
+sl-dialog sl-button {
+  float: right;
+}
+
+sl-input::part(form-control-label) {
+  margin-bottom: 0.25rem;
+}
