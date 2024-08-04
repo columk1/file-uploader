@@ -44,11 +44,6 @@ main {
   margin-bottom: 1rem;
 }
 
-.error-icon,
-.check-icon {
-  display: none;
-}
-
 .error {
   display: none;
   margin-top: 6px;
@@ -57,17 +52,8 @@ main {
   color: var(--red);
 }
 
-.active {
-  display: block;
-}
-
-.active-icon {
+.icon {
   display: inline-flex;
-  color: var(--sl-color-success-600);
-}
-
-.invalid {
-  color: var(--sl-color-danger-600);
 }
 
 .btn,
@@ -180,6 +166,10 @@ sl-input[data-user-invalid] > sl-icon {
   color: var(--sl-color-danger-600);
 }
 
+sl-input[data-user-valid] > sl-icon {
+  color: var(--sl-color-success-600);
+}
+
 .validity-styles sl-checkbox[data-user-invalid]::part(control) {
   outline: none;
 }
@@ -222,4 +212,12 @@ sl-dialog sl-button {
 
 sl-input::part(form-control-label) {
   margin-bottom: 0.25rem;
+}
+
+.active {
+  display: block;
+}
+
+.hidden {
+  display: none;
 }
