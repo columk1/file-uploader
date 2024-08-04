@@ -126,6 +126,10 @@ sl-button.card-btn::part(base) {
   font-size: 1.25rem;
 }
 
+.login-input::part(form-control-label)::after {
+  content: '';
+}
+
 /* Mostly base button styles from Shoelace since they have no file input support yet */
 input[type='file']::file-selector-button {
   margin-right: 1rem;
