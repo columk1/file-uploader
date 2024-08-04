@@ -35,12 +35,20 @@ export const logout = asyncHandler(async (req, res, next) => {
 
 export const signup = asyncHandler(async (req, res, next) => {
   const hashedPassword = await bcrypt.hash(req.body.password, 10)
-  await prisma.user.create({
-    data: {
-      username: req.body.username,
-      password: hashedPassword,
-    },
-  })
+  try {
+    await prisma.user.create({
+      data: {
+        username: req.body.username,
+        password: hashedPassword,
+      },
+    })
+  } catch (err: any) {
+    let message = 'Internal Error'
+    if (err?.code === 'P2002') {
+      message = 'An account with that username already exists'
+    }
+    return res.status(400).render('sign-up', { title: 'Sign Up', usernameError: message })
+  }
   res.redirect('/')
 })
 
