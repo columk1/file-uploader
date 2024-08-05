@@ -2,8 +2,10 @@
 <main>
   <div class="form-container">
     <form novalidate action="/sign-up" method="POST" id="sign-up-form" class="input-validation-required validity-styles">
+      <p class="error"><%= locals.error %></p>
       <h2 class="title">Sign Up</h2>
       <p>Already have an account? <a href="/login">Log in</a></p>
+      <p class="error active"><%= locals.error %></p>
 
       <div class="input-container">
         <label for="username" class="label">Username <span class="red">*</span></label>
