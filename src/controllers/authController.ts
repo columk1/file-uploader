@@ -2,6 +2,8 @@ import asyncHandler from 'express-async-handler'
 import passport from 'src/auth/passportConfig'
 import prisma from 'src/prisma/prisma'
 import bcrypt from 'bcrypt'
+import { z } from 'zod'
+import { SignUpSchema } from 'src/models/schemas'
 
 export const login = asyncHandler(async (req, res, next) => {
   // returns a middleware function which is immediately invoked with (req, res, next)
@@ -34,11 +36,26 @@ export const logout = asyncHandler(async (req, res, next) => {
 })
 
 export const signup = asyncHandler(async (req, res, next) => {
-  const hashedPassword = await bcrypt.hash(req.body.password, 10)
+  const defaultErrorMessage =
+    'Validation failed. Please ensure all fields are filled out correctly.'
+
+  if (!req.body.username || !req.body.password) {
+    return res.status(400).render('sign-up', { title: 'Sign Up', error: defaultErrorMessage })
+  }
+
+  const validatedFields = SignUpSchema.safeParse(req.body)
+  if (!validatedFields.success) {
+    console.log(validatedFields.error.flatten().fieldErrors)
+    return res.status(400).render('sign-up', { title: 'Sign Up', error: defaultErrorMessage })
+  }
+  const { username, password } = validatedFields.data
+
+  const hashedPassword = await bcrypt.hash(password, 10)
+
   try {
     await prisma.user.create({
       data: {
-        username: req.body.username,
+        username,
         password: hashedPassword,
       },
     })
