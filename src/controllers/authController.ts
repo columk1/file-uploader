@@ -14,6 +14,8 @@ export const login = asyncHandler(async (req, res, next) => {
   })(req, res, next)
 })
 
+// Todo: create type for possible error messages
+
 export const renderLogin = asyncHandler(async (req, res) => {
   if (req.isAuthenticated()) return res.redirect('/')
   let usernameError, passwordError
@@ -24,6 +26,8 @@ export const renderLogin = asyncHandler(async (req, res) => {
     } else {
       if (messages[0].includes('password')) {
         passwordError = messages[0]
+      } else {
+        usernameError = 'Invalid credentials'
       }
     }
   }
