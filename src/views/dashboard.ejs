@@ -22,23 +22,29 @@
         </div>
       </form>
       <br />
-      <div class='card-container'>
+      <div class='grid-container'>
+        <div class="grid-row grid-header">
+          <div class="grid-col">Name</div>
+          <div class="grid-col">Size</div>
+          <div class="grid-col">Created</div>
+        </div>
       <% for (var i = 0; i < files.length; i++) { 
         const icon = files[i].type === 'FILE' ? 'file-earmark' : 'folder'%>
-        <button onclick="window.location.href='/<%= files[i].id %>'" class="btn card-btn">
-          <div class="card-overview">
-            <sl-icon class="card-icon" name=<%= icon %>></sl-icon>
-            <small><%= files[i].name %></small>
-            <!-- <small><%= files[i].mimeType %></small><br />
-            <small><%= files[i].size %></small> -->
-          </div>
+        <button onclick="window.location.href='/<%= files[i].id %>'" class="btn grid-row">
+            <div class="grid-col col-name">
+              <sl-icon class="col-name-icon" name="<%= icon %>"></sl-icon>
+              <small><%= files[i].name %></small>
+            </div>
+            <small class="grid-col"><%= files[i].size || "--"%></small>
+            <small class="grid-col"><%= files[i].createdAt %></small>
         </button>
       <% } %>
+        </div>
       <% if (!locals.type || locals.type === 'FOLDER') { %>
         <sl-dialog label="New Folder" class="dialog-focus">
           <form action="/new" method="post">
             <input type="hidden" name="parentId" value="<%= locals.id || null %>"></input>
-            <sl-input name="name" label="Name"autofocus placeholder=""></sl-input>
+            <sl-input name="name" label="Name" autofocus placeholder=""></sl-input>
             </br>
             <sl-button type="submit" slot="footer" variant="primary">Create Folder</sl-button>
           </form>

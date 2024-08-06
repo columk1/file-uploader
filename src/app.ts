@@ -8,6 +8,7 @@ import morgan from 'morgan'
 import { PrismaSessionStore } from '@quixo3/prisma-session-store'
 import multer from 'multer'
 import authRouter from 'src/routers/authRouter'
+import { formatDate } from 'src/lib/utils/formatDate'
 
 const PORT = process.env.PORT || 3000
 
@@ -74,8 +75,15 @@ app.get('/', isAuthenticated, async (req: Request, res: Response) => {
     where: { userId: req.user?.id, parentId: null },
     orderBy: { type: 'asc' },
   })
+  const formattedFiles = files.map((file) => ({
+    ...file,
+    createdAt: formatDate(file.createdAt),
+  }))
 
-  res.render('dashboard', { title: 'File Uploader', files })
+  res.render('dashboard', {
+    title: 'File Uploader',
+    files: formattedFiles,
+  })
 })
 
 app.use(authRouter)
