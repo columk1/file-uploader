@@ -1,6 +1,6 @@
 import asyncHandler from 'express-async-handler'
 import passport from 'src/auth/passportConfig'
-import prisma from 'src/prisma/prisma'
+import prisma from 'src/db/prismaClient'
 import bcrypt from 'bcrypt'
 import { z } from 'zod'
 import { SignUpSchema } from 'src/models/schemas'

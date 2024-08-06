@@ -22,6 +22,7 @@ model Entity {
   type            EntityType
   size            Int?
   mimeType        String?
+  createdAt       DateTime @default(now())
   parentId        Int?      // Optional field for parent folder
   userId          Int
   user            User      @relation(fields: [userId], references: [id])

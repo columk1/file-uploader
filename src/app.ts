@@ -1,6 +1,6 @@
 import 'dotenv/config.js'
 import express, { Request, Response, NextFunction } from 'express'
-import prisma from 'src/prisma/prisma'
+import prisma from 'src/db/prismaClient'
 import session from 'express-session'
 import passport from 'src/auth/passportConfig'
 import path from 'path'
@@ -105,6 +105,7 @@ app.get('/:entityId', isAuthenticated, async (req: Request, res: Response) => {
 app.post('/upload', isAuthenticated, upload.single('uploaded_file'), async (req, res) => {
   // req.file is the name of your file in the form, 'uploaded_file'
   if (!req.file) return res.status(400).send({ errors: [{ message: 'No file uploaded' }] })
+  console.log(req.file)
   const { originalname, mimetype, size } = req.file
 
   const id = req.user?.id
