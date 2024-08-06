@@ -83,13 +83,17 @@
     const confirmPasswordError = document.querySelector('#confirm-password ~ span.error')
 
     const getUsernameError = () => {
+      console.log(username.validity.customError)
+      console.log(username.validationMessage)
       return username.validity.valueMissing
         ? 'Username is required'
         : username.validity.typeMismatch
         ? 'Please enter a valid username'
         : username.validity.tooShort
         ? `Username should be at least ${username.minlength} characters`
-        : ''
+        : username.validity.customError
+        ? username.validationMessage // Username is not available
+        : 'Username is available'
     }
 
     const getPasswordError = () => {
@@ -100,6 +104,7 @@
         : confirmPassword.validationMessage
     }
 
+    // Logic for error messages returned from the server
     const removeError = (e) => {
       e.textContent = ''
       e.classList.remove('active')
@@ -108,6 +113,7 @@
 
     const onInput = (e) => removeError(e)
 
+    // Remove the server error when the user starts typing to allow client-side validation to take over
     username.addEventListener('sl-input', () => onInput(usernameError), { once: true })
 
     password.addEventListener('sl-input', () => onInput(passwordError), { once: true })
@@ -116,8 +122,7 @@
     function validateUsername() {
       usernameErrorIcon.classList.remove('hidden')
       if (username.validity.valid) {
-        username.helpText = ''
-        usernameError.className = 'error' // Reset the visual state of the message
+        username.helpText = getUsernameError()
         usernameErrorIcon.name = 'check-circle'
       } else {
         // If there is still an error, show the correct error
@@ -156,23 +161,19 @@
       }
     }
 
-    username.addEventListener('sl-change', validateUsername)
-    username.addEventListener('sl-change', () => {
-      username.removeEventListener('sl-change', validateUsername)
-      username.addEventListener('input', validateUsername)
-    })
+    // Validate on first change, then on input
+    const setupValidationListeners = (element, validateFn) => {
+      const handleChange = (e) => {
+        validateFn()
+        username.removeEventListener('sl-change', validateUsername)
+        username.addEventListener('input', validateUsername)
+      }
+      element.addEventListener('sl-change', handleChange)
+    }
 
-    password.addEventListener('sl-change', validatePassword)
-    password.addEventListener('sl-change', () => {
-      password.removeEventListener('sl-change', validatePassword)
-      password.addEventListener('input', validatePassword)
-    })
-
-    confirmPassword.addEventListener('sl-change', validateConfirmPassword)
-    confirmPassword.addEventListener('sl-change', () => {
-      confirmPassword.removeEventListener('sl-change', validateConfirmPassword)
-      confirmPassword.addEventListener('input', validateConfirmPassword)
-    })
+    setupValidationListeners(username, validateUsername)
+    setupValidationListeners(password, validatePassword)
+    setupValidationListeners(confirmPassword, validateConfirmPassword)
 
     form.addEventListener('submit', (event) => {
       // Only allow submission if all fields are valid
@@ -189,5 +190,39 @@
         validateConfirmPassword() 
       }
     })
+    username.addEventListener('input', (e) => {
+      validateUniqueUsername(e.target.value)
+   })
+
+   const debounce = (callback, wait) => {
+    let timeout
+    return function (...args) {
+      const context = this
+      clearTimeout(timeout)
+      timeout = setTimeout(() => callback.apply(context, args), wait)
+    }
+  }
+
+  const validateUniqueUsername = debounce(async (usernameInputValue) => {
+    // Avoid validating too early
+    if (usernameInputValue.length < username.minlength) return
+
+    try {
+      const response = await fetch(`http://localhost:3000/validate-username?username=${encodeURIComponent(usernameInputValue)}`)
+
+      const result = await response.json()
+      
+      if (result.isAvailable) {
+        username.setCustomValidity('')
+        validateUsername()
+      } else {
+        username.setCustomValidity('Username not available')
+        validateUsername()
+      }
+    } catch (error) {
+      console.error('Error checking username:', error)
+      username.helpText = 'Error checking username'
+    }
+  }, 500)
   })
 </script>
