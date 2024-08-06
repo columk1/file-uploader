@@ -77,3 +77,17 @@ export const renderSignup = asyncHandler(async (req, res) => {
   if (req.isAuthenticated()) return res.redirect('/')
   res.render('sign-up', { title: 'Sign Up' })
 })
+
+export const validateUniqueUsername = asyncHandler(async (req, res, next) => {
+  const username = req.query.username
+  if (!username || typeof username !== 'string') {
+    res.status(401).json({ isAvailable: false })
+    return next()
+  }
+  const user = await prisma.user.findUnique({
+    where: {
+      username,
+    },
+  })
+  res.status(200).json({ isAvailable: !user })
+})
