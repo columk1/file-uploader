@@ -9,6 +9,7 @@ import { PrismaSessionStore } from '@quixo3/prisma-session-store'
 import multer from 'multer'
 import authRouter from 'src/routers/authRouter'
 import { formatDate } from 'src/lib/utils/formatDate'
+import { Entity } from '@prisma/client'
 
 const PORT = process.env.PORT || 3000
 
@@ -69,6 +70,24 @@ const getPathSegments = async (entityId: number) => {
   return pathSegments
 }
 
+async function getFolderTree(
+  userId: number | undefined,
+  parentId: number | null
+): Promise<Entity[]> {
+  const entities = await prisma.entity.findMany({
+    where: { userId, parentId, type: 'FOLDER' },
+    orderBy: { type: 'asc' },
+    include: { childEntities: true }, // Include child entities to build the tree
+  })
+
+  return Promise.all(
+    entities.map(async (entity) => ({
+      ...entity,
+      childEntities: await getFolderTree(userId, entity.id), // Recursive call
+    }))
+  )
+}
+
 // TODO: Add params for filters
 app.get('/', isAuthenticated, async (req: Request, res: Response) => {
   const files = await prisma.entity.findMany({
@@ -80,9 +99,12 @@ app.get('/', isAuthenticated, async (req: Request, res: Response) => {
     createdAt: formatDate(file.createdAt),
   }))
 
+  const folders = await getFolderTree(req.user?.id, null)
+
   res.render('dashboard', {
     title: 'File Uploader',
     files: formattedFiles,
+    folders: folders,
   })
 })
 
@@ -100,6 +122,7 @@ app.get('/:entityId', isAuthenticated, async (req: Request, res: Response) => {
 
   const pathSegments = await getPathSegments(+req.params.entityId)
   console.log({ pathSegments })
+  const folders = await getFolderTree(req.user?.id, null)
   res.render('dashboard', {
     title: 'File Uploader',
     id,
@@ -107,6 +130,7 @@ app.get('/:entityId', isAuthenticated, async (req: Request, res: Response) => {
     files: entity.childEntities,
     parentFolder: { name: 'root', id: entity.parentId },
     pathSegments,
+    folders,
   })
 })
 
