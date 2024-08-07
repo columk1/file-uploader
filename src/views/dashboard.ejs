@@ -5,7 +5,7 @@
       <ul>
         <% if (!locals.type || locals.type === 'FOLDER') { %>
         <li>
-          <sl-dialog label="New Folder" class="dialog-focus">
+          <sl-dialog label="New Folder" class="dialog-focus new-folder-dialog">
             <form action="/new" method="post">
               <input type="hidden" name="parentId" value="<%= locals.id || null %>"></input>
               <sl-input name="name" label="Name" autofocus placeholder=""></sl-input>
@@ -17,51 +17,60 @@
             <sl-icon class="card-icon"name="folder-plus"></sl-icon><span>New Folder</span>
           </sl-button>
         </li>
+        <li>
+          <sl-dialog label="New File" class="dialog-focus new-file-dialog">
+            <form action="/upload" enctype="multipart/form-data" method="post">
+              <div class="form-group">
+                <input type="file" name="uploaded_file"></input>
+                <input type="hidden" name="path" value="<%= locals?.path %>"></input>
+                </br>
+                <sl-button type="submit" slot="footer" variant="primary">Upload</sl-button>
+              </div>
+            </form>
+          </sl-dialog>
+          <sl-button class="card-btn">
+            <sl-icon class="card-icon"name="folder-plus"></sl-icon><span>New File</span>
+          </sl-button>
+        </li>
           <% } %>
-        <li><a href="/login">Login</a></li>
-        <li><a href="/register">Register</a></li>
       </ul>
     </nav>
+    </br>
     <sl-tree>
-      <% function renderTree(items) { %>
-        <% items.forEach(item => { %>
-          <sl-tree-item 
-          <%= item.id === locals.id && "selected" %> 
-          <%= locals.pathSegments && locals.pathSegments.includes(item.name) && "expanded" %>
-          >
-          <a href="/<%= item.id %>"><%= item.name %></a>
-            <% if (item.childEntities && item.childEntities.length > 0) { %>
-              <%= renderTree(item.childEntities) %>
-            <% } %>
-          </sl-tree-item>
-        <% }); %>
-      <% } %>
-    
-      <%= renderTree(locals.folders) %>
+      <sl-tree-item expanded <%= locals.id === null && "selected" %>><a href="/"><%= currentUser.username %></a>
+        <% function renderTree(items) { %>
+          <% items.forEach(item => { %>
+            <sl-tree-item 
+            <%= item.id === locals.id && "selected" %> 
+            <%= locals.pathSegments && locals.pathSegments.includes(item.name) && "expanded" %>
+            >
+            <a href="/<%= item.id %>"><%= item.name %></a>
+              <% if (item.childEntities && item.childEntities.length > 0) { %>
+                <%= renderTree(item.childEntities) %>
+              <% } %>
+            </sl-tree-item>
+          <% }); %>
+        <% } %>
+      
+        <%= renderTree(locals.folders) %>
+      </sl-tree-item>
     </sl-tree>
   </aside>
   <main class="layout-main">
     <% if (locals.currentUser) { %>
       <% console.dir(locals.pathSegments) %>
-      <h2 class="title">Welcome back <%= currentUser.username %></h2>
+      <!-- <h2 class="title">Welcome back <%= currentUser.username %></h2> -->
       <sl-breadcrumb>
-        <sl-breadcrumb-item href="/"><%= `${currentUser.username}'s files` %></sl-breadcrumb-item>
+        <sl-breadcrumb-item href="/"><%= `${currentUser.username}` %></sl-breadcrumb-item>
         <% if (locals?.pathSegments?.length > 0) { 
           %>
           
           <% 
           locals.pathSegments.forEach((segment) => {  %>
-            <sl-breadcrumb-item href="<%= segment %>"><%= segment %></sl-breadcrumb-item>
+            <sl-breadcrumb-item href="<%= segment.id %>"><%= segment.name %></sl-breadcrumb-item>
         <% }) %>
         <% } %>
       </sl-breadcrumb>
-        <form action="/upload" enctype="multipart/form-data" method="post">
-          <div class="form-group">
-            <input type="file" name="uploaded_file"></input>
-            <input type="hidden" name="path" value="<%= locals?.path %>"></input>
-            <sl-button type="submit" value="Get me the stats!">Upload</sl-button>
-          </div>
-        </form>
         <br />
         <div class='grid-container'>
           <div class="grid-row grid-header">
@@ -77,7 +86,7 @@
                 <small><%= files[i].name %></small>
               </div>
               <small class="grid-col"><%= files[i].size || "--"%></small>
-              <small class="grid-col"><%= files[i].createdAt %></small>
+              <small class="grid-col"><%= locals.helpers.formatDate(files[i].createdAt) %></small>
           </button>
         <% } %>
           </div>
@@ -89,12 +98,13 @@
   </main>
 </div>
 <script>
-  const dialog = document.querySelector('.dialog-focus');
-  const input = dialog.querySelector('sl-input');
-  const openButton = dialog.nextElementSibling;
-  const closeButton = dialog.querySelector('sl-button[slot="footer"]');
+  const dialogs = document.querySelectorAll('.dialog-focus');
+  for (const dialog of dialogs) {
+    const openButton = dialog.nextElementSibling;
+    const closeButton = dialog.querySelector('sl-button[slot="footer"]');
 
-  openButton.addEventListener('click', () => dialog.show());
-  closeButton.addEventListener('click', () => dialog.hide());
+    openButton.addEventListener('click', () => dialog.show());
+    closeButton.addEventListener('click', () => dialog.hide());
+  }
 </script>
 <%- include('footer') -%>
