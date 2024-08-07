@@ -52,7 +52,7 @@ const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
 }
 
 const getPathSegments = async (entityId: number) => {
-  const pathSegments: string[] = []
+  const pathSegments: { id: number; name: string }[] = []
 
   async function buildPath(id: number) {
     const entity = await prisma.entity.findUnique({
@@ -60,7 +60,7 @@ const getPathSegments = async (entityId: number) => {
       include: { parentFolder: true },
     })
     if (entity) {
-      pathSegments.unshift(entity.name)
+      pathSegments.unshift({ id: entity.id, name: entity.name })
       if (entity.parentId) {
         await buildPath(entity.parentId)
       }
@@ -94,17 +94,15 @@ app.get('/', isAuthenticated, async (req: Request, res: Response) => {
     where: { userId: req.user?.id, parentId: null },
     orderBy: { type: 'asc' },
   })
-  const formattedFiles = files.map((file) => ({
-    ...file,
-    createdAt: formatDate(file.createdAt),
-  }))
 
   const folders = await getFolderTree(req.user?.id, null)
 
   res.render('dashboard', {
     title: 'File Uploader',
-    files: formattedFiles,
+    files,
     folders: folders,
+    id: null,
+    helpers: { formatDate },
   })
 })
 
@@ -123,6 +121,7 @@ app.get('/:entityId', isAuthenticated, async (req: Request, res: Response) => {
   const pathSegments = await getPathSegments(+req.params.entityId)
   console.log({ pathSegments })
   const folders = await getFolderTree(req.user?.id, null)
+
   res.render('dashboard', {
     title: 'File Uploader',
     id,
@@ -131,6 +130,7 @@ app.get('/:entityId', isAuthenticated, async (req: Request, res: Response) => {
     parentFolder: { name: 'root', id: entity.parentId },
     pathSegments,
     folders,
+    helpers: formatDate,
   })
 })
 
