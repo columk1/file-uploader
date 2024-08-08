@@ -130,7 +130,7 @@ app.get('/:entityId', isAuthenticated, async (req: Request, res: Response) => {
     parentFolder: { name: 'root', id: entity.parentId },
     pathSegments,
     folders,
-    helpers: formatDate,
+    helpers: { formatDate },
   })
 })
 
