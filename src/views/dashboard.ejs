@@ -79,7 +79,8 @@
           <div class="grid-col">Created</div>
         </div>
         <sl-drawer label="Drawer" class="drawer-overview">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+          <div class="drawer-content"></div>
+            <sl-button slot="footer" type="submit" class="drawer-download-btn">Download File</sl-button>
           <sl-button slot="footer" variant="primary">Close</sl-button>
         </sl-drawer>
         <% for (var i = 0; i < files.length; i++) {
@@ -129,7 +130,10 @@
   }
   // File info drawer
   const drawer = document.querySelector('.drawer-overview')
+  const drawerContent = document.querySelector('.drawer-content')
   const openButtons = document.querySelectorAll('.btn.grid-row[data-index]')
+  const downloadButton = drawer.querySelector('.drawer-download-btn')
+
 
   openButtons.forEach(button => {
     button.addEventListener('click', () => {
@@ -139,14 +143,16 @@
       body.textContent = `File Name: ${file.name}`
 
       // Repopulate drawer with file info
-      drawer.replaceChildren(body)
+      drawerContent.replaceChildren(body)
+
+      downloadButton.href = '/download/' + file.id
 
       // Show the drawer
       drawer.show()
     })
   })
   const closeButton = drawer.querySelector('sl-button[variant="primary"]')
-
   closeButton.addEventListener('click', () => drawer.hide())
+  
 </script>
 <%- include('footer') -%>

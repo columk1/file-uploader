@@ -179,6 +179,11 @@ app.post('/new', async (req, res) => {
   res.redirect(`/${newFolder.id}`)
 })
 
+app.get('/download/:entityId', isAuthenticated, async (req, res) => {
+  const file = `${__dirname}/../public/data/uploads/4f70cf55caa47c65fb3e47b43a42ef18`
+  res.download(file)
+})
+
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
   res.status(404).send({ errors: [{ message: 'Not found' }] })
