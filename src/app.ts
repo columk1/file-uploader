@@ -125,6 +125,7 @@ app.get('/:entityId', isAuthenticated, async (req: Request, res: Response) => {
   res.render('dashboard', {
     title: 'File Uploader',
     id,
+    name: entity.name,
     type: entity.type,
     files: entity.childEntities,
     parentFolder: { name: 'root', id: entity.parentId },

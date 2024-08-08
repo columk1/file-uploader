@@ -4,35 +4,37 @@
     <nav>
       <ul>
         <% if (!locals.type || locals.type === 'FOLDER') { %>
-        <li>
-          <sl-dialog label="New Folder" class="dialog-focus new-folder-dialog">
-            <form action="/new" method="post">
-              <input type="hidden" name="parentId" value="<%= locals.id || null %>"></input>
-              <sl-input name="name" label="Name" autofocus placeholder=""></sl-input>
-              </br>
-              <sl-button type="submit" slot="footer" variant="primary">Create Folder</sl-button>
-            </form>
-          </sl-dialog>
-          <sl-button class="card-btn">
-            <sl-icon class="card-icon"name="folder-plus"></sl-icon><span>New Folder</span>
-          </sl-button>
-        </li>
-        <li>
-          <sl-dialog label="New File" class="dialog-focus new-file-dialog">
-            <form action="/upload" enctype="multipart/form-data" method="post">
-              <div class="form-group">
-                <input type="file" name="uploaded_file"></input>
-                <input type="hidden" name="path" value="<%= locals?.path %>"></input>
+          <li>
+            <sl-dialog label="New Folder" class="dialog-focus new-folder-dialog">
+              <form action="/new" method="post">
+                <input type="hidden" name="parentId" value="<%= locals.id || null %>"></input>
+                <sl-input name="name" label="Name" autofocus placeholder=""></sl-input>
                 </br>
-                <sl-button type="submit" slot="footer" variant="primary">Upload</sl-button>
-              </div>
-            </form>
-          </sl-dialog>
-          <sl-button class="card-btn">
-            <sl-icon class="card-icon"name="file-earmark-plus"></sl-icon><span>New File</span>
-          </sl-button>
-        </li>
-          <% } %>
+                <sl-button type="submit" slot="footer" variant="primary">Create Folder</sl-button>
+              </form>
+            </sl-dialog>
+            <sl-button class="card-btn">
+              <sl-icon class="card-icon"name="folder-plus"></sl-icon><span>New Folder</span>
+            </sl-button>
+          </li>
+          <li>
+            <sl-dialog label="New File" class="dialog-focus new-file-dialog">
+              <form action="/upload" enctype="multipart/form-data" method="post">
+                <div class="form-group">
+                  <input type="file" name="uploaded_file"></input>
+                  <input type="hidden" name="path" value="<%= locals?.path %>"></input>
+                  </br>
+                  <sl-button type="submit" slot="footer" variant="primary">Upload</sl-button>
+                </div>
+              </form>
+            </sl-dialog>
+            <sl-button class="card-btn">
+              <sl-icon class="card-icon"name="file-earmark-plus"></sl-icon><span>New File</span>
+            </sl-button>
+          </li>
+        <% } else { %>
+            <!-- Not a folder -->
+        <% } %>
       </ul>
     </nav>
     </br>
@@ -80,33 +82,73 @@
             <div class="grid-col">Size</div>
             <div class="grid-col">Created</div>
           </div>
-        <% for (var i = 0; i < files.length; i++) { 
-          const icon = files[i].type === 'FILE' ? 'file-earmark' : 'folder'%>
-          <button onclick="window.location.href='/<%= files[i].id %>'" class="btn grid-row">
+          <sl-drawer label="Drawer" class="drawer-overview">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+            <sl-button slot="footer" variant="primary">Close</sl-button>
+          </sl-drawer>
+        <% for (var i = 0; i < files.length; i++) {
+             let icon = files[i].type === 'FILE' ? 'file-earmark' : 'folder'; %>
+             <button 
+            <% if (files[i].type === 'FILE') { %>
+              data-index="<%= i %>" 
+            <% } else { %>
+              onclick="window.location.href='/<%= files[i].id %>'" 
+            <% } %>
+              class="btn grid-row">
               <div class="grid-col col-name">
                 <sl-icon class="col-name-icon" name="<%= icon %>"></sl-icon>
                 <small><%= files[i].name %></small>
               </div>
               <small class="grid-col"><%= files[i].size || "--"%></small>
               <small class="grid-col"><%= locals.helpers.formatDate(files[i].createdAt) %></small>
-          </button>
+            </button>
         <% } %>
           </div>
         </div>
       </div>
-    <% } else { %>
 
-    <% } %>
+    <% } else { 
+
+    } %>
   </main>
 </div>
-<script>
-  const dialogs = document.querySelectorAll('.dialog-focus');
-  for (const dialog of dialogs) {
-    const openButton = dialog.nextElementSibling;
-    const closeButton = dialog.querySelector('sl-button[slot="footer"]');
+<script type="module">
+  await Promise.allSettled([
+    customElements.whenDefined('sl-button'),
+    customElements.whenDefined('sl-drawer'),
+    customElements.whenDefined('sl-dialog'),
+  ])
 
-    openButton.addEventListener('click', () => dialog.show());
-    closeButton.addEventListener('click', () => dialog.hide());
+  const files = <%- JSON.stringify(locals.files) %>
+  const dialogs = document.querySelectorAll('.dialog-focus')
+  for (const dialog of dialogs) {
+    const openButton = dialog.nextElementSibling
+    const closeButton = dialog.querySelector('sl-button[slot="footer"]')
+
+    openButton.addEventListener('click', () => dialog.show())
+    closeButton.addEventListener('click', () => dialog.hide())
   }
+  // File info drawer
+  const drawer = document.querySelector('.drawer-overview')
+  const openButtons = document.querySelectorAll('.btn.grid-row[data-index]')
+
+  openButtons.forEach(button => {
+  button.addEventListener('click', () => {
+    const index = button.getAttribute('data-index')
+    const file = files[index]
+    const body = document.createElement('div')
+    body.textContent = `File Name: ${file.name}`
+
+    // Repopulate drawer with file info
+    drawer.replaceChildren(body)
+
+    // Show the drawer
+    drawer.show()
+  })
+})
+  const closeButton = drawer.querySelector('sl-button[variant="primary"]')
+
+  closeButton.addEventListener('click', () => drawer.hide())
+
 </script>
 <%- include('footer') -%>
