@@ -48,6 +48,11 @@ footer {
   padding: 1rem;
 }
 
+.form-container {
+  margin: 0 auto;
+  max-width: 380px;
+}
+
 sl-tree a {
   text-decoration: none;
   color: inherit;
