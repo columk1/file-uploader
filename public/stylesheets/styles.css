@@ -34,7 +34,7 @@ footer {
 
 .layout {
   display: grid;
-  grid-template-columns: 1fr 3fr;
+  grid-template-columns: 250px 1fr;
   margin: 0 auto;
 }
 
@@ -45,7 +45,7 @@ footer {
 }
 
 .layout-main {
-  padding: 0 1rem;
+  padding: 1rem;
 }
 
 sl-tree a {
@@ -58,6 +58,10 @@ sl-tree a {
 
 sl-tree-item::part(label) {
   font-size: 0.75rem;
+}
+
+.breadcrumb-container {
+  height: 25px;
 }
 
 .page-title {
@@ -161,6 +165,11 @@ li {
 
 nav ul {
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: left;
+  gap: 0.25rem;
 }
 
 .card-btn {
@@ -279,6 +288,10 @@ sl-input[data-user-valid] > sl-icon {
   box-shadow: 0 0 0 var(--sl-focus-ring-width) var(--sl-color-success-300);
 }
 
+sl-dialog {
+  --width: 28rem;
+}
+
 sl-dialog sl-button {
   float: right;
 }
@@ -293,4 +306,8 @@ sl-input::part(form-control-label) {
 
 .hidden {
   display: none;
+}
+
+:not(:defined) {
+  visibility: hidden;
 }

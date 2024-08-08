@@ -60,17 +60,19 @@
     <% if (locals.currentUser) { %>
       <% console.dir(locals.pathSegments) %>
       <!-- <h2 class="title">Welcome back <%= currentUser.username %></h2> -->
-      <sl-breadcrumb>
-        <sl-breadcrumb-item href="/"><%= `${currentUser.username}` %></sl-breadcrumb-item>
-        <% if (locals?.pathSegments?.length > 0) { 
-          %>
-          
-          <% 
-          locals.pathSegments.forEach((segment) => {  %>
-            <sl-breadcrumb-item href="<%= segment.id %>"><%= segment.name %></sl-breadcrumb-item>
-        <% }) %>
-        <% } %>
-      </sl-breadcrumb>
+       <div class="breadcrumb-container">
+        <sl-breadcrumb>
+          <sl-breadcrumb-item href="/"><%= `${currentUser.username}` %></sl-breadcrumb-item>
+          <% if (locals?.pathSegments?.length > 0) { 
+            %>
+            
+            <% 
+            locals.pathSegments.forEach((segment) => {  %>
+              <sl-breadcrumb-item href="<%= segment.id %>"><%= segment.name %></sl-breadcrumb-item>
+          <% }) %>
+          <% } %>
+        </sl-breadcrumb>
+      </div>
         <br />
         <div class='grid-container'>
           <div class="grid-row grid-header">
