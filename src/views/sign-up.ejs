@@ -8,10 +8,10 @@
       <p class="error active"><%= locals.error %></p>
 
       <div class="input-container">
-        <label for="username" class="label">Username <span class="red">*</span></label>
         <sl-input
           name="username"
           id="username"
+          label="Username"
           placeholder="figroll26"
           required
           minlength="3"
@@ -26,11 +26,11 @@
       <br/>
 
       <div class="input-container">
-        <label for="password" class="label">Password <span class="red">*</span></label>
         <sl-input
           type="password"
           name="password"
           id="password"
+          label="Password"
           class="input"
           placeholder="12345678"
           required
@@ -44,13 +44,11 @@
       <br/>
 
       <div class="input-container">
-        <label for="confirm-password" class="label" data-help=" (passwords don't match) "
-          >Confirm Password <span class="red">*</span></label
-        >
         <sl-input
           type="password"
           name="confirm-password"
           id="confirm-password"
+          label="Confirm Password"
           class="input"
           placeholder="12345678"
           required
