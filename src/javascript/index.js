@@ -8,6 +8,8 @@ import '@shoelace-style/shoelace/dist/components/breadcrumb-item/breadcrumb-item
 import '@shoelace-style/shoelace/dist/components/tree/tree.js'
 import '@shoelace-style/shoelace/dist/components/tree-item/tree-item.js'
 import '@shoelace-style/shoelace/dist/components/tooltip/tooltip.js'
+import '@shoelace-style/shoelace/dist/components/drawer/drawer.js'
+import '@shoelace-style/shoelace/dist/components/format-bytes/format-bytes.js'
 import { setBasePath } from '@shoelace-style/shoelace/dist/utilities/base-path.js'
 
 setBasePath('/vendors/shoelace')

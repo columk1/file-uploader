@@ -6,7 +6,7 @@ import copy from 'rollup-plugin-copy'
 const __dirname = import.meta.dirname
 
 export default {
-  input: 'src/components/index.js',
+  input: 'src/javascript/index.js',
   output: {
     file: 'public/bundle.js',
     format: 'es',
@@ -16,10 +16,11 @@ export default {
     commonjs(),
     copy({
       targets: [
-        {
-          src: path.resolve(__dirname, 'node_modules/@shoelace-style/shoelace/dist/assets'),
-          dest: path.resolve(__dirname, 'public/vendors/shoelace'),
-        },
+        // Copies all icons from shoelace to the public folder, done manually to save space
+        // {
+        //   src: path.resolve(__dirname, 'node_modules/@shoelace-style/shoelace/dist/assets'),
+        //   dest: path.resolve(__dirname, 'public/vendors/shoelace'),
+        // },
         {
           src: path.resolve(__dirname, 'src/assets'),
           dest: path.resolve(__dirname, 'public'),
