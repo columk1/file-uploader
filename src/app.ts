@@ -10,10 +10,13 @@ import multer from 'multer'
 import authRouter from 'src/routers/authRouter'
 import { formatDate } from 'src/lib/utils/formatDate'
 import { Entity } from '@prisma/client'
+import supabaseAdmin from 'src/db/supabaseAdminClient'
+import { decode } from 'base64-arraybuffer'
 
 const PORT = process.env.PORT || 3000
 
-const upload = multer({ dest: './public/data/uploads/' })
+// const upload = multer({ dest: './public/data/uploads/' })
+const upload = multer({ storage: multer.memoryStorage() })
 
 const app = express()
 app.set('views', __dirname + '/views')
@@ -108,6 +111,7 @@ app.get('/', isAuthenticated, async (req: Request, res: Response) => {
 
 app.use(authRouter)
 
+// GET: /:entityId (Dashboard)
 app.get('/:entityId', isAuthenticated, async (req: Request, res: Response) => {
   const id = Number(req.params.entityId)
   if (!id) return res.redirect('/')
@@ -135,32 +139,61 @@ app.get('/:entityId', isAuthenticated, async (req: Request, res: Response) => {
   })
 })
 
-app.post('/upload', isAuthenticated, upload.single('uploaded_file'), async (req, res) => {
-  // req.file is the name of your file in the form, 'uploaded_file'
-  if (!req.file) return res.status(400).send({ errors: [{ message: 'No file uploaded' }] })
-  console.log(req.file)
-  const { originalname, mimetype, size } = req.file
+// POST: Upload a file
+app.post('/upload', isAuthenticated, upload.single('uploaded_file'), async (req, res, next) => {
+  try {
+    const id = req.user?.id
+    const file = req.file
+    if (!id) return res.status(500).send({ errors: [{ message: 'Unauthorized' }] })
 
-  const id = req.user?.id
-  if (!id) return res.status(500).send({ errors: [{ message: 'Unauthorized' }] })
+    // req.file is the name of the user's file in the form, 'uploaded_file'
+    if (!file) return res.status(400).send({ errors: [{ message: 'No file uploaded' }] })
+    console.log({ file })
+    const { originalname, mimetype, size, buffer } = file
+    const { path } = req.body
 
-  const { path } = req.body
+    const bucketName = 'files'
+    const options = { contentType: mimetype }
+    const filePath = `${id}/${originalname}`
+    const fileBase64 = decode(buffer.toString('base64'))
 
-  // add to database using prisma
-  const file = await prisma.entity.create({
-    data: {
-      type: 'FILE',
-      name: originalname,
-      mimeType: mimetype,
-      size,
-      userId: id,
-      parentId: path ? +path : null,
-    },
-  })
-  res.redirect(`/${path}`)
+    const { data, error } = await supabaseAdmin.storage
+      .from(bucketName)
+      .upload(filePath, fileBase64, options)
 
-  console.log(req.file, req.body)
-  console.log({ file })
+    if (error) {
+      console.log(error)
+      // Todo: Fix typescript error
+      if (error.statusCode === '409') {
+        console.log('Duplicate')
+        return res.redirect(`/${path}?error=${error.message}`)
+      }
+    }
+
+    console.log({ data })
+
+    const { data: uploadedData } = await supabaseAdmin.storage
+      .from(bucketName)
+      .createSignedUrl(filePath, 60)
+
+    console.log({ uploadedData })
+
+    // add to database using prisma
+    const newFile = await prisma.entity.create({
+      data: {
+        type: 'FILE',
+        name: originalname,
+        mimeType: mimetype,
+        size,
+        userId: id,
+        parentId: path ? +path : null,
+        // url: uploadedData.publicUrl, // Could query using the userId + filename instead & generate signed URL when needed
+      },
+    })
+    res.redirect(`/${path}`)
+  } catch (error) {
+    console.log(error)
+  }
 })
 
 app.post('/new', async (req, res) => {
