@@ -144,8 +144,8 @@
 
       // Repopulate drawer with file info
       drawerContent.replaceChildren(body)
-
-      downloadButton.href = '/download/' + file.id
+      console.log({file})
+      downloadButton.href = `/download/${file.id}?name=${file.name}&mimeType=${file.mimeType}`
 
       // Show the drawer
       drawer.show()

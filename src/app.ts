@@ -12,6 +12,8 @@ import { formatDate } from 'src/lib/utils/formatDate'
 import { Entity } from '@prisma/client'
 import supabaseAdmin from 'src/db/supabaseAdminClient'
 import { decode } from 'base64-arraybuffer'
+import jwt from 'jsonwebtoken'
+import { Readable } from 'stream'
 
 const PORT = process.env.PORT || 3000
 
@@ -157,6 +159,16 @@ app.post('/upload', isAuthenticated, upload.single('uploaded_file'), async (req,
     const filePath = `${id}/${originalname}`
     const fileBase64 = decode(buffer.toString('base64'))
 
+    // Generate JWT for supabase storage
+    const token = jwt.sign(
+      {
+        sub: id,
+        role: 'authenticated',
+      },
+      process.env.SUPABASE_JWT_SECRET || 'secret',
+      { expiresIn: '1h' }
+    )
+
     const { data, error } = await supabaseAdmin.storage
       .from(bucketName)
       .upload(filePath, fileBase64, options)
@@ -213,8 +225,26 @@ app.post('/new', async (req, res) => {
 })
 
 app.get('/download/:entityId', isAuthenticated, async (req, res) => {
-  const file = `${__dirname}/../public/data/uploads/4f70cf55caa47c65fb3e47b43a42ef18`
-  res.download(file)
+  try {
+    const fileName = req.query.name
+    const mimetype = String(req.query.mimetype)
+    const filePath = `${req.user?.id}/${fileName}`
+    console.log({ filePath })
+    const { data, error } = await supabaseAdmin.storage.from('files').download(filePath)
+    if (error) {
+      console.log(error)
+    }
+    if (!data) {
+      return res.status(500).json({ errors: [{ message: 'No readable stream' }] })
+    }
+    const buffer = await data.arrayBuffer()
+    const stream = Readable.from(Buffer.from(buffer))
+    res.setHeader('Content-Type', mimetype || 'application/octet-stream')
+    res.setHeader('Content-Disposition', `attachment; filename="${filePath.split('/').pop()}"`)
+    stream.pipe(res)
+  } catch (err) {
+    console.log(err)
+  }
 })
 
 // catch 404 and forward to error handler
