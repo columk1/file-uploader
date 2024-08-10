@@ -12,7 +12,6 @@ import { formatDate } from 'src/lib/utils/formatDate'
 import { Entity } from '@prisma/client'
 import supabaseAdmin from 'src/db/supabaseAdminClient'
 import { decode } from 'base64-arraybuffer'
-import jwt from 'jsonwebtoken'
 import { Readable } from 'stream'
 
 const PORT = process.env.PORT || 3000
@@ -125,7 +124,6 @@ app.get('/:entityId', isAuthenticated, async (req: Request, res: Response) => {
   if (!entity) return res.status(404).send('Not found')
 
   const pathSegments = await getPathSegments(+req.params.entityId)
-  console.log({ pathSegments })
   const folders = await getFolderTree(req.user?.id, null)
 
   res.render('dashboard', {
@@ -150,24 +148,13 @@ app.post('/upload', isAuthenticated, upload.single('uploaded_file'), async (req,
 
     // req.file is the name of the user's file in the form, 'uploaded_file'
     if (!file) return res.status(400).send({ errors: [{ message: 'No file uploaded' }] })
-    console.log({ file })
     const { originalname, mimetype, size, buffer } = file
-    const { path } = req.body
+    const parentId = Number(req.body.parentId) || null
 
     const bucketName = 'files'
     const options = { contentType: mimetype }
     const filePath = `${id}/${originalname}`
     const fileBase64 = decode(buffer.toString('base64'))
-
-    // Generate JWT for supabase storage
-    const token = jwt.sign(
-      {
-        sub: id,
-        role: 'authenticated',
-      },
-      process.env.SUPABASE_JWT_SECRET || 'secret',
-      { expiresIn: '1h' }
-    )
 
     const { data, error } = await supabaseAdmin.storage
       .from(bucketName)
@@ -182,14 +169,6 @@ app.post('/upload', isAuthenticated, upload.single('uploaded_file'), async (req,
       }
     }
 
-    console.log({ data })
-
-    const { data: uploadedData } = await supabaseAdmin.storage
-      .from(bucketName)
-      .createSignedUrl(filePath, 60)
-
-    console.log({ uploadedData })
-
     // add to database using prisma
     const newFile = await prisma.entity.create({
       data: {
@@ -198,30 +177,32 @@ app.post('/upload', isAuthenticated, upload.single('uploaded_file'), async (req,
         mimeType: mimetype,
         size,
         userId: id,
-        parentId: path ? +path : null,
-        // url: uploadedData.publicUrl, // Could query using the userId + filename instead & generate signed URL when needed
+        parentId,
       },
     })
-    res.redirect(`/${path}`)
+    res.redirect(`/${parentId}`)
   } catch (error) {
     console.log(error)
   }
 })
 
+// POST: Create a new folder
 app.post('/new', async (req, res) => {
   const id = req.user?.id
   if (!id) return res.status(500).send({ errors: [{ message: 'Unauthorized' }] })
+
+  const parentId = Number(req.body.parentId) || null
 
   const newFolder = await prisma.entity.create({
     data: {
       type: 'FOLDER',
       name: req.body.name || Date.now().toString(),
       userId: id,
-      parentId: +req.body.parentId || null,
+      parentId,
     },
   })
-  console.log(newFolder)
-  res.redirect(`/${newFolder.id}`)
+  // console.log(newFolder)
+  res.redirect(`back`)
 })
 
 app.get('/download/:entityId', isAuthenticated, async (req, res) => {
@@ -229,7 +210,7 @@ app.get('/download/:entityId', isAuthenticated, async (req, res) => {
     const fileName = req.query.name
     const mimetype = String(req.query.mimetype)
     const filePath = `${req.user?.id}/${fileName}`
-    console.log({ filePath })
+    // console.log({ filePath })
     const { data, error } = await supabaseAdmin.storage.from('files').download(filePath)
     if (error) {
       console.log(error)
