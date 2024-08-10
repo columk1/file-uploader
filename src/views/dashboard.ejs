@@ -1,6 +1,4 @@
 <%- include('header') -%>
-<script type="module" src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.16.0/cdn/components/spinner/spinner.js"></script>
-<script type="module" src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.16.0/cdn/components/progress-bar/progress-bar.js"></script>
 <div class="overlay">
   <div class="overlay__wrapper">
     <sl-spinner style="font-size: 2rem;"></sl-spinner>
@@ -135,6 +133,7 @@
   const uploadProgressBar = document.querySelector('.upload-progress')
   const uploadForm = document.querySelector('.upload-form')
   
+  // Upload the file with feedback from xhr
   uploadForm.addEventListener('submit', (event) => {
     event.preventDefault()
     uploadProgressBar.classList.add('active')

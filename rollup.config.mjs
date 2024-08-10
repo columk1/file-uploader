@@ -1,5 +1,5 @@
 import path from 'path'
-import resolve from '@rollup/plugin-node-resolve'
+import { nodeResolve } from '@rollup/plugin-node-resolve'
 import commonjs from '@rollup/plugin-commonjs'
 import copy from 'rollup-plugin-copy'
 
@@ -12,7 +12,7 @@ export default {
     format: 'es',
   },
   plugins: [
-    resolve(),
+    nodeResolve(),
     commonjs(),
     copy({
       targets: [
