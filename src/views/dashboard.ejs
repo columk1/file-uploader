@@ -1,4 +1,11 @@
 <%- include('header') -%>
+<script type="module" src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.16.0/cdn/components/spinner/spinner.js"></script>
+<script type="module" src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.16.0/cdn/components/progress-bar/progress-bar.js"></script>
+<div class="overlay">
+  <div class="overlay__wrapper">
+    <sl-spinner style="font-size: 2rem;"></sl-spinner>
+  </div>
+</div>
 <div class="layout">
   <aside class="layout-sidebar">
     <nav>
@@ -19,10 +26,11 @@
           </li>
           <li>
             <sl-dialog label="New File" class="dialog-focus new-file-dialog">
-              <form action="/upload" enctype="multipart/form-data" method="post">
+              <form class="upload-form" action="/upload" enctype="multipart/form-data" method="post">
+                <sl-progress-bar class="upload-progress" value="0"></sl-progress-bar>
                 <div class="form-group">
                   <input type="file" name="uploaded_file"></input>
-                  <input type="hidden" name="path" value="<%= locals?.path %>"></input>
+                  <input type="hidden" name="parentId" value="<%= id %>"></input>
                   </br>
                   <sl-button type="submit" slot="footer" variant="primary">Upload</sl-button>
                 </div>
@@ -120,20 +128,59 @@
   ])
 
   const files = <%- JSON.stringify(locals.files) %>
-  const dialogs = document.querySelectorAll('.dialog-focus')
+  const overlay = document.querySelector('.overlay')
+  const dialogs = document.querySelectorAll('sl-dialog')
+  const newFolderDialog = document.querySelector('.new-folder-dialog')
+  const newFileDialog = document.querySelector('.new-file-dialog')
+  const uploadProgressBar = document.querySelector('.upload-progress')
+  const uploadForm = document.querySelector('.upload-form')
+  
+  uploadForm.addEventListener('submit', (event) => {
+    event.preventDefault()
+    uploadProgressBar.classList.add('active')
+    const formData = new FormData(uploadForm)
+    const xhr = new XMLHttpRequest()
+    xhr.open('POST', '/upload', true)
+    
+    xhr.upload.addEventListener('progress', (e) => {
+      const percentComplete = Math.round((e.loaded / e.total) * 100)
+      // The progress will init at 100 for small files but this will start the animation
+      uploadProgressBar.value = percentComplete
+      // Set indeterminate in case the server takes a while to respond.
+      if (percentComplete === 100) {
+        setTimeout(() => {
+          uploadProgressBar.indeterminate = true
+        }, 1000)
+      }
+    })
+    xhr.addEventListener('load', () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+          const responseUrl = xhr.responseURL;
+          window.location.href = responseUrl;
+      }
+      newFileDialog.hide()
+    })
+
+    xhr.send(formData)
+  })
+
   for (const dialog of dialogs) {
     const openButton = dialog.nextElementSibling
     const closeButton = dialog.querySelector('sl-button[slot="footer"]')
 
     openButton.addEventListener('click', () => dialog.show())
-    closeButton.addEventListener('click', () => dialog.hide())
+    if (dialog === newFolderDialog) {
+      closeButton.addEventListener('click', () => {
+      // overlay.classList.add('active')
+      dialog.hide()
+    })
+  }
   }
   // File info drawer
   const drawer = document.querySelector('.drawer-overview')
   const drawerContent = document.querySelector('.drawer-content')
   const openButtons = document.querySelectorAll('.btn.grid-row[data-index]')
   const downloadButton = drawer.querySelector('.drawer-download-btn')
-
 
   openButtons.forEach(button => {
     button.addEventListener('click', () => {
@@ -144,7 +191,6 @@
 
       // Repopulate drawer with file info
       drawerContent.replaceChildren(body)
-      console.log({file})
       downloadButton.href = `/download/${file.id}?name=${file.name}&mimeType=${file.mimeType}`
 
       // Show the drawer
