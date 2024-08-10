@@ -80,9 +80,20 @@
       <br />
       <div class='grid-container'>
         <div class="grid-row grid-header">
-          <div class="grid-col">Name</div>
-          <div class="grid-col">Size</div>
-          <div class="grid-col">Created</div>
+          <a href="<%= sortQuery.name === 'asc' ? '?sort=-name' : '?sort=name' %>">
+          <div class="grid-header-col">
+            <div class="grid-col">Name</div>
+            <sl-icon-button name="<%= sortQuery.name === 'asc' ? 'caret-up' : 'caret-down' %>"></sl-icon-button>
+          </div>
+        </a>
+          <div class="grid-header-col">
+            <div class="grid-col">Size</div>
+            <sl-icon-button name="caret-up"></sl-icon-button>
+          </div>
+          <div class="grid-header-col">
+            <div class="grid-col">Created</div>
+            <sl-icon-button name="caret-up"></sl-icon-button>
+          </div>
         </div>
         <sl-drawer label="Drawer" class="drawer-overview">
           <div class="drawer-content"></div>
