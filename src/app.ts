@@ -13,6 +13,7 @@ import { Entity } from '@prisma/client'
 import supabaseAdmin from 'src/db/supabaseAdminClient'
 import { decode } from 'base64-arraybuffer'
 import { Readable } from 'stream'
+import { Prisma } from '@prisma/client'
 
 const PORT = process.env.PORT || 3000
 
@@ -93,19 +94,41 @@ async function getFolderTree(
 }
 
 // TODO: Add params for filters
+// TODO: Consolidate these two routes
 app.get('/', isAuthenticated, async (req: Request, res: Response) => {
+  const sort = req.query.sort
+  let sortCriteria: Prisma.EntityOrderByWithRelationInput[] = [{ type: 'asc' }]
+
+  if (typeof sort === 'string') {
+    console.log({ sort })
+    const getSortCriteria = (searchParams: string) =>
+      searchParams.split(',').map((item) => {
+        const direction = item.startsWith('-') ? 'desc' : 'asc'
+        const field = direction === 'desc' ? item.slice(1) : item
+        return { [field]: direction }
+      })
+    const additionalSort = getSortCriteria(sort)
+    sortCriteria.push(...additionalSort)
+  }
+
+  const defaultSort = { type: 'asc' as 'asc' | 'desc' }
+
+  console.log(sortCriteria)
+
   const files = await prisma.entity.findMany({
     where: { userId: req.user?.id, parentId: null },
-    orderBy: { type: 'asc' },
+    orderBy: sortCriteria,
   })
 
   const folders = await getFolderTree(req.user?.id, null)
+  const sortQuery = sortCriteria.reduce((acc, curr) => ({ ...acc, ...curr }), {})
 
   res.render('dashboard', {
     title: 'File Uploader',
     files,
     folders: folders,
     id: null,
+    sortQuery,
     helpers: { formatDate },
   })
 })
@@ -135,6 +158,7 @@ app.get('/:entityId', isAuthenticated, async (req: Request, res: Response) => {
     parentFolder: { name: 'root', id: entity.parentId },
     pathSegments,
     folders,
+    sortQuery: { type: 'asc', name: 'asc', size: 'asc', createdAt: 'asc' },
     helpers: { formatDate },
   })
 })
