@@ -77,23 +77,33 @@
           <% } %>
         </sl-breadcrumb>
       </div>
-      <br />
+      <!-- <br /> -->
       <div class='grid-container'>
-        <div class="grid-row grid-header">
-          <a href="<%= sortQuery.name === 'asc' ? '?sort=-name' : '?sort=name' %>">
-          <div class="grid-header-col">
-            <div class="grid-col">Name</div>
-            <sl-icon-button name="<%= sortQuery.name === 'asc' ? 'caret-up' : 'caret-down' %>"></sl-icon-button>
-          </div>
-        </a>
-          <div class="grid-header-col">
-            <div class="grid-col">Size</div>
-            <sl-icon-button name="caret-up"></sl-icon-button>
-          </div>
-          <div class="grid-header-col">
-            <div class="grid-col">Created</div>
-            <sl-icon-button name="caret-up"></sl-icon-button>
-          </div>
+        <div class="grid-header">
+          <a href="<%= locals.helpers.generateSortLink(sortQuery, 'name') %>">
+            <div class="grid-header-col">
+              <div class="grid-col">Name</div>
+              <% if (sortQuery.name) { %>
+                <sl-icon-button name="<%= sortQuery.name === 'desc' ? 'caret-down' : 'caret-up' %>"></sl-icon-button>
+              <% } %>
+            </div>
+          </a>
+          <a href="<%= locals.helpers.generateSortLink(sortQuery, 'size') %>">
+            <div class="grid-header-col">
+              <div class="grid-col">Size</div>
+              <% if (sortQuery.size) { %>
+                <sl-icon-button name="<%= sortQuery.size === 'desc' ? 'caret-down' : 'caret-up' %>"></sl-icon-button>
+              <% } %>
+            </div>
+          </a>
+          <a href="<%= locals.helpers.generateSortLink(sortQuery, 'createdAt') %>">
+            <div class="grid-header-col">
+              <div class="grid-col">Created</div>
+              <% if (sortQuery.createdAt) { %>
+                <sl-icon-button name="<%= sortQuery.createdAt === 'desc' ? 'caret-down' : 'caret-up' %>"></sl-icon-button>
+              <% } %>
+            </div>
+          </a>
         </div>
         <sl-drawer label="Drawer" class="drawer-overview">
           <div class="drawer-content"></div>

@@ -8,12 +8,12 @@ import morgan from 'morgan'
 import { PrismaSessionStore } from '@quixo3/prisma-session-store'
 import multer from 'multer'
 import authRouter from 'src/routers/authRouter'
-import { formatDate } from 'src/lib/utils/formatDate'
 import { Entity } from '@prisma/client'
 import supabaseAdmin from 'src/db/supabaseAdminClient'
 import { decode } from 'base64-arraybuffer'
 import { Readable } from 'stream'
 import { Prisma } from '@prisma/client'
+import helpers from 'src/lib/utils/ejsHelpers'
 
 const PORT = process.env.PORT || 3000
 
@@ -129,7 +129,7 @@ app.get('/', isAuthenticated, async (req: Request, res: Response) => {
     folders: folders,
     id: null,
     sortQuery,
-    helpers: { formatDate },
+    helpers,
   })
 })
 
@@ -159,7 +159,7 @@ app.get('/:entityId', isAuthenticated, async (req: Request, res: Response) => {
     pathSegments,
     folders,
     sortQuery: { type: 'asc', name: 'asc', size: 'asc', createdAt: 'asc' },
-    helpers: { formatDate },
+    helpers,
   })
 })
 
