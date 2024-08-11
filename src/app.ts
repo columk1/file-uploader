@@ -186,8 +186,7 @@ app.post('/upload', isAuthenticated, upload.single('uploaded_file'), async (req,
 
     if (error) {
       console.log(error)
-      // Todo: Fix typescript error
-      if (error.statusCode === '409') {
+      if ('statusCode' in error && error.statusCode === '409') {
         console.log('Duplicate')
         return res.redirect(`/${path}?error=${error.message}`)
       }
