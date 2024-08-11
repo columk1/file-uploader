@@ -1,4 +1,5 @@
 <%- include('header') -%>
+<% if (locals.pathSegments) console.log({pathSegments}) %>
 <div class="overlay">
   <div class="overlay__wrapper">
     <sl-spinner style="font-size: 2rem;"></sl-spinner>
@@ -48,9 +49,10 @@
       <sl-tree-item expanded <%= locals.id === null && "selected" %>><a href="/"><%= currentUser.username %></a>
         <% function renderTree(items) { %>
           <% items.forEach(item => { %>
-            <sl-tree-item 
+            <sl-tree-item
+              data-id="<%= item.id %>"
               <%= item.id === locals.id && "selected" %> 
-              <%= locals.pathSegments && locals.pathSegments.includes(item.name) && "expanded" %>
+              <%= locals.pathSegments && pathSegments.some(segment => segment.name === item.name) && "expanded" %>
             >
               <a href="/<%= item.id %>"><%= item.name %></a>
               <% if (item.childEntities && item.childEntities.length > 0) { %>
@@ -142,8 +144,11 @@
 <script type="module">
   await Promise.allSettled([
     customElements.whenDefined('sl-button'),
+    customElements.whenDefined('sl-icon-button'),
     customElements.whenDefined('sl-drawer'),
     customElements.whenDefined('sl-dialog'),
+    customElements.whenDefined('sl-tree'),
+    customElements.whenDefined('sl-tree-item'),
   ])
 
   const files = <%- JSON.stringify(locals.files) %>
