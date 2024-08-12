@@ -97,6 +97,16 @@ sl-tree-item::part(label) {
   display: inline-flex;
 }
 
+sl-tree-item a {
+  display: block;
+  padding: 0.5rem 0;
+}
+
+sl-tree-item::part(label) {
+  display: block;
+  width: 100%;
+}
+
 .grid-container {
   width: 100%;
   display: flex;
