@@ -111,6 +111,12 @@ nav {
   max-width: 380px;
 }
 
+.btn-group {
+  display: flex;
+  justify-content: right;
+  gap: 0.5rem;
+}
+
 sl-tree a {
   text-decoration: none;
   color: inherit;

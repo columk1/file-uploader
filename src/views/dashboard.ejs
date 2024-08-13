@@ -19,6 +19,13 @@
               <sl-icon class="card-icon" name="file-earmark-plus"></sl-icon><span>New File</span>
             </sl-button>
           </li>
+          <li>
+            <% if (locals.id) { %> 
+            <sl-button class="card-btn delete-folder-btn">
+              <sl-icon class="card-icon" name="trash"></sl-icon><span>Delete Folder</span>
+            </sl-button>
+            <% } %>
+          </li>
         <% } else { %>
           <!-- Not a folder -->
         <% } %>
@@ -124,7 +131,11 @@
 <div class="mobile-footer">
   <sl-icon-button name="folder-plus" class="new-folder-btn" label="New Folder"></sl-icon-button>
   <sl-icon-button name="file-earmark-plus" class="new-file-btn" label="Upload File"></sl-icon-button>
-  <sl-icon-button name="box-arrow-right" href="/logout" label="Logout"></sl-icon-button>  
+  <% if (locals.id) { %>
+    <sl-icon-button name="trash" class="delete-folder-btn" label="Delete Folder"></sl-icon-button>
+    <% } else { %>
+      <sl-icon-button name="box-arrow-right" href="/logout" label="Logout"></sl-icon-button>  
+  <% } %>
 </div>
 <sl-dialog label="New Folder" class="dialog-focus new-folder-dialog">
     <form id="new-folder-form"action="/new" method="post">
@@ -145,6 +156,18 @@
     </div>
   </form>
 </sl-dialog>
+<sl-dialog label="Delete Folder" class="dialog-focus delete-folder-dialog">
+  Are you sure you want to delete the current folder and all of its contents?
+  <form id="delete-form" action="<%=`/delete/${id}`%>" method="post">
+    
+      <input type="hidden" name="parentId" value="<%= id %>"></input>
+      </br>
+      <div class="btn-group">
+      <sl-button slot="footer">Cancel</sl-button>
+      <sl-button type="submit" slot="footer" variant="primary">Delete</sl-button>
+    </div>
+  </form>
+</sl-dialog>
 <script type="module">
   await Promise.allSettled([
     customElements.whenDefined('sl-button'),
@@ -160,6 +183,7 @@
   const dialogs = document.querySelectorAll('sl-dialog')
   const newFolderDialog = document.querySelector('.new-folder-dialog')
   const newFileDialog = document.querySelector('.new-file-dialog')
+  const deleteFolderDialog = document.querySelector('.delete-folder-dialog')
   const uploadProgressBar = document.querySelector('.upload-progress')
   const uploadForm = document.querySelector('.upload-form')
   const treeItems = document.querySelectorAll('sl-tree-item')
@@ -209,8 +233,11 @@
     const newFileButtons = document.querySelectorAll('.new-file-btn')
     newFileButtons.forEach(button => button.addEventListener('click', () => newFileDialog.show()))
 
-    const closeNewFolderDialogButton = newFolderDialog.querySelector('sl-button[slot="footer"]')
-    closeNewFolderDialogButton.addEventListener('click', () => dialog.hide())
+    const deleteFolderButtons = document.querySelectorAll('.delete-folder-btn')
+    deleteFolderButtons.forEach(button => button.addEventListener('click', () => deleteFolderDialog.show()))
+
+    const closeDeleteFolderDialogButton = deleteFolderDialog.querySelector('sl-button[slot="footer"]')
+    closeDeleteFolderDialogButton.addEventListener('click', () => deleteFolderDialog.hide())
 
   // File info drawer
   const drawer = document.querySelector('.drawer-overview')
