@@ -313,6 +313,10 @@ sl-button.card-btn::part(label) {
   content: '';
 }
 
+.drawer-content span {
+  font-weight: 400;
+}
+
 /* Mostly base button styles from Shoelace since they have no file input support yet */
 input[type='file']::file-selector-button {
   margin-right: 1rem;
