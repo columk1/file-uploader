@@ -271,6 +271,24 @@ app.get('/download/:entityId', isAuthenticated, async (req, res) => {
   }
 })
 
+app.post('/share/:fileName', isAuthenticated, async (req, res, next) => {
+  try {
+    const { fileName } = req.params
+    const filePath = `${req.user?.id}/${fileName}`
+    const { data } = await supabaseAdmin.storage
+      .from('files')
+      .createSignedUrl(filePath, 60 * 60 * 24 * 7)
+
+    if (!data) {
+      return res.status(500).send({ errors: [{ message: 'Error fetching signed URL' }] })
+    }
+    res.json(data.signedUrl)
+  } catch (err) {
+    console.log(err)
+    next(err)
+  }
+})
+
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
   res.status(404).send({ errors: [{ message: 'Not found' }] })
