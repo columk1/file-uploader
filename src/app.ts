@@ -128,6 +128,7 @@ app.get('/', isAuthenticated, async (req: Request, res: Response) => {
     files,
     folders: folders,
     id: null,
+    parentId: null,
     sortQuery,
     helpers,
   })
@@ -155,7 +156,7 @@ app.get('/:entityId', isAuthenticated, async (req: Request, res: Response) => {
     name: entity.name,
     type: entity.type,
     files: entity.childEntities,
-    parentFolder: { name: 'root', id: entity.parentId },
+    parentId: entity.parentId,
     pathSegments,
     folders,
     sortQuery: { type: 'asc', name: 'asc', size: 'asc', createdAt: 'asc' },
@@ -224,8 +225,28 @@ app.post('/new', async (req, res) => {
       parentId,
     },
   })
-  // console.log(newFolder)
   res.redirect(`back`)
+})
+
+app.post('/delete/:entityId', async (req, res, next) => {
+  try {
+    const userId = req.user?.id
+    if (!userId) return res.status(500).send({ errors: [{ message: 'Unauthorized' }] })
+
+    const { entityId } = req.params
+    const { parentId } = req.body
+
+    if (entityId === 'null') throw new Error('Cannot delete root folder')
+
+    await prisma.entity.delete({
+      where: {
+        id: Number(entityId),
+      },
+    })
+    res.redirect(`/${parentId}`)
+  } catch (err) {
+    next(err)
+  }
 })
 
 app.get('/download/:entityId', isAuthenticated, async (req, res) => {
@@ -233,7 +254,6 @@ app.get('/download/:entityId', isAuthenticated, async (req, res) => {
     const fileName = req.query.name
     const mimetype = String(req.query.mimetype)
     const filePath = `${req.user?.id}/${fileName}`
-    // console.log({ filePath })
     const { data, error } = await supabaseAdmin.storage.from('files').download(filePath)
     if (error) {
       console.log(error)
@@ -258,7 +278,7 @@ app.use(function (req, res, next) {
 
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   console.error(err)
-  res.status(500).send({ errors: [{ message: 'Something went wrong' }] })
+  res.status(500).send({ errors: [{ message: err.message || 'Something went wrong' }] })
 })
 
 app.listen(PORT, () => console.log(`Listening on port ${PORT}`))

@@ -160,7 +160,7 @@
   Are you sure you want to delete the current folder and all of its contents?
   <form id="delete-form" action="<%=`/delete/${id}`%>" method="post">
     
-      <input type="hidden" name="parentId" value="<%= id %>"></input>
+      <input type="hidden" name="parentId" value="<%= parentId %>"></input>
       </br>
       <div class="btn-group">
       <sl-button slot="footer">Cancel</sl-button>
