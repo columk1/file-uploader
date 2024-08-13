@@ -1,3 +1,5 @@
+import { formatDate } from './formatDate.js'
+
 import '@shoelace-style/shoelace/dist/components/button/button.js'
 import '@shoelace-style/shoelace/dist/components/dialog/dialog.js'
 import '@shoelace-style/shoelace/dist/components/icon/icon.js'
@@ -15,6 +17,8 @@ import '@shoelace-style/shoelace/dist/components/spinner/spinner.js'
 import { setBasePath } from '@shoelace-style/shoelace/dist/utilities/base-path.js'
 
 setBasePath('/vendors/shoelace')
+
+window.formatDate = formatDate
 
 /* Icons */
 

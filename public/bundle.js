@@ -1,3 +1,11 @@
+const formatDate = (timestamp) => {
+  return new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  }).format(timestamp)
+};
+
 /**
  * @license
  * Copyright 2019 Google LLC
@@ -8083,6 +8091,8 @@ SlProgressBar.define("sl-progress-bar");
 SlSpinner.define("sl-spinner");
 
 setBasePath('/vendors/shoelace');
+
+window.formatDate = formatDate;
 
 /* Icons */
 
