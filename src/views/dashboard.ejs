@@ -1,5 +1,4 @@
 <%- include('header') -%>
-<% if (locals.pathSegments) console.log({pathSegments}) %>
 <div class="overlay">
   <div class="overlay__wrapper">
     <sl-spinner style="font-size: 2rem;"></sl-spinner>
@@ -11,31 +10,12 @@
       <ul>
         <% if (!locals.type || locals.type === 'FOLDER') { %>
           <li>
-            <sl-dialog label="New Folder" class="dialog-focus new-folder-dialog">
-              <form action="/new" method="post">
-                <input type="hidden" name="parentId" value="<%= locals.id || null %>"></input>
-                <sl-input name="name" label="Name" autofocus placeholder=""></sl-input>
-                </br>
-                <sl-button type="submit" slot="footer" variant="primary">Create Folder</sl-button>
-              </form>
-            </sl-dialog>
-            <sl-button class="card-btn">
+            <sl-button class="card-btn new-folder-btn">
               <sl-icon class="card-icon" name="folder-plus"></sl-icon><span>New Folder</span>
             </sl-button>
           </li>
           <li>
-            <sl-dialog label="New File" class="dialog-focus new-file-dialog">
-              <form class="upload-form" action="/upload" enctype="multipart/form-data" method="post">
-                <sl-progress-bar class="upload-progress" value="0"></sl-progress-bar>
-                <div class="form-group">
-                  <input type="file" name="uploaded_file"></input>
-                  <input type="hidden" name="parentId" value="<%= id %>"></input>
-                  </br>
-                  <sl-button type="submit" slot="footer" variant="primary">Upload</sl-button>
-                </div>
-              </form>
-            </sl-dialog>
-            <sl-button class="card-btn">
+            <sl-button class="card-btn new-file-btn">
               <sl-icon class="card-icon" name="file-earmark-plus"></sl-icon><span>New File</span>
             </sl-button>
           </li>
@@ -86,7 +66,7 @@
             <div class="grid-header-col">
               <div class="grid-col">Name</div>
               <% if (sortQuery.name) { %>
-                <sl-icon-button name="<%= sortQuery.name === 'desc' ? 'caret-down' : 'caret-up' %>"></sl-icon-button>
+                <sl-icon-button name="<%= sortQuery.name === 'desc' ? 'caret-down' : 'caret-up' %>" label="Sort by name"></sl-icon-button>
               <% } %>
             </div>
           </a>
@@ -94,7 +74,7 @@
             <div class="grid-header-col">
               <div class="grid-col">Size</div>
               <% if (sortQuery.size) { %>
-                <sl-icon-button name="<%= sortQuery.size === 'desc' ? 'caret-down' : 'caret-up' %>"></sl-icon-button>
+                <sl-icon-button name="<%= sortQuery.size === 'desc' ? 'caret-down' : 'caret-up' %>" label="Sort by size"></sl-icon-button>
               <% } %>
             </div>
           </a>
@@ -102,7 +82,7 @@
             <div class="grid-header-col">
               <div class="grid-col">Created</div>
               <% if (sortQuery.createdAt) { %>
-                <sl-icon-button name="<%= sortQuery.createdAt === 'desc' ? 'caret-down' : 'caret-up' %>"></sl-icon-button>
+                <sl-icon-button name="<%= sortQuery.createdAt === 'desc' ? 'caret-down' : 'caret-up' %>" label="Sort by date created"></sl-icon-button>
               <% } %>
             </div>
           </a>
@@ -141,6 +121,30 @@
     <% } %>
   </main>
 </div>
+<div class="mobile-footer">
+  <sl-icon-button name="folder-plus" class="new-folder-btn" label="New Folder"></sl-icon-button>
+  <sl-icon-button name="file-earmark-plus" class="new-file-btn" label="Upload File"></sl-icon-button>
+  <sl-icon-button name="box-arrow-right" href="/logout" label="Logout"></sl-icon-button>  
+</div>
+<sl-dialog label="New Folder" class="dialog-focus new-folder-dialog">
+    <form id="new-folder-form"action="/new" method="post">
+      <input type="hidden" name="parentId" value="<%= locals.id || null %>"></input>
+      <sl-input name="name" label="Name" autofocus placeholder=""></sl-input>
+      </br>
+      <sl-button type="submit" slot="footer" variant="primary">Create Folder</sl-button>
+    </form>
+</sl-dialog>
+<sl-dialog label="New File" class="dialog-focus new-file-dialog">
+  <form id="upload-form"class="upload-form" action="/upload" enctype="multipart/form-data" method="post">
+    <sl-progress-bar class="upload-progress" value="0"></sl-progress-bar>
+    <div class="form-group">
+      <input type="file" name="uploaded_file"></input>
+      <input type="hidden" name="parentId" value="<%= id %>"></input>
+      </br>
+      <sl-button type="submit" slot="footer" variant="primary">Upload</sl-button>
+    </div>
+  </form>
+</sl-dialog>
 <script type="module">
   await Promise.allSettled([
     customElements.whenDefined('sl-button'),
@@ -158,6 +162,16 @@
   const newFileDialog = document.querySelector('.new-file-dialog')
   const uploadProgressBar = document.querySelector('.upload-progress')
   const uploadForm = document.querySelector('.upload-form')
+  const treeItems = document.querySelectorAll('sl-tree-item')
+
+  treeItems.forEach(item => {
+    item.addEventListener('click', (e) => {
+      console.log(item.selected)
+      // if (item.getAttribute('selected')) {
+      //   console.log('selected')
+      // }
+    })
+  })
   
   // Upload the file with feedback from xhr
   uploadForm.addEventListener('submit', (event) => {
@@ -189,18 +203,15 @@
     xhr.send(formData)
   })
 
-  for (const dialog of dialogs) {
-    const openButton = dialog.nextElementSibling
-    const closeButton = dialog.querySelector('sl-button[slot="footer"]')
+    const newFolderButtons = document.querySelectorAll('.new-folder-btn')
+    newFolderButtons.forEach(button => button.addEventListener('click', () => newFolderDialog.show()))
 
-    openButton.addEventListener('click', () => dialog.show())
-    if (dialog === newFolderDialog) {
-      closeButton.addEventListener('click', () => {
-      // overlay.classList.add('active')
-      dialog.hide()
-    })
-  }
-  }
+    const newFileButtons = document.querySelectorAll('.new-file-btn')
+    newFileButtons.forEach(button => button.addEventListener('click', () => newFileDialog.show()))
+
+    const closeNewFolderDialogButton = newFolderDialog.querySelector('sl-button[slot="footer"]')
+    closeNewFolderDialogButton.addEventListener('click', () => dialog.hide())
+
   // File info drawer
   const drawer = document.querySelector('.drawer-overview')
   const drawerContent = document.querySelector('.drawer-content')
