@@ -1,3 +1,7 @@
+<script id="data-script" type="application/json">
+  <%- JSON.stringify(files) %>
+</script>
+
 <%- include('header') -%>
 <div class="overlay">
   <div class="overlay__wrapper">
@@ -193,7 +197,9 @@
     customElements.whenDefined('sl-tree-item'),
   ])
 
-  const files = <%- JSON.stringify(locals.files) %>
+  const dataScript = document.getElementById('data-script')
+  const files = JSON.parse(dataScript.textContent)
+
   const overlay = document.querySelector('.overlay')
   const dialogs = document.querySelectorAll('sl-dialog')
   const newFolderDialog = document.querySelector('.new-folder-dialog')
