@@ -9,5 +9,6 @@ namespace Express {
   }
   interface Request {
     session: Session
+    sortCriteria?: Prisma.EntityOrderByWithRelationInput[]
   }
 }
