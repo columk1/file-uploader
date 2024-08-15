@@ -14,6 +14,7 @@ import { decode } from 'base64-arraybuffer'
 import { Readable } from 'stream'
 import { Prisma } from '@prisma/client'
 import helpers from 'src/lib/utils/ejsHelpers'
+import handleSortQuery from 'src/middleware/handleSortQuery'
 
 const PORT = process.env.PORT || 3000
 
@@ -93,40 +94,21 @@ async function getFolderTree(
   )
 }
 
-// TODO: Add params for filters
-// TODO: Consolidate these two routes
-app.get('/', isAuthenticated, async (req: Request, res: Response) => {
-  const sort = req.query.sort
-  let sortCriteria: Prisma.EntityOrderByWithRelationInput[] = [{ type: 'asc' }]
-
-  if (typeof sort === 'string') {
-    console.log({ sort })
-    const getSortCriteria = (searchParams: string) =>
-      searchParams.split(',').map((item) => {
-        const direction = item.startsWith('-') ? 'desc' : 'asc'
-        const field = direction === 'desc' ? item.slice(1) : item
-        return { [field]: direction }
-      })
-    const additionalSort = getSortCriteria(sort)
-    sortCriteria.push(...additionalSort)
-  }
-
-  const defaultSort = { type: 'asc' as 'asc' | 'desc' }
-
-  console.log(sortCriteria)
+app.get('/', isAuthenticated, handleSortQuery, async (req: Request, res: Response) => {
+  const { sortCriteria } = req
 
   const files = await prisma.entity.findMany({
     where: { userId: req.user?.id, parentId: null },
     orderBy: sortCriteria,
   })
 
+  const sortQuery = sortCriteria?.reduce((acc, curr) => ({ ...acc, ...curr }), {})
   const folders = await getFolderTree(req.user?.id, null)
-  const sortQuery = sortCriteria.reduce((acc, curr) => ({ ...acc, ...curr }), {})
 
   res.render('dashboard', {
     title: 'File Uploader',
     files,
-    folders: folders,
+    folders,
     id: null,
     parentId: null,
     sortQuery,
@@ -137,29 +119,36 @@ app.get('/', isAuthenticated, async (req: Request, res: Response) => {
 app.use(authRouter)
 
 // GET: /:entityId (Dashboard)
-app.get('/:entityId', isAuthenticated, async (req: Request, res: Response) => {
+app.get('/:entityId', isAuthenticated, handleSortQuery, async (req: Request, res: Response) => {
   const id = Number(req.params.entityId)
-  if (!id) return res.redirect('/')
+
+  const { sortCriteria } = req
 
   const entity = await prisma.entity.findUnique({
     where: { id },
-    include: { childEntities: true },
+    include: {
+      childEntities: {
+        orderBy: sortCriteria,
+      },
+    },
   })
   if (!entity) return res.status(404).send('Not found')
 
-  const pathSegments = await getPathSegments(+req.params.entityId)
+  const { name, type, childEntities: files, parentId } = entity
+  const sortQuery = sortCriteria?.reduce((acc, curr) => ({ ...acc, ...curr }), {})
   const folders = await getFolderTree(req.user?.id, null)
+  const pathSegments = await getPathSegments(id)
 
   res.render('dashboard', {
     title: 'File Uploader',
     id,
-    name: entity.name,
-    type: entity.type,
-    files: entity.childEntities,
-    parentId: entity.parentId,
+    name,
+    type,
+    files,
+    parentId,
     pathSegments,
     folders,
-    sortQuery: { type: 'asc', name: 'asc', size: 'asc', createdAt: 'asc' },
+    sortQuery,
     helpers,
   })
 })
