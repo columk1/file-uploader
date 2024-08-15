@@ -15,6 +15,7 @@ import { Readable } from 'stream'
 import { Prisma } from '@prisma/client'
 import helpers from 'src/lib/utils/ejsHelpers'
 import handleSortQuery from 'src/middleware/handleSortQuery'
+import { getPathSegments, getFolderTree } from './services/dirService'
 
 const PORT = process.env.PORT || 3000
 
@@ -57,42 +58,7 @@ const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
   res.redirect('/login')
 }
 
-const getPathSegments = async (entityId: number) => {
-  const pathSegments: { id: number; name: string }[] = []
-
-  async function buildPath(id: number) {
-    const entity = await prisma.entity.findUnique({
-      where: { id },
-      include: { parentFolder: true },
-    })
-    if (entity) {
-      pathSegments.unshift({ id: entity.id, name: entity.name })
-      if (entity.parentId) {
-        await buildPath(entity.parentId)
-      }
-    }
-  }
-  await buildPath(entityId)
-  return pathSegments
-}
-
-async function getFolderTree(
-  userId: number | undefined,
-  parentId: number | null
-): Promise<Entity[]> {
-  const entities = await prisma.entity.findMany({
-    where: { userId, parentId, type: 'FOLDER' },
-    orderBy: { type: 'asc' },
-    include: { childEntities: true }, // Include child entities to build the tree
-  })
-
-  return Promise.all(
-    entities.map(async (entity) => ({
-      ...entity,
-      childEntities: await getFolderTree(userId, entity.id), // Recursive call
-    }))
-  )
-}
+app.use(authRouter)
 
 app.get('/', isAuthenticated, handleSortQuery, async (req: Request, res: Response) => {
   const { sortCriteria } = req
@@ -104,6 +70,7 @@ app.get('/', isAuthenticated, handleSortQuery, async (req: Request, res: Respons
 
   const sortQuery = sortCriteria?.reduce((acc, curr) => ({ ...acc, ...curr }), {})
   const folders = await getFolderTree(req.user?.id, null)
+  console.log({ folders })
 
   res.render('dashboard', {
     title: 'File Uploader',
@@ -115,8 +82,6 @@ app.get('/', isAuthenticated, handleSortQuery, async (req: Request, res: Respons
     helpers,
   })
 })
-
-app.use(authRouter)
 
 // GET: /:entityId (Dashboard)
 app.get('/:entityId', isAuthenticated, handleSortQuery, async (req: Request, res: Response) => {
