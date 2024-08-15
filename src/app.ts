@@ -8,14 +8,15 @@ import morgan from 'morgan'
 import { PrismaSessionStore } from '@quixo3/prisma-session-store'
 import multer from 'multer'
 import authRouter from 'src/routers/authRouter'
+import entityRouter from 'src/routers/entityRouter'
 import { Entity } from '@prisma/client'
 import supabaseAdmin from 'src/db/supabaseAdminClient'
 import { decode } from 'base64-arraybuffer'
 import { Readable } from 'stream'
 import { Prisma } from '@prisma/client'
 import helpers from 'src/lib/utils/ejsHelpers'
-import handleSortQuery from 'src/middleware/handleSortQuery'
 import { getPathSegments, getFolderTree } from './services/dirService'
+import { isAuthenticated } from 'src/middleware/isAuthenticated'
 
 const PORT = process.env.PORT || 3000
 
@@ -53,70 +54,8 @@ app.use((req, res, next) => {
   next()
 })
 
-const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
-  if (req.isAuthenticated()) return next()
-  res.redirect('/login')
-}
-
 app.use(authRouter)
-
-app.get('/', isAuthenticated, handleSortQuery, async (req: Request, res: Response) => {
-  const { sortCriteria } = req
-
-  const files = await prisma.entity.findMany({
-    where: { userId: req.user?.id, parentId: null },
-    orderBy: sortCriteria,
-  })
-
-  const sortQuery = sortCriteria?.reduce((acc, curr) => ({ ...acc, ...curr }), {})
-  const folders = await getFolderTree(req.user?.id, null)
-  console.log({ folders })
-
-  res.render('dashboard', {
-    title: 'File Uploader',
-    files,
-    folders,
-    id: null,
-    parentId: null,
-    sortQuery,
-    helpers,
-  })
-})
-
-// GET: /:entityId (Dashboard)
-app.get('/:entityId', isAuthenticated, handleSortQuery, async (req: Request, res: Response) => {
-  const id = Number(req.params.entityId)
-
-  const { sortCriteria } = req
-
-  const entity = await prisma.entity.findUnique({
-    where: { id },
-    include: {
-      childEntities: {
-        orderBy: sortCriteria,
-      },
-    },
-  })
-  if (!entity) return res.status(404).send('Not found')
-
-  const { name, type, childEntities: files, parentId } = entity
-  const sortQuery = sortCriteria?.reduce((acc, curr) => ({ ...acc, ...curr }), {})
-  const folders = await getFolderTree(req.user?.id, null)
-  const pathSegments = await getPathSegments(id)
-
-  res.render('dashboard', {
-    title: 'File Uploader',
-    id,
-    name,
-    type,
-    files,
-    parentId,
-    pathSegments,
-    folders,
-    sortQuery,
-    helpers,
-  })
-})
+app.use(entityRouter)
 
 // POST: Upload a file
 app.post('/upload', isAuthenticated, upload.single('uploaded_file'), async (req, res, next) => {

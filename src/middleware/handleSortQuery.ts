@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express'
 import { Prisma } from '@prisma/client'
 
-export default function handleSortQuery(req: Request, res: Response, next: NextFunction) {
+export const handleSortQuery = (req: Request, res: Response, next: NextFunction) => {
   const defaultSort = [{ type: 'asc' as 'asc' | 'desc' }]
   const sortQuery = req.query.sort
 
