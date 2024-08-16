@@ -6,22 +6,10 @@ import passport from 'src/auth/passportConfig'
 import path from 'path'
 import morgan from 'morgan'
 import { PrismaSessionStore } from '@quixo3/prisma-session-store'
-import multer from 'multer'
 import authRouter from 'src/routers/authRouter'
 import entityRouter from 'src/routers/entityRouter'
-import { Entity } from '@prisma/client'
-import supabaseAdmin from 'src/db/supabaseAdminClient'
-import { decode } from 'base64-arraybuffer'
-import { Readable } from 'stream'
-import { Prisma } from '@prisma/client'
-import helpers from 'src/lib/utils/ejsHelpers'
-import { getPathSegments, getFolderTree } from './services/dirService'
-import { isAuthenticated } from 'src/middleware/isAuthenticated'
 
 const PORT = process.env.PORT || 3000
-
-// const upload = multer({ dest: './public/data/uploads/' })
-const upload = multer({ storage: multer.memoryStorage() })
 
 const app = express()
 app.set('views', __dirname + '/views')
@@ -56,131 +44,6 @@ app.use((req, res, next) => {
 
 app.use(authRouter)
 app.use(entityRouter)
-
-// POST: Upload a file
-app.post('/upload', isAuthenticated, upload.single('uploaded_file'), async (req, res, next) => {
-  try {
-    const id = req.user?.id
-    const file = req.file
-    if (!id) return res.status(500).send({ errors: [{ message: 'Unauthorized' }] })
-
-    // req.file is the name of the user's file in the form, 'uploaded_file'
-    if (!file) return res.status(400).send({ errors: [{ message: 'No file uploaded' }] })
-    const { originalname, mimetype, size, buffer } = file
-    const parentId = Number(req.body.parentId) || null
-
-    const bucketName = 'files'
-    const options = { contentType: mimetype }
-    const filePath = `${id}/${originalname}`
-    const fileBase64 = decode(buffer.toString('base64'))
-
-    const { data, error } = await supabaseAdmin.storage
-      .from(bucketName)
-      .upload(filePath, fileBase64, options)
-
-    if (error) {
-      console.log(error)
-      if ('statusCode' in error && error.statusCode === '409') {
-        console.log('Duplicate')
-        return res.redirect(`/${path}?error=${error.message}`)
-      }
-    }
-
-    // add to database using prisma
-    const newFile = await prisma.entity.create({
-      data: {
-        type: 'FILE',
-        name: originalname,
-        mimeType: mimetype,
-        size,
-        userId: id,
-        parentId,
-      },
-    })
-    res.redirect(`/${parentId}`)
-  } catch (error) {
-    console.log(error)
-  }
-})
-
-// POST: Create a new folder
-app.post('/new', async (req, res) => {
-  const id = req.user?.id
-  if (!id) return res.status(500).send({ errors: [{ message: 'Unauthorized' }] })
-
-  const parentId = Number(req.body.parentId) || null
-
-  const newFolder = await prisma.entity.create({
-    data: {
-      type: 'FOLDER',
-      name: req.body.name || Date.now().toString(),
-      userId: id,
-      parentId,
-    },
-  })
-  res.redirect(`back`)
-})
-
-app.post('/delete/:entityId', async (req, res, next) => {
-  try {
-    const userId = req.user?.id
-    if (!userId) return res.status(500).send({ errors: [{ message: 'Unauthorized' }] })
-
-    const { entityId } = req.params
-    const { parentId } = req.body
-
-    if (entityId === 'null') throw new Error('Cannot delete root folder')
-
-    await prisma.entity.delete({
-      where: {
-        id: Number(entityId),
-      },
-    })
-    res.redirect(`/${parentId}`)
-  } catch (err) {
-    next(err)
-  }
-})
-
-app.get('/download/:entityId', isAuthenticated, async (req, res) => {
-  try {
-    const fileName = req.query.name
-    const mimetype = String(req.query.mimetype)
-    const filePath = `${req.user?.id}/${fileName}`
-    const { data, error } = await supabaseAdmin.storage.from('files').download(filePath)
-    if (error) {
-      console.log(error)
-    }
-    if (!data) {
-      return res.status(500).json({ errors: [{ message: 'No readable stream' }] })
-    }
-    const buffer = await data.arrayBuffer()
-    const stream = Readable.from(Buffer.from(buffer))
-    res.setHeader('Content-Type', mimetype || 'application/octet-stream')
-    res.setHeader('Content-Disposition', `attachment; filename="${filePath.split('/').pop()}"`)
-    stream.pipe(res)
-  } catch (err) {
-    console.log(err)
-  }
-})
-
-app.post('/share/:fileName', isAuthenticated, async (req, res, next) => {
-  try {
-    const { fileName } = req.params
-    const filePath = `${req.user?.id}/${fileName}`
-    const { data } = await supabaseAdmin.storage
-      .from('files')
-      .createSignedUrl(filePath, 60 * 60 * 24 * 7)
-
-    if (!data) {
-      return res.status(500).send({ errors: [{ message: 'Error fetching signed URL' }] })
-    }
-    res.json(data.signedUrl)
-  } catch (err) {
-    console.log(err)
-    next(err)
-  }
-})
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
