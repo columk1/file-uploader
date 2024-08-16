@@ -1,11 +1,9 @@
 import 'dotenv/config.js'
 import express, { Request, Response, NextFunction } from 'express'
-import prisma from 'src/db/prismaClient'
-import session from 'express-session'
+import sessionConfig from 'src/config/sessionConfig'
 import passport from 'src/auth/passportConfig'
 import path from 'path'
 import morgan from 'morgan'
-import { PrismaSessionStore } from '@quixo3/prisma-session-store'
 import authRouter from 'src/routers/authRouter'
 import entityRouter from 'src/routers/entityRouter'
 
@@ -17,21 +15,7 @@ app.set('view engine', 'ejs')
 app.use(express.static(path.join(__dirname, '../public')))
 app.use(express.urlencoded({ extended: true }))
 app.use(morgan('dev'))
-app.use(
-  session({
-    cookie: {
-      maxAge: 7 * 24 * 60 * 60 * 1000, // ms
-    },
-    secret: process.env.SESSION_SECRET || 'keyboard cat',
-    resave: false,
-    saveUninitialized: true,
-    store: new PrismaSessionStore(prisma, {
-      checkPeriod: 2 * 60 * 1000, //ms
-      dbRecordIdIsSessionId: true,
-      dbRecordIdFunction: undefined,
-    }),
-  })
-)
+app.use(sessionConfig)
 
 app.use(passport.session())
 app.use(passport.initialize())
