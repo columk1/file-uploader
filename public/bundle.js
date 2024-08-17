@@ -711,11 +711,11 @@ var validValidityState = Object.freeze({
   valid: true,
   valueMissing: false
 });
-Object.freeze(__spreadProps(__spreadValues({}, validValidityState), {
+var valueMissingValidityState = Object.freeze(__spreadProps(__spreadValues({}, validValidityState), {
   valid: false,
   valueMissing: true
 }));
-Object.freeze(__spreadProps(__spreadValues({}, validValidityState), {
+var customErrorValidityState = Object.freeze(__spreadProps(__spreadValues({}, validValidityState), {
   valid: false,
   customError: true
 }));
@@ -8087,6 +8087,580 @@ __decorateClass([
 ], SlProgressBar.prototype, "label", 2);
 
 SlProgressBar.define("sl-progress-bar");
+
+// src/components/radio-group/radio-group.styles.ts
+var radio_group_styles_default = i$2`
+  :host {
+    display: block;
+  }
+
+  .form-control {
+    position: relative;
+    border: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .form-control__label {
+    padding: 0;
+  }
+
+  .radio-group--required .radio-group__label::after {
+    content: var(--sl-input-required-content);
+    margin-inline-start: var(--sl-input-required-content-offset);
+  }
+
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+`;
+
+// src/components/button-group/button-group.styles.ts
+var button_group_styles_default = i$2`
+  :host {
+    display: inline-block;
+  }
+
+  .button-group {
+    display: flex;
+    flex-wrap: nowrap;
+  }
+`;
+
+var SlButtonGroup = class extends ShoelaceElement {
+  constructor() {
+    super(...arguments);
+    this.disableRole = false;
+    this.label = "";
+  }
+  handleFocus(event) {
+    const button = findButton(event.target);
+    button == null ? void 0 : button.toggleAttribute("data-sl-button-group__button--focus", true);
+  }
+  handleBlur(event) {
+    const button = findButton(event.target);
+    button == null ? void 0 : button.toggleAttribute("data-sl-button-group__button--focus", false);
+  }
+  handleMouseOver(event) {
+    const button = findButton(event.target);
+    button == null ? void 0 : button.toggleAttribute("data-sl-button-group__button--hover", true);
+  }
+  handleMouseOut(event) {
+    const button = findButton(event.target);
+    button == null ? void 0 : button.toggleAttribute("data-sl-button-group__button--hover", false);
+  }
+  handleSlotChange() {
+    const slottedElements = [...this.defaultSlot.assignedElements({ flatten: true })];
+    slottedElements.forEach((el) => {
+      const index = slottedElements.indexOf(el);
+      const button = findButton(el);
+      if (button) {
+        button.toggleAttribute("data-sl-button-group__button", true);
+        button.toggleAttribute("data-sl-button-group__button--first", index === 0);
+        button.toggleAttribute("data-sl-button-group__button--inner", index > 0 && index < slottedElements.length - 1);
+        button.toggleAttribute("data-sl-button-group__button--last", index === slottedElements.length - 1);
+        button.toggleAttribute(
+          "data-sl-button-group__button--radio",
+          button.tagName.toLowerCase() === "sl-radio-button"
+        );
+      }
+    });
+  }
+  render() {
+    return ke$1`
+      <div
+        part="base"
+        class="button-group"
+        role="${this.disableRole ? "presentation" : "group"}"
+        aria-label=${this.label}
+        @focusout=${this.handleBlur}
+        @focusin=${this.handleFocus}
+        @mouseover=${this.handleMouseOver}
+        @mouseout=${this.handleMouseOut}
+      >
+        <slot @slotchange=${this.handleSlotChange}></slot>
+      </div>
+    `;
+  }
+};
+SlButtonGroup.styles = [component_styles_default, button_group_styles_default];
+__decorateClass([
+  e$1("slot")
+], SlButtonGroup.prototype, "defaultSlot", 2);
+__decorateClass([
+  r()
+], SlButtonGroup.prototype, "disableRole", 2);
+__decorateClass([
+  n()
+], SlButtonGroup.prototype, "label", 2);
+function findButton(el) {
+  var _a;
+  const selector = "sl-button, sl-radio-button";
+  return (_a = el.closest(selector)) != null ? _a : el.querySelector(selector);
+}
+
+var SlRadioGroup = class extends ShoelaceElement {
+  constructor() {
+    super(...arguments);
+    this.formControlController = new FormControlController(this);
+    this.hasSlotController = new HasSlotController(this, "help-text", "label");
+    this.customValidityMessage = "";
+    this.hasButtonGroup = false;
+    this.errorMessage = "";
+    this.defaultValue = "";
+    this.label = "";
+    this.helpText = "";
+    this.name = "option";
+    this.value = "";
+    this.size = "medium";
+    this.form = "";
+    this.required = false;
+  }
+  /** Gets the validity state object */
+  get validity() {
+    const isRequiredAndEmpty = this.required && !this.value;
+    const hasCustomValidityMessage = this.customValidityMessage !== "";
+    if (hasCustomValidityMessage) {
+      return customErrorValidityState;
+    } else if (isRequiredAndEmpty) {
+      return valueMissingValidityState;
+    }
+    return validValidityState;
+  }
+  /** Gets the validation message */
+  get validationMessage() {
+    const isRequiredAndEmpty = this.required && !this.value;
+    const hasCustomValidityMessage = this.customValidityMessage !== "";
+    if (hasCustomValidityMessage) {
+      return this.customValidityMessage;
+    } else if (isRequiredAndEmpty) {
+      return this.validationInput.validationMessage;
+    }
+    return "";
+  }
+  connectedCallback() {
+    super.connectedCallback();
+    this.defaultValue = this.value;
+  }
+  firstUpdated() {
+    this.formControlController.updateValidity();
+  }
+  getAllRadios() {
+    return [...this.querySelectorAll("sl-radio, sl-radio-button")];
+  }
+  handleRadioClick(event) {
+    const target = event.target.closest("sl-radio, sl-radio-button");
+    const radios = this.getAllRadios();
+    const oldValue = this.value;
+    if (!target || target.disabled) {
+      return;
+    }
+    this.value = target.value;
+    radios.forEach((radio) => radio.checked = radio === target);
+    if (this.value !== oldValue) {
+      this.emit("sl-change");
+      this.emit("sl-input");
+    }
+  }
+  handleKeyDown(event) {
+    var _a;
+    if (!["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", " "].includes(event.key)) {
+      return;
+    }
+    const radios = this.getAllRadios().filter((radio) => !radio.disabled);
+    const checkedRadio = (_a = radios.find((radio) => radio.checked)) != null ? _a : radios[0];
+    const incr = event.key === " " ? 0 : ["ArrowUp", "ArrowLeft"].includes(event.key) ? -1 : 1;
+    const oldValue = this.value;
+    let index = radios.indexOf(checkedRadio) + incr;
+    if (index < 0) {
+      index = radios.length - 1;
+    }
+    if (index > radios.length - 1) {
+      index = 0;
+    }
+    this.getAllRadios().forEach((radio) => {
+      radio.checked = false;
+      if (!this.hasButtonGroup) {
+        radio.setAttribute("tabindex", "-1");
+      }
+    });
+    this.value = radios[index].value;
+    radios[index].checked = true;
+    if (!this.hasButtonGroup) {
+      radios[index].setAttribute("tabindex", "0");
+      radios[index].focus();
+    } else {
+      radios[index].shadowRoot.querySelector("button").focus();
+    }
+    if (this.value !== oldValue) {
+      this.emit("sl-change");
+      this.emit("sl-input");
+    }
+    event.preventDefault();
+  }
+  handleLabelClick() {
+    const radios = this.getAllRadios();
+    const checked = radios.find((radio) => radio.checked);
+    const radioToFocus = checked || radios[0];
+    if (radioToFocus) {
+      radioToFocus.focus();
+    }
+  }
+  handleInvalid(event) {
+    this.formControlController.setValidity(false);
+    this.formControlController.emitInvalidEvent(event);
+  }
+  async syncRadioElements() {
+    var _a, _b;
+    const radios = this.getAllRadios();
+    await Promise.all(
+      // Sync the checked state and size
+      radios.map(async (radio) => {
+        await radio.updateComplete;
+        radio.checked = radio.value === this.value;
+        radio.size = this.size;
+      })
+    );
+    this.hasButtonGroup = radios.some((radio) => radio.tagName.toLowerCase() === "sl-radio-button");
+    if (radios.length > 0 && !radios.some((radio) => radio.checked)) {
+      if (this.hasButtonGroup) {
+        const buttonRadio = (_a = radios[0].shadowRoot) == null ? void 0 : _a.querySelector("button");
+        if (buttonRadio) {
+          buttonRadio.setAttribute("tabindex", "0");
+        }
+      } else {
+        radios[0].setAttribute("tabindex", "0");
+      }
+    }
+    if (this.hasButtonGroup) {
+      const buttonGroup = (_b = this.shadowRoot) == null ? void 0 : _b.querySelector("sl-button-group");
+      if (buttonGroup) {
+        buttonGroup.disableRole = true;
+      }
+    }
+  }
+  syncRadios() {
+    if (customElements.get("sl-radio") && customElements.get("sl-radio-button")) {
+      this.syncRadioElements();
+      return;
+    }
+    if (customElements.get("sl-radio")) {
+      this.syncRadioElements();
+    } else {
+      customElements.whenDefined("sl-radio").then(() => this.syncRadios());
+    }
+    if (customElements.get("sl-radio-button")) {
+      this.syncRadioElements();
+    } else {
+      customElements.whenDefined("sl-radio-button").then(() => this.syncRadios());
+    }
+  }
+  updateCheckedRadio() {
+    const radios = this.getAllRadios();
+    radios.forEach((radio) => radio.checked = radio.value === this.value);
+    this.formControlController.setValidity(this.validity.valid);
+  }
+  handleSizeChange() {
+    this.syncRadios();
+  }
+  handleValueChange() {
+    if (this.hasUpdated) {
+      this.updateCheckedRadio();
+    }
+  }
+  /** Checks for validity but does not show a validation message. Returns `true` when valid and `false` when invalid. */
+  checkValidity() {
+    const isRequiredAndEmpty = this.required && !this.value;
+    const hasCustomValidityMessage = this.customValidityMessage !== "";
+    if (isRequiredAndEmpty || hasCustomValidityMessage) {
+      this.formControlController.emitInvalidEvent();
+      return false;
+    }
+    return true;
+  }
+  /** Gets the associated form, if one exists. */
+  getForm() {
+    return this.formControlController.getForm();
+  }
+  /** Checks for validity and shows the browser's validation message if the control is invalid. */
+  reportValidity() {
+    const isValid = this.validity.valid;
+    this.errorMessage = this.customValidityMessage || isValid ? "" : this.validationInput.validationMessage;
+    this.formControlController.setValidity(isValid);
+    this.validationInput.hidden = true;
+    clearTimeout(this.validationTimeout);
+    if (!isValid) {
+      this.validationInput.hidden = false;
+      this.validationInput.reportValidity();
+      this.validationTimeout = setTimeout(() => this.validationInput.hidden = true, 1e4);
+    }
+    return isValid;
+  }
+  /** Sets a custom validation message. Pass an empty string to restore validity. */
+  setCustomValidity(message = "") {
+    this.customValidityMessage = message;
+    this.errorMessage = message;
+    this.validationInput.setCustomValidity(message);
+    this.formControlController.updateValidity();
+  }
+  render() {
+    const hasLabelSlot = this.hasSlotController.test("label");
+    const hasHelpTextSlot = this.hasSlotController.test("help-text");
+    const hasLabel = this.label ? true : !!hasLabelSlot;
+    const hasHelpText = this.helpText ? true : !!hasHelpTextSlot;
+    const defaultSlot = ke$1`
+      <slot @slotchange=${this.syncRadios} @click=${this.handleRadioClick} @keydown=${this.handleKeyDown}></slot>
+    `;
+    return ke$1`
+      <fieldset
+        part="form-control"
+        class=${Rt({
+      "form-control": true,
+      "form-control--small": this.size === "small",
+      "form-control--medium": this.size === "medium",
+      "form-control--large": this.size === "large",
+      "form-control--radio-group": true,
+      "form-control--has-label": hasLabel,
+      "form-control--has-help-text": hasHelpText
+    })}
+        role="radiogroup"
+        aria-labelledby="label"
+        aria-describedby="help-text"
+        aria-errormessage="error-message"
+      >
+        <label
+          part="form-control-label"
+          id="label"
+          class="form-control__label"
+          aria-hidden=${hasLabel ? "false" : "true"}
+          @click=${this.handleLabelClick}
+        >
+          <slot name="label">${this.label}</slot>
+        </label>
+
+        <div part="form-control-input" class="form-control-input">
+          <div class="visually-hidden">
+            <div id="error-message" aria-live="assertive">${this.errorMessage}</div>
+            <label class="radio-group__validation">
+              <input
+                type="text"
+                class="radio-group__validation-input"
+                ?required=${this.required}
+                tabindex="-1"
+                hidden
+                @invalid=${this.handleInvalid}
+              />
+            </label>
+          </div>
+
+          ${this.hasButtonGroup ? ke$1`
+                <sl-button-group part="button-group" exportparts="base:button-group__base" role="presentation">
+                  ${defaultSlot}
+                </sl-button-group>
+              ` : defaultSlot}
+        </div>
+
+        <div
+          part="form-control-help-text"
+          id="help-text"
+          class="form-control__help-text"
+          aria-hidden=${hasHelpText ? "false" : "true"}
+        >
+          <slot name="help-text">${this.helpText}</slot>
+        </div>
+      </fieldset>
+    `;
+  }
+};
+SlRadioGroup.styles = [component_styles_default, form_control_styles_default, radio_group_styles_default];
+SlRadioGroup.dependencies = { "sl-button-group": SlButtonGroup };
+__decorateClass([
+  e$1("slot:not([name])")
+], SlRadioGroup.prototype, "defaultSlot", 2);
+__decorateClass([
+  e$1(".radio-group__validation-input")
+], SlRadioGroup.prototype, "validationInput", 2);
+__decorateClass([
+  r()
+], SlRadioGroup.prototype, "hasButtonGroup", 2);
+__decorateClass([
+  r()
+], SlRadioGroup.prototype, "errorMessage", 2);
+__decorateClass([
+  r()
+], SlRadioGroup.prototype, "defaultValue", 2);
+__decorateClass([
+  n()
+], SlRadioGroup.prototype, "label", 2);
+__decorateClass([
+  n({ attribute: "help-text" })
+], SlRadioGroup.prototype, "helpText", 2);
+__decorateClass([
+  n()
+], SlRadioGroup.prototype, "name", 2);
+__decorateClass([
+  n({ reflect: true })
+], SlRadioGroup.prototype, "value", 2);
+__decorateClass([
+  n({ reflect: true })
+], SlRadioGroup.prototype, "size", 2);
+__decorateClass([
+  n({ reflect: true })
+], SlRadioGroup.prototype, "form", 2);
+__decorateClass([
+  n({ type: Boolean, reflect: true })
+], SlRadioGroup.prototype, "required", 2);
+__decorateClass([
+  watch("size", { waitUntilFirstUpdate: true })
+], SlRadioGroup.prototype, "handleSizeChange", 1);
+__decorateClass([
+  watch("value")
+], SlRadioGroup.prototype, "handleValueChange", 1);
+
+SlRadioGroup.define("sl-radio-group");
+
+var radio_button_styles_default = i$2`
+  ${button_styles_default}
+
+  .button__prefix,
+  .button__suffix,
+  .button__label {
+    display: inline-flex;
+    position: relative;
+    align-items: center;
+  }
+
+  /* We use a hidden input so constraint validation errors work, since they don't appear to show when used with buttons.
+    We can't actually hide it, though, otherwise the messages will be suppressed by the browser. */
+  .hidden-input {
+    all: unset;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    outline: dotted 1px red;
+    opacity: 0;
+    z-index: -1;
+  }
+`;
+
+var SlRadioButton = class extends ShoelaceElement {
+  constructor() {
+    super(...arguments);
+    this.hasSlotController = new HasSlotController(this, "[default]", "prefix", "suffix");
+    this.hasFocus = false;
+    this.checked = false;
+    this.disabled = false;
+    this.size = "medium";
+    this.pill = false;
+  }
+  connectedCallback() {
+    super.connectedCallback();
+    this.setAttribute("role", "presentation");
+  }
+  handleBlur() {
+    this.hasFocus = false;
+    this.emit("sl-blur");
+  }
+  handleClick(e) {
+    if (this.disabled) {
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
+    this.checked = true;
+  }
+  handleFocus() {
+    this.hasFocus = true;
+    this.emit("sl-focus");
+  }
+  handleDisabledChange() {
+    this.setAttribute("aria-disabled", this.disabled ? "true" : "false");
+  }
+  /** Sets focus on the radio button. */
+  focus(options) {
+    this.input.focus(options);
+  }
+  /** Removes focus from the radio button. */
+  blur() {
+    this.input.blur();
+  }
+  render() {
+    return ke`
+      <div part="base" role="presentation">
+        <button
+          part="${`button${this.checked ? " button--checked" : ""}`}"
+          role="radio"
+          aria-checked="${this.checked}"
+          class=${Rt({
+      button: true,
+      "button--default": true,
+      "button--small": this.size === "small",
+      "button--medium": this.size === "medium",
+      "button--large": this.size === "large",
+      "button--checked": this.checked,
+      "button--disabled": this.disabled,
+      "button--focused": this.hasFocus,
+      "button--outline": true,
+      "button--pill": this.pill,
+      "button--has-label": this.hasSlotController.test("[default]"),
+      "button--has-prefix": this.hasSlotController.test("prefix"),
+      "button--has-suffix": this.hasSlotController.test("suffix")
+    })}
+          aria-disabled=${this.disabled}
+          type="button"
+          value=${to(this.value)}
+          @blur=${this.handleBlur}
+          @focus=${this.handleFocus}
+          @click=${this.handleClick}
+        >
+          <slot name="prefix" part="prefix" class="button__prefix"></slot>
+          <slot part="label" class="button__label"></slot>
+          <slot name="suffix" part="suffix" class="button__suffix"></slot>
+        </button>
+      </div>
+    `;
+  }
+};
+SlRadioButton.styles = [component_styles_default, radio_button_styles_default];
+__decorateClass([
+  e$1(".button")
+], SlRadioButton.prototype, "input", 2);
+__decorateClass([
+  e$1(".hidden-input")
+], SlRadioButton.prototype, "hiddenInput", 2);
+__decorateClass([
+  r()
+], SlRadioButton.prototype, "hasFocus", 2);
+__decorateClass([
+  n({ type: Boolean, reflect: true })
+], SlRadioButton.prototype, "checked", 2);
+__decorateClass([
+  n()
+], SlRadioButton.prototype, "value", 2);
+__decorateClass([
+  n({ type: Boolean, reflect: true })
+], SlRadioButton.prototype, "disabled", 2);
+__decorateClass([
+  n({ reflect: true })
+], SlRadioButton.prototype, "size", 2);
+__decorateClass([
+  n({ type: Boolean, reflect: true })
+], SlRadioButton.prototype, "pill", 2);
+__decorateClass([
+  watch("disabled", { waitUntilFirstUpdate: true })
+], SlRadioButton.prototype, "handleDisabledChange", 1);
+
+SlRadioButton.define("sl-radio-button");
 
 SlSpinner.define("sl-spinner");
 
