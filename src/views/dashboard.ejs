@@ -3,7 +3,6 @@
 </script>
 
 <%- include('header') -%>
-<% console.log({type}) %>
 <div class="overlay">
   <div class="overlay__wrapper">
     <sl-spinner style="font-size: 2rem;"></sl-spinner>
@@ -173,7 +172,7 @@
 <sl-dialog label="Delete Folder" class="dialog-focus delete-folder-dialog">
   Are you sure you want to delete the current folder and all of its contents?
   <form id="delete-form" action="<%=`/delete/${id}`%>" method="POST">
-    <input type="hidden" name="type" value="<%= type %>"></input>
+    <input type="hidden" name="type" value="FOLDER"></input>
     <input type="hidden" name="parentId" value="<%= parentId %>"></input>
     </br>
     <div class="btn-group">
