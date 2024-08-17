@@ -7,6 +7,8 @@ import {
   downloadFile,
   shareFile,
   createFolder,
+  shareFolder,
+  getPublicFolder,
 } from 'src/controllers/entityController'
 import { isAuthenticated } from 'src/middleware/isAuthenticated'
 import { handleSortQuery } from 'src/middleware/handleSortQuery'
@@ -20,8 +22,10 @@ router.get('/', isAuthenticated, handleSortQuery, getDashboard)
 router.get('/:entityId', isAuthenticated, handleSortQuery, getEntityById)
 router.post('/new', isAuthenticated, createFolder)
 router.post('/upload', isAuthenticated, upload.single('uploaded_file'), uploadFile)
-router.delete('/delete/:entityId', isAuthenticated, deleteEntity)
+router.post('/delete/:entityId', isAuthenticated, deleteEntity)
 router.get('/download/:entityId', isAuthenticated, downloadFile)
-router.get('/share/:entityId', isAuthenticated, shareFile)
+router.get('/share/file/:fileName', isAuthenticated, shareFile)
+router.get('/share/folder/:entityId', isAuthenticated, shareFolder)
+router.get('/public/:entityId', handleSortQuery, getPublicFolder)
 
 export default router
