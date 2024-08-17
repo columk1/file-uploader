@@ -1,7 +1,7 @@
 import prisma from 'src/db/prismaClient'
 import { Entity } from '@prisma/client'
 
-const getPathSegments = async (entityId: number) => {
+async function getPathSegments(entityId: number) {
   const pathSegments: { id: number; name: string }[] = []
 
   async function buildPath(id: number) {
@@ -52,4 +52,27 @@ async function getFolderTree(
   )
 }
 
-export { getPathSegments, getFolderTree }
+async function getAllFilenames(userId: number, parentId: number) {
+  const entities = await prisma.entity.findMany({
+    where: { userId, parentId },
+    select: {
+      id: true,
+      type: true,
+      name: true,
+    },
+  })
+
+  let filenames: string[] = []
+
+  for (const entity of entities) {
+    if (entity.type === 'FILE') {
+      filenames.push(entity.name)
+    } else if (entity.type === 'FOLDER') {
+      const childFilenames = await getAllFilenames(userId, entity.id)
+      filenames.push(...childFilenames)
+    }
+  }
+  return filenames
+}
+
+export { getPathSegments, getFolderTree, getAllFilenames }
