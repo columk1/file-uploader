@@ -3,6 +3,7 @@
 </script>
 
 <%- include('header') -%>
+<% console.log({type}) %>
 <div class="overlay">
   <div class="overlay__wrapper">
     <sl-spinner style="font-size: 2rem;"></sl-spinner>
@@ -12,26 +13,27 @@
   <aside class="layout-sidebar">
     <nav>
       <ul>
-        <% if (!locals.type || locals.type === 'FOLDER') { %>
+        <li>
+          <sl-button class="card-btn new-folder-btn">
+            <sl-icon class="card-icon" name="folder-plus"></sl-icon><span>New Folder</span>
+          </sl-button>
+        </li>
+        <li>
+          <sl-button class="card-btn new-file-btn">
+            <sl-icon class="card-icon" name="file-earmark-plus"></sl-icon><span>New File</span>
+          </sl-button>
+        </li>
+        <li>
+          <sl-button class="card-btn share-folder-btn">
+            <sl-icon class="card-icon" name="share"></sl-icon><span>Share Folder</span>
+          </sl-button>
+        </li>
+        <% if (locals.id) { %> 
           <li>
-            <sl-button class="card-btn new-folder-btn">
-              <sl-icon class="card-icon" name="folder-plus"></sl-icon><span>New Folder</span>
-            </sl-button>
-          </li>
-          <li>
-            <sl-button class="card-btn new-file-btn">
-              <sl-icon class="card-icon" name="file-earmark-plus"></sl-icon><span>New File</span>
-            </sl-button>
-          </li>
-          <li>
-            <% if (locals.id) { %> 
             <sl-button class="card-btn delete-folder-btn">
               <sl-icon class="card-icon" name="trash"></sl-icon><span>Delete Folder</span>
             </sl-button>
-            <% } %>
           </li>
-        <% } else { %>
-          <!-- Not a folder -->
         <% } %>
       </ul>
     </nav>
@@ -104,6 +106,8 @@
             <sl-button type="submit" class="drawer-download-btn">Download</sl-button>
             <sl-button class="drawer-share-btn">Share</sl-button>
             <form action="" class="delete-file-form" method="POST">
+              <input type="hidden" name="type" value="FILE"></input>
+              <input type="hidden" name="parentId" value="<%= id %>"></input>
               <sl-button type="submit" class="delete-file-btn">Delete</sl-button>
             </form>
             <sl-button variant="primary">Close</sl-button>
@@ -168,21 +172,36 @@
 </sl-dialog>
 <sl-dialog label="Delete Folder" class="dialog-focus delete-folder-dialog">
   Are you sure you want to delete the current folder and all of its contents?
-  <form id="delete-form" action="<%=`/delete/${id}`%>" method="post">
-    
-      <input type="hidden" name="parentId" value="<%= parentId %>"></input>
-      </br>
-      <div class="btn-group">
+  <form id="delete-form" action="<%=`/delete/${id}`%>" method="POST">
+    <input type="hidden" name="type" value="<%= type %>"></input>
+    <input type="hidden" name="parentId" value="<%= parentId %>"></input>
+    </br>
+    <div class="btn-group">
       <sl-button slot="footer">Cancel</sl-button>
       <sl-button type="submit" slot="footer" variant="primary">Delete</sl-button>
     </div>
   </form>
 </sl-dialog>
+<sl-dialog label="Share Folder" class="dialog-focus share-folder-dialog">
+  Generate a public link to share the selected file. Links will remain valid for 1 week.
+  <form id="share-folder-form">
+    </br>
+    <sl-radio-group label="Select an expiry for your public link" name="a" value="1">
+      <sl-radio-button value="1">1 day</sl-radio-button>
+      <sl-radio-button value="7">7 days</sl-radio-button>
+    </sl-radio-group>
+    <div class="share-folder-link-container"></div>
+    <div class="btn-group">
+      <sl-button slot="footer">Cancel</sl-button>
+      <sl-button id="generate-folder-link-btn" slot="footer" variant="primary" data-id="<%= id %>">Generate Link</sl-button>
+    </div>
+  </form>
+</sl-dialog>
 <sl-dialog label="Share Public Link" class="dialog-focus share-dialog">
   Generate a public link to share the selected file. Links will remain valid for 1 week.
-    </br>
-    <div class="share-link-container"></div>
-    <div class="btn-group">
+  </br>
+  <div class="share-link-container"></div>
+  <div class="btn-group">
     <sl-button slot="footer">Cancel</sl-button>
     <sl-button id="generate-link-btn" slot="footer" variant="primary">Generate Link</sl-button>
   </div>
@@ -205,7 +224,8 @@
   const newFolderDialog = document.querySelector('.new-folder-dialog')
   const newFileDialog = document.querySelector('.new-file-dialog')
   const deleteFolderDialog = document.querySelector('.delete-folder-dialog')
-  const shareDialog = document.querySelector('.share-dialog')
+  const shareFileDialog = document.querySelector('.share-dialog')
+  const shareFolderDialog = document.querySelector('.share-folder-dialog')
   const uploadProgressBar = document.querySelector('.upload-progress')
   const uploadForm = document.querySelector('.upload-form')
   const treeItems = document.querySelectorAll('sl-tree-item')
@@ -261,24 +281,32 @@
     const closeDeleteFolderDialogButton = deleteFolderDialog.querySelector('sl-button[slot="footer"]')
     closeDeleteFolderDialogButton.addEventListener('click', () => deleteFolderDialog.hide())
 
-    const shareFolderButtons = document.querySelectorAll('.share-btn')
-    shareFolderButtons.forEach(button => button.addEventListener('click', () => shareDialog.show()))
+    // const shareFileButton = document.querySelector('.share-btn')
+    // shareFileButton.addEventListener('click', () => shareFileDialog.show())
 
-    const closeShareDialogButton = shareDialog.querySelector('sl-button[slot="footer"]')
-    closeShareDialogButton.addEventListener('click', () => shareDialog.hide())
+    const closeshareFileDialogButton = shareFileDialog.querySelector('sl-button[slot="footer"]')
+    closeshareFileDialogButton.addEventListener('click', () => shareFileDialog.hide())
 
-    const shareForm = shareDialog.querySelector('form')
-    const shareLinkContainer = shareDialog.querySelector('.share-link-container')
-    const generateLinkButton = shareDialog.querySelector('#generate-link-btn')
-    generateLinkButton.addEventListener('click', generatePublicLink, { once: true})
-      // shareDialog.hide()
+    const shareForm = shareFileDialog.querySelector('form')
+    const shareLinkContainer = shareFileDialog.querySelector('.share-link-container')
+    const generateLinkButton = shareFileDialog.querySelector('#generate-link-btn')
+    generateLinkButton.addEventListener('click', generatePublicFileUrl, { once: true})
+      // shareFileDialog.hide()
 
-    async function generatePublicLink() {
+    const shareFolderButton = document.querySelector('.share-folder-btn')
+    shareFolderButton.addEventListener('click', () => shareFolderDialog.show())
+
+    const closeShareFolderDialogButton = shareFolderDialog.querySelector('sl-button[slot="footer"]')
+    closeShareFolderDialogButton.addEventListener('click', () => shareFolderDialog.hide())
+
+    const shareFolderLinkContainer = shareFolderDialog.querySelector('.share-folder-link-container')
+    const generateFolderLinkButton = shareFolderDialog.querySelector('#generate-folder-link-btn')
+    generateFolderLinkButton.addEventListener('click', generatePublicFolderUrl, { once: true })
+
+    async function generatePublicFileUrl() {
       const linkInput = document.createElement('sl-input')
       generateLinkButton.loading = true
-      const res = await fetch(`share/${generateLinkButton.dataset.filename}`, {
-        method: 'POST',
-      })
+      const res = await fetch(`share/file/${generateLinkButton.dataset.filename}`)
       const data = await res.json()
       linkInput.value = data
       shareLinkContainer.appendChild(linkInput)
@@ -287,6 +315,21 @@
       generateLinkButton.addEventListener('click', () => {
         navigator.clipboard.writeText(data)
         generateLinkButton.textContent = 'Copied!'
+      })
+    }
+
+    async function generatePublicFolderUrl() {
+      const linkInput = document.createElement('sl-input')
+      generateFolderLinkButton.loading = true
+      const res = await fetch(`share/folder/${generateFolderLinkButton.dataset.id}`)
+      const data = await res.json()
+      linkInput.value = data.publicUrl
+      shareFolderLinkContainer.appendChild(linkInput)
+      generateFolderLinkButton.loading = false
+      generateFolderLinkButton.textContent = 'Copy Link'
+      generateFolderLinkButton.addEventListener('click', () => {
+        navigator.clipboard.writeText(linkInput.value)
+        generateFolderLinkButton.textContent = 'Copied!'
       })
     }
 
@@ -307,7 +350,7 @@
       // Repopulate drawer with file info
       drawerContent.replaceChildren(newDrawerContent)
       downloadButton.href = `/download/${file.id}?name=${file.name}&mimeType=${file.mimeType}`
-      shareButton.addEventListener('click', () => shareDialog.show())
+      shareButton.addEventListener('click', () => shareFileDialog.show())
       generateLinkButton.dataset.filename = file.name
       deleteFileForm.action = `/delete/${file.id}`
 
