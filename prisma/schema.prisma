@@ -27,7 +27,7 @@ model Entity {
   userId          Int
   user            User      @relation(fields: [userId], references: [id])
 
-  parentFolder  Entity? @relation("EntityParent", fields: [parentId], references: [id])
+  parentFolder  Entity? @relation("EntityParent", fields: [parentId], references: [id], onDelete: Cascade)
   childEntities  Entity[] @relation("EntityParent")
 
   @@index([parentId])
