@@ -86,6 +86,26 @@ const createFolder = async (req: Request, res: Response) => {
   }
 }
 
+const getUploadUrl = async (req: Request, res: Response) => {
+  const id = req.user?.id
+  if (!id) return res.status(401).send({ errors: [{ message: 'Unauthorized' }] })
+
+  console.log('Request body: ', req.body)
+  const filename = req.body.filename
+  const bucketName = 'files'
+  const filePath = `${id}/${filename}`
+
+  const { data, error } = await supabaseAdmin.storage
+    .from(bucketName)
+    .createSignedUploadUrl(filePath) // URL valid for 60 seconds
+  if (error) {
+    console.log('supabase error: ', error)
+    return res.status(500).send({ errors: [{ message: error.message }] })
+  }
+
+  res.send({ signedUrl: data.signedUrl })
+}
+
 // POST: /upload Upload a file
 const uploadFile = async (req: Request, res: Response) => {
   {
@@ -280,6 +300,7 @@ export {
   getDashboard,
   getEntityById,
   createFolder,
+  getUploadUrl,
   uploadFile,
   deleteEntity,
   downloadFile,
