@@ -199,31 +199,44 @@ const deleteEntity = async (req: Request, res: Response, next: NextFunction) => 
   }
 }
 
-// GET: /download:entityId // TODO: Find out if params should be used here or not
+// GET: /download/:entityId // TODO: Find out if params should be used here or not
 const downloadFile = async (req: Request, res: Response) => {
   try {
     const fileName = req.query.name
-    const mimetype = String(req.query.mimetype)
     const filePath = `${req.user?.id}/${fileName}`
     const { data } = await supabaseAdmin.storage
       .from('files')
       .createSignedUrl(filePath, 60, { download: true })
 
-    res.redirect(data?.signedUrl || '/')
+    if (data?.signedUrl) {
+      res.redirect(data.signedUrl)
+    } else {
+      res.status(500).send({ errors: [{ message: 'Error fetching signed URL' }] })
+    }
+  } catch (err) {
+    console.log(err)
+  }
+}
 
-    // ? Stream to user instead of providing link to protect storage url (could be overkill)
-    // const { data, error } = await supabaseAdmin.storage.from('files').download(filePath)
-    // if (error) {
-    //   console.log(error)
-    // }
-    // if (!data) {
-    //   return res.status(500).json({ errors: [{ message: 'No readable stream' }] })
-    // }
-    // const buffer = await data.arrayBuffer()
-    // const stream = Readable.from(Buffer.from(buffer))
-    // res.setHeader('Content-Type', mimetype || 'application/octet-stream')
-    // res.setHeader('Content-Disposition', `attachment; filename="${filePath.split('/').pop()}"`)
-    // stream.pipe(res)
+const downloadPublicFile = async (req: Request, res: Response) => {
+  try {
+    const id = Number(req.params.entityId)
+    const { filename } = req.query
+
+    const userId = await prisma.entity
+      .findUnique({ where: { id } })
+      .then((entity) => entity?.userId)
+
+    const filePath = `${userId}/${filename}`
+    const { data } = await supabaseAdmin.storage
+      .from('files')
+      .createSignedUrl(filePath, 60, { download: true })
+
+    if (data?.signedUrl) {
+      res.redirect(data.signedUrl)
+    } else {
+      res.status(500).send({ errors: [{ message: 'Error fetching signed URL' }] })
+    }
   } catch (err) {
     console.log(err)
   }
@@ -253,8 +266,16 @@ const shareFolder = async (req: Request, res: Response, next: NextFunction) => {
     console.log(req.params)
     const id = Number(req.params.entityId)
     console.log({ id })
+    const userId = req.user?.id
+    const expiresAt = new Date(Date.now() + 60 * 60 * 24 * 1000)
 
-    const folders = await getFolderTree(req.user?.id, id)
+    const newSharedFolder = await prisma.sharedFolder.create({
+      data: {
+        userId,
+        folderId: id,
+        expiresAt,
+      },
+    })
 
     res.json({ publicUrl: `http:localhost:3000/public/${id}` })
   } catch (err) {
@@ -263,22 +284,46 @@ const shareFolder = async (req: Request, res: Response, next: NextFunction) => {
   }
 }
 
-// GET: /public/:entityId
+// GET: /public/:entityId Or unique publicSessionId?
 const getPublicFolder = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const id = Number(req.params.entityId)
     if (!id) return res.redirect('/')
-    // TODO: Check if id is in public folders table
 
     const { sortCriteria } = req
 
+    const sharedFolder = await prisma.sharedFolder.findFirst({
+      // where: { folderId: id },
+      // include: { folder: true },
+      where: {
+        OR: [
+          { folderId: id }, // Root folder match
+          { folder: { childEntities: { some: { id } } } }, // Descendant folder match
+        ],
+      },
+      include: {
+        folder: true,
+      },
+    })
+    if (!sharedFolder) {
+      return res.status(404).send({ errors: [{ message: 'Not Found' }] })
+    }
+
+    if (new Date() > sharedFolder.expiresAt) {
+      return res.status(410).send('This link has expired')
+    }
+
+    const userId = sharedFolder.userId
+    const rootFolder = { id: sharedFolder.folderId, name: sharedFolder.folder.name }
+
     const files = await prisma.entity.findMany({
-      where: { userId: req.user?.id, parentId: id },
+      where: { userId, parentId: rootFolder.id },
       orderBy: sortCriteria,
     })
     if (!files) return res.status(404).send('Not found')
 
-    const folders = await getFolderTree(req.user?.id, id)
+    const folders = await getFolderTree(4, rootFolder.id)
+    const pathSegments = await getPathSegments(rootFolder.id)
     const sortQuery = sortCriteria?.reduce((acc, curr) => ({ ...acc, ...curr }), {})
 
     res.render('public-folder', {
@@ -287,8 +332,9 @@ const getPublicFolder = async (req: Request, res: Response, next: NextFunction) 
       files,
       folders,
       helpers,
-      parentId: null,
+      pathSegments,
       sortQuery,
+      rootFolder,
     })
   } catch (err) {
     console.log(err)
@@ -304,6 +350,7 @@ export {
   uploadFile,
   deleteEntity,
   downloadFile,
+  downloadPublicFile,
   shareFile,
   shareFolder,
   getPublicFolder,
