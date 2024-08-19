@@ -9,9 +9,11 @@ import {
   createFolder,
   shareFolder,
   getPublicFolder,
+  downloadPublicFile,
 } from 'src/controllers/entityController'
 import { isAuthenticated } from 'src/middleware/isAuthenticated'
 import { handleSortQuery } from 'src/middleware/handleSortQuery'
+import { checkPublicAccess } from 'src/middleware/checkPublicAccess'
 import multer from 'multer'
 
 const upload = multer({ storage: multer.memoryStorage() })
@@ -27,5 +29,6 @@ router.get('/download/:entityId', isAuthenticated, downloadFile)
 router.get('/share/file/:fileName', isAuthenticated, shareFile)
 router.get('/share/folder/:entityId', isAuthenticated, shareFolder)
 router.get('/public/:entityId', handleSortQuery, getPublicFolder)
+router.get('/public/download/:entityId', checkPublicAccess, downloadPublicFile)
 
 export default router
