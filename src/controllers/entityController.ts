@@ -3,10 +3,10 @@ import { getAllFilenames, getFolderTree, getPathSegments } from 'src/services/di
 import prisma from 'src/db/prismaClient'
 import helpers from 'src/lib/utils/ejsHelpers'
 import supabaseAdmin from 'src/db/supabaseAdminClient'
-import { decode } from 'base64-arraybuffer'
 import path from 'path'
 import { Readable } from 'stream'
 
+// GET: /
 const getDashboard = async (req: Request, res: Response) => {
   const { sortCriteria } = req
 
@@ -226,6 +226,7 @@ const downloadFile = async (req: Request, res: Response) => {
   }
 }
 
+// GET: /public/download/:entityId
 const downloadPublicFile = async (req: Request, res: Response) => {
   try {
     const id = Number(req.params.entityId)
@@ -269,12 +270,13 @@ const shareFile = async (req: Request, res: Response, next: NextFunction) => {
   }
 }
 
+// GET: /share/folder/:entityId
 const shareFolder = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    console.log(req.params)
-    const id = Number(req.params.entityId)
-    console.log({ id })
     const userId = req.user?.id
+    if (!userId) return res.status(500).send({ errors: [{ message: 'Unauthorized' }] })
+
+    const id = Number(req.params.entityId)
     const expiresAt = new Date(Date.now() + 60 * 60 * 24 * 1000)
 
     const newSharedFolder = await prisma.sharedFolder.create({
@@ -284,6 +286,9 @@ const shareFolder = async (req: Request, res: Response, next: NextFunction) => {
         expiresAt,
       },
     })
+    if (!newSharedFolder) {
+      return res.status(500).send({ errors: [{ message: 'Error creating shared folder' }] })
+    }
 
     res.json({ publicUrl: `http:localhost:3000/public/${id}` })
   } catch (err) {
@@ -301,8 +306,6 @@ const getPublicFolder = async (req: Request, res: Response, next: NextFunction) 
     const { sortCriteria } = req
 
     const sharedFolder = await prisma.sharedFolder.findFirst({
-      // where: { folderId: id },
-      // include: { folder: true },
       where: {
         OR: [
           { folderId: id }, // Root folder match
