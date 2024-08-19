@@ -1,0 +1,210 @@
+<script id="data-script" type="application/json">
+  <%- JSON.stringify(files) %>
+</script>
+
+<%- include('header') -%>
+<div class="overlay">
+  <div class="overlay__wrapper">
+    <sl-spinner style="font-size: 2rem;"></sl-spinner>
+  </div>
+</div>
+<div class="layout">
+  <aside class="layout-sidebar">
+    <sl-tree>
+      <sl-tree-item expanded <%= locals.id === rootFolder.id && "selected" %>><a href="<%= rootFolder.id %>"><%= rootFolder.name %></a>
+        <% function renderTree(items) { %>
+          <% items.forEach(item => { %>
+            <sl-tree-item
+              data-id="<%= item.id %>"
+              <%= item.id === locals.id && "selected" %> 
+              <%= locals.pathSegments && pathSegments.some(segment => segment.name === item.name) && "expanded" %>
+            >
+              <a href="<%= item.id %>"><%= item.name %></a>
+              <% if (item.childEntities && item.childEntities.length > 0) { %>
+                <%= renderTree(item.childEntities) %>
+              <% } %>
+            </sl-tree-item>
+          <% }); %>
+        <% } %>
+        <%= renderTree(locals.folders) %>
+      <!-- </sl-tree-item> -->
+    </sl-tree>
+  </aside>
+  <main class="layout-main">
+      <% console.dir(locals.pathSegments) %>
+      <div class="breadcrumb-container">
+        <sl-breadcrumb>
+          <% if (locals?.pathSegments?.length > 0) { %>
+            <% locals.pathSegments.forEach((segment) => { %>
+              <sl-breadcrumb-item href="<%= segment.id %>"><%= segment.name %></sl-breadcrumb-item>
+            <% }) %>
+          <% } %>
+        </sl-breadcrumb>
+      </div>
+      <!-- <br /> -->
+      <div class='grid-container'>
+        <div class="grid-header">
+          <a href="<%= locals.helpers.generateSortLink(sortQuery, 'name') %>">
+            <div class="grid-header-col">
+              <div class="grid-col">Name</div>
+              <% if (sortQuery.name) { %>
+                <sl-icon-button name="<%= sortQuery.name === 'desc' ? 'caret-down' : 'caret-up' %>" label="Sort by name"></sl-icon-button>
+              <% } %>
+            </div>
+          </a>
+          <a href="<%= locals.helpers.generateSortLink(sortQuery, 'size') %>">
+            <div class="grid-header-col">
+              <div class="grid-col">Size</div>
+              <% if (sortQuery.size) { %>
+                <sl-icon-button name="<%= sortQuery.size === 'desc' ? 'caret-down' : 'caret-up' %>" label="Sort by size"></sl-icon-button>
+              <% } %>
+            </div>
+          </a>
+          <a href="<%= locals.helpers.generateSortLink(sortQuery, 'createdAt') %>">
+            <div class="grid-header-col">
+              <div class="grid-col">Created</div>
+              <% if (sortQuery.createdAt) { %>
+                <sl-icon-button name="<%= sortQuery.createdAt === 'desc' ? 'caret-down' : 'caret-up' %>" label="Sort by date created"></sl-icon-button>
+              <% } %>
+            </div>
+          </a>
+        </div>
+        <sl-drawer label="Drawer" class="drawer-overview">
+          <div class="drawer-content"></div>
+          <div class="btn-group" slot="footer">
+            <sl-button type="submit" class="drawer-download-btn">Download</sl-button>
+            <sl-button variant="primary">Close</sl-button>
+          </div>
+        </sl-drawer>
+        <% for (var i = 0; i < files.length; i++) {
+          let icon = files[i].type === 'FILE' ? 'file-earmark' : 'folder'; %>
+          <button 
+            <% if (files[i].type === 'FILE') { %>
+              data-index="<%= i %>" 
+            <% } else { %>
+              onclick="window.location.href='/public/<%= files[i].id %>'" 
+            <% } %>
+            class="btn grid-row">
+            <div class="grid-col col-name">
+              <sl-icon class="col-name-icon" name="<%= icon %>"></sl-icon>
+              <small><%= files[i].name %></small>
+            </div>
+            <small class="grid-col">
+              <% if (files[i].size) { %>
+                <sl-format-bytes value="<%= files[i].size %>"></sl-format-bytes>
+              <% } else { %>
+                --
+              <% } %>
+            </small>
+            <small class="grid-col"><%= locals.helpers.formatDate(files[i].createdAt) %></small>
+          </button>
+        <% } %>
+      </div>
+  </main>
+</div>
+<div class="mobile-footer">
+</div>
+
+<script type="module">
+  await Promise.allSettled([
+    customElements.whenDefined('sl-button'),
+    customElements.whenDefined('sl-icon-button'),
+    customElements.whenDefined('sl-drawer'),
+    customElements.whenDefined('sl-dialog'),
+    customElements.whenDefined('sl-tree'),
+    customElements.whenDefined('sl-tree-item'),
+  ])
+
+  const dataScript = document.getElementById('data-script')
+  const files = JSON.parse(dataScript.textContent)
+
+  const overlay = document.querySelector('.overlay')
+  const dialogs = document.querySelectorAll('sl-dialog')
+  const treeItems = document.querySelectorAll('sl-tree-item')
+
+  // File info drawer
+  const drawer = document.querySelector('.drawer-overview')
+  const drawerContent = document.querySelector('.drawer-content')
+  const openButtons = document.querySelectorAll('.btn.grid-row[data-index]')
+  const downloadButton = drawer.querySelector('.drawer-download-btn')
+
+  openButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      const index = button.getAttribute('data-index')
+      const file = files[index]
+      const newDrawerContent = createFileInfoContent(file)
+
+      // Repopulate drawer with file info
+      drawerContent.replaceChildren(newDrawerContent)
+      downloadButton.href = `/public/download/${file.id}?filename=${file.name}&mimeType=${file.mimeType}`
+      downloadButton.addEventListener('click', function() {
+        this.loading = true
+        setTimeout(() => {
+          this.loading = false
+        }, 2000)
+      })
+
+      // Show the drawer
+      drawer.show()
+    })
+  })
+  const closeButton = drawer.querySelector('sl-button[variant="primary"]')
+  closeButton.addEventListener('click', () => drawer.hide())
+  
+  function createFileInfoElement(label, value) {
+  const fileInfoItem = document.createElement('div')
+  fileInfoItem.classList.add('file-info-item')
+
+  const labelElement = document.createElement('strong')
+  labelElement.textContent = label
+
+  const valueElement = document.createElement('span')
+  valueElement.classList.add('file-info-value')
+  valueElement.textContent = value
+
+  fileInfoItem.appendChild(labelElement)
+  fileInfoItem.appendChild(valueElement)
+
+  return fileInfoItem
+}
+
+function createFileInfoContent(file) {
+  const drawerContent = document.createElement('div')
+
+  const name = document.createElement('p')
+  const nameLabel = document.createElement('strong')
+  const nameValue = document.createElement('span')
+  nameLabel.textContent = 'Name: '
+  nameValue.textContent = file.name
+  name.append(nameLabel, nameValue)
+
+  const mimeType = document.createElement('p')
+  const typeLabel = document.createElement('strong')
+  const typeValue = document.createElement('span')
+  typeLabel.textContent = 'Type: '
+  typeValue.textContent = file.mimeType
+  mimeType.append(typeLabel, typeValue)
+
+  const size = document.createElement('p')
+  const sizeLabel = document.createElement('strong')
+  const sizeValue = document.createElement('sl-format-bytes')
+  sizeLabel.textContent = 'Size: '
+  sizeValue.value = file.size
+  size.append(sizeLabel, sizeValue)
+
+  const dateCreated = document.createElement('p')
+  const dateLabel = document.createElement('strong')
+  const dateValue = document.createElement('span')
+  const date = new Date(file.createdAt)
+  dateLabel.textContent = 'Created: '
+  console.log(file.createdAt)
+  dateValue.textContent = formatDate(new Date(file.createdAt)) + `, ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
+  dateCreated.append(dateLabel, dateValue)
+
+  drawerContent.append(name, mimeType, size, dateCreated)
+
+  return drawerContent
+}
+
+</script>
+<%- include('footer') -%>
