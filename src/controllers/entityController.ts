@@ -86,6 +86,7 @@ const createFolder = async (req: Request, res: Response) => {
   }
 }
 
+// Unused function to allow client to upload directly to supabase bucket
 const getUploadUrl = async (req: Request, res: Response) => {
   const id = req.user?.id
   if (!id) return res.status(401).send({ errors: [{ message: 'Unauthorized' }] })
@@ -120,13 +121,20 @@ const uploadFile = async (req: Request, res: Response) => {
       const parentId = Number(req.body.parentId) || null
 
       const bucketName = 'files'
-      const options = { contentType: mimetype }
+      const options = {
+        contentType: mimetype,
+        upsert: false,
+        duplex: 'half', // allows binary stream, otherwise must convert: decode(buffer.toString('base64')
+      }
       const filePath = `${id}/${originalname}`
-      const fileBase64 = decode(buffer.toString('base64'))
+
+      const bufferStream = new Readable()
+      bufferStream.push(buffer)
+      bufferStream.push(null) // end of stream
 
       const { data, error } = await supabaseAdmin.storage
         .from(bucketName)
-        .upload(filePath, fileBase64, options)
+        .upload(filePath, bufferStream, options)
 
       if (error) {
         console.log(error)
