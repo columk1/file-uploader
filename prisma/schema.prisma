@@ -8,27 +8,34 @@ datasource db {
 }
 
 model User {
-  id       Int     @id @default(autoincrement())
-  username String  @unique 
-  password String 
-  documents Entity[]
+  id            Int     @id @default(autoincrement())
+  username      String  @unique 
+  password      String 
+  documents     Entity[]
+  sharedFolders SharedFolder[]
 
   @@map("users")
 }
 
+enum EntityType {
+  FOLDER
+  FILE
+}
+
 model Entity {
-  id              Int       @id @default(autoincrement())
+  id              Int         @id @default(autoincrement())
   name            String
   type            EntityType
   size            Int?
   mimeType        String?
-  createdAt       DateTime @default(now())
-  parentId        Int?      // Optional field for parent folder
+  createdAt       DateTime    @default(now())
+  parentId        Int?        // Optional field for parent folder
   userId          Int
-  user            User      @relation(fields: [userId], references: [id])
+  user            User        @relation(fields: [userId], references: [id])
 
-  parentFolder  Entity? @relation("EntityParent", fields: [parentId], references: [id], onDelete: Cascade)
-  childEntities  Entity[] @relation("EntityParent")
+  parentFolder    Entity?         @relation("EntityParent", fields: [parentId], references: [id], onDelete: Cascade)
+  childEntities   Entity[]        @relation("EntityParent")
+  sharedFolders   SharedFolder[]
 
   @@index([parentId])
   @@index([userId])
@@ -37,15 +44,24 @@ model Entity {
 }
 
 model Session {
-  id        String   @id
-  sid       String   @unique
-  data      String   @db.Text // MediumText may be needed for MySql
+  id          String   @id
+  sid         String   @unique
+  data        String   @db.Text // MediumText may be needed for MySql
   expiresAt   DateTime
 
   @@map("sessions")
 }
 
-enum EntityType {
-  FOLDER
-  FILE
+model SharedFolder {
+  id          String    @id @default(uuid())
+  userId      Int
+  folderId    Int
+  expiresAt   DateTime
+  
+  user User @relation(fields: [userId], references: [id])
+  folder Entity @relation(fields: [folderId], references: [id])
+
+  @@map("shared_folders")
+  @@index([userId])
+  @@index([folderId])
 }
