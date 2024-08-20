@@ -1,8 +1,12 @@
-function generateSortLink(prevSortQuery: Record<string, string>, field: string) {
+function generateSortLink(
+  prevSortQuery: Record<string, string>,
+  field: string,
+  isFirstQuery = true
+) {
   const direction = prevSortQuery[field] === 'asc' ? '-' : ''
   const newSortQuery = `${direction}${field}`
 
-  return `?sort=${newSortQuery}`
+  return `${isFirstQuery ? '?' : '&'}sort=${newSortQuery}`
 }
 
 const getIcon = (currentSort: string | undefined, field: string): string => {

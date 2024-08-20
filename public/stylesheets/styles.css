@@ -20,6 +20,7 @@ a {
 }
 
 header {
+  min-height: 69px;
   display: flex;
   justify-content: space-between;
   align-items: baseline;
@@ -130,7 +131,7 @@ sl-tree-item::part(label) {
 }
 
 .breadcrumb-container {
-  height: 40px;
+  min-height: 40px;
 }
 
 .page-title {
@@ -187,7 +188,7 @@ sl-tree-item::part(label) {
 }
 
 .grid-header-col {
-  height: 38px;
+  min-height: 38px;
   border-radius: var(--sl-input-border-radius-medium);
   /* padding-right: 1rem; */
   display: flex;
@@ -321,6 +322,10 @@ sl-button.card-btn::part(label) {
   padding: 1rem 0;
 }
 
+sl-radio-group {
+  margin: 0 auto;
+}
+
 /* Mostly base button styles from Shoelace since they have no file input support yet */
 input[type='file']::file-selector-button {
   margin-right: 1rem;
@@ -407,6 +412,10 @@ sl-dialog {
 
 sl-dialog sl-button {
   float: right;
+}
+
+sl-dialog::part(base) {
+  line-height: 1.5rem;
 }
 
 sl-input::part(form-control-label) {

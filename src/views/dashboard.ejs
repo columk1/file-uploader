@@ -182,14 +182,17 @@
   </form>
 </sl-dialog>
 <sl-dialog label="Share Folder" class="dialog-focus share-folder-dialog">
-  Generate a public link to share the selected file. Links will remain valid for 1 week.
+  Generate a link to share the current folder and all of its contents.
   <form id="share-folder-form">
     </br>
-    <sl-radio-group label="Select an expiry for your public link" name="a" value="1">
-      <sl-radio-button value="1">1 day</sl-radio-button>
-      <sl-radio-button value="7">7 days</sl-radio-button>
+    <sl-radio-group label="Duration" name="a" value="72" help-text="Links will expire after the specified duration">
+      <sl-radio-button value="1">1 hour</sl-radio-button>
+      <sl-radio-button value="4">4 hours</sl-radio-button>
+      <sl-radio-button value="24">1 day</sl-radio-button>
+      <sl-radio-button value="72">3 days</sl-radio-button>
+      <sl-radio-button value="168">1 week</sl-radio-button>
     </sl-radio-group>
-    <div class="share-folder-link-container"></div>
+    <div class="share-link-container"></div>
     <div class="btn-group">
       <sl-button slot="footer">Cancel</sl-button>
       <sl-button id="generate-folder-link-btn" slot="footer" variant="primary" data-id="<%= id %>">Generate Link</sl-button>
@@ -233,6 +236,8 @@
   const uploadProgressBar = document.querySelector('.upload-progress')
   const uploadForm = document.querySelector('.upload-form')
   const treeItems = document.querySelectorAll('sl-tree-item')
+  const shareFolderRadioGroup = shareFolderDialog.querySelector('sl-radio-group')
+  const shareFolderRadioButtons = shareFolderDialog.querySelectorAll('sl-radio-button')
   
   // Upload the file with feedback from xhr
   uploadForm.addEventListener('submit', (event) => {
@@ -295,7 +300,7 @@
     const closeShareFolderDialogButton = shareFolderDialog.querySelector('sl-button[slot="footer"]')
     closeShareFolderDialogButton.addEventListener('click', () => shareFolderDialog.hide())
 
-    const shareFolderLinkContainer = shareFolderDialog.querySelector('.share-folder-link-container')
+    const shareFolderLinkContainer = shareFolderDialog.querySelector('.share-link-container')
     const generateFolderLinkButton = shareFolderDialog.querySelector('#generate-folder-link-btn')
     generateFolderLinkButton.addEventListener('click', generatePublicFolderUrl, { once: true })
 
@@ -315,18 +320,26 @@
     }
 
     async function generatePublicFolderUrl() {
+      const hoursDuration = shareFolderRadioGroup.value
       const linkInput = document.createElement('sl-input')
       generateFolderLinkButton.loading = true
-      const res = await fetch(`share/folder/${generateFolderLinkButton.dataset.id}`)
+      const res = await fetch(`share/folder/${generateFolderLinkButton.dataset.id}?h=${hoursDuration}`)
       const data = await res.json()
       linkInput.value = data.publicUrl
       shareFolderLinkContainer.appendChild(linkInput)
       generateFolderLinkButton.loading = false
+      shareFolderRadioButtons.forEach(button => button.disabled = true)
       generateFolderLinkButton.textContent = 'Copy Link'
       generateFolderLinkButton.addEventListener('click', () => {
         navigator.clipboard.writeText(linkInput.value)
         generateFolderLinkButton.textContent = 'Copied!'
       })
+      // Reset dialog on hide
+      shareFolderDialog.addEventListener('sl-after-hide', () => {
+      shareFolderRadioButtons.forEach(button => button.disabled = false)
+      linkInput.remove()
+      generateFolderLinkButton.textContent = 'Generate Link'
+    }, { once: true })
     }
 
   // File info drawer

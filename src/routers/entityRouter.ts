@@ -28,7 +28,7 @@ router.post('/delete/:entityId', isAuthenticated, deleteEntity)
 router.get('/download/:entityId', isAuthenticated, downloadFile)
 router.get('/share/file/:fileName', isAuthenticated, shareFile)
 router.get('/share/folder/:entityId', isAuthenticated, shareFolder)
-router.get('/public/:entityId', handleSortQuery, getPublicFolder)
+router.get('/public/:sharedFolderId', handleSortQuery, getPublicFolder)
 router.get('/public/download/:entityId', checkPublicAccess, downloadPublicFile)
 
 export default router

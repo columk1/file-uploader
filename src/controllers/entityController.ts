@@ -277,7 +277,9 @@ const shareFolder = async (req: Request, res: Response, next: NextFunction) => {
     if (!userId) return res.status(500).send({ errors: [{ message: 'Unauthorized' }] })
 
     const id = Number(req.params.entityId)
-    const expiresAt = new Date(Date.now() + 60 * 60 * 24 * 1000)
+    const defaultDuration = 60 * 60 * 24 * 3 * 1000 // 3 days
+    const durationMS = Number(req.query.h) * 60 * 60 * 1000 || defaultDuration
+    const expiresAt = new Date(Date.now() + durationMS)
 
     const newSharedFolder = await prisma.sharedFolder.create({
       data: {
@@ -290,7 +292,7 @@ const shareFolder = async (req: Request, res: Response, next: NextFunction) => {
       return res.status(500).send({ errors: [{ message: 'Error creating shared folder' }] })
     }
 
-    res.json({ publicUrl: `http:localhost:3000/public/${id}` })
+    res.json({ publicUrl: `http:localhost:3000/public/${newSharedFolder.id}` })
   } catch (err) {
     console.log(err)
     next(err)
@@ -300,21 +302,14 @@ const shareFolder = async (req: Request, res: Response, next: NextFunction) => {
 // GET: /public/:entityId Or unique publicSessionId?
 const getPublicFolder = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const id = Number(req.params.entityId)
+    const id = req.params.sharedFolderId
     if (!id) return res.redirect('/')
 
     const { sortCriteria } = req
 
-    const sharedFolder = await prisma.sharedFolder.findFirst({
-      where: {
-        OR: [
-          { folderId: id }, // Root folder match
-          { folder: { childEntities: { some: { id } } } }, // Descendant folder match
-        ],
-      },
-      include: {
-        folder: true,
-      },
+    const sharedFolder = await prisma.sharedFolder.findUnique({
+      where: { id },
+      include: { folder: true },
     })
     if (!sharedFolder) {
       return res.status(404).send({ errors: [{ message: 'Not Found' }] })
@@ -325,16 +320,22 @@ const getPublicFolder = async (req: Request, res: Response, next: NextFunction) 
     }
 
     const userId = sharedFolder.userId
+    const path = Number(req.query.path)
     const rootFolder = { id: sharedFolder.folderId, name: sharedFolder.folder.name }
+    let currentFolderId = rootFolder.id
+    if (path) {
+      const currentFolderEntry = await prisma.entity.findUnique({ where: { id: path } })
+      currentFolderEntry && (currentFolderId = currentFolderEntry.id)
+    }
 
     const files = await prisma.entity.findMany({
-      where: { userId, parentId: rootFolder.id },
+      where: { userId, parentId: currentFolderId },
       orderBy: sortCriteria,
     })
     if (!files) return res.status(404).send('Not found')
 
     const folders = await getFolderTree(4, rootFolder.id)
-    const pathSegments = await getPathSegments(rootFolder.id)
+    const pathSegments = await getPathSegments(currentFolderId)
     const sortQuery = sortCriteria?.reduce((acc, curr) => ({ ...acc, ...curr }), {})
 
     res.render('public-folder', {
@@ -346,6 +347,7 @@ const getPublicFolder = async (req: Request, res: Response, next: NextFunction) 
       pathSegments,
       sortQuery,
       rootFolder,
+      currentFolderId,
     })
   } catch (err) {
     console.log(err)
