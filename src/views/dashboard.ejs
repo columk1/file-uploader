@@ -183,7 +183,7 @@
   </form>
 </sl-dialog>
 <sl-dialog label="Share Folder" class="dialog-focus share-folder-dialog">
-  Generate a link to share the current folder and all of its contents.
+  Generate a public link to share the current folder and its contents
   <form id="share-folder-form">
     </br>
     <sl-radio-group label="Duration" name="a" value="72" help-text="Links will expire after the specified duration">
@@ -201,13 +201,22 @@
   </form>
 </sl-dialog>
 <sl-dialog label="Share Public Link" class="dialog-focus share-dialog">
-  Generate a public link to share the selected file. Links will remain valid for 1 week.
-  </br>
-  <div class="share-link-container"></div>
-  <div class="btn-group">
-    <sl-button slot="footer">Cancel</sl-button>
-    <sl-button id="generate-link-btn" slot="footer" variant="primary">Generate Link</sl-button>
-  </div>
+  Generate a public link to share the selected file
+  <form id="share-file-form">
+    </br>
+    <sl-radio-group label="Duration" name="a" value="72" help-text="Links will expire after the specified duration">
+      <sl-radio-button value="1">1 hour</sl-radio-button>
+      <sl-radio-button value="4">4 hours</sl-radio-button>
+      <sl-radio-button value="24">1 day</sl-radio-button>
+      <sl-radio-button value="72">3 days</sl-radio-button>
+      <sl-radio-button value="168">1 week</sl-radio-button>
+    </sl-radio-group>
+    <div class="share-link-container"></div>
+    <div class="btn-group">
+      <sl-button slot="footer">Cancel</sl-button>
+      <sl-button id="generate-link-btn" slot="footer" variant="primary">Generate Link</sl-button>
+    </div>
+  </form>
 </sl-dialog>
 <script type="module">
   await Promise.allSettled([
@@ -234,6 +243,8 @@
   const deleteFolderDialog = document.querySelector('.delete-folder-dialog')
 
   const shareFileDialog = document.querySelector('.share-dialog')
+  const shareFileRadioGroup = shareFileDialog.querySelector('sl-radio-group')
+  const shareFileRadioButtons = shareFileDialog.querySelectorAll('sl-radio-button')
 
   const shareFolderDialog = document.querySelector('.share-folder-dialog')
   const shareFolderRadioGroup = shareFolderDialog.querySelector('sl-radio-group')
@@ -323,9 +334,10 @@
     generateFolderLinkButton.addEventListener('click', generatePublicFolderUrl, { once: true })
 
     async function generatePublicFileUrl() {
+      const hoursDuration = shareFileRadioGroup.value
       const linkInput = document.createElement('sl-input')
       generateLinkButton.loading = true
-      const res = await fetch(`share/file/${generateLinkButton.dataset.filename}`)
+      const res = await fetch(`share/file/${generateLinkButton.dataset.filename}?h=${hoursDuration}`)
       const data = await res.json()
       linkInput.value = data
       shareLinkContainer.appendChild(linkInput)
