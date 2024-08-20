@@ -345,14 +345,19 @@
       generateLinkButton.loading = true
       const res = await fetch(`share/file/${generateLinkButton.dataset.filename}`)
       const data = await res.json()
-      linkInput.value = data
-      shareLinkContainer.appendChild(linkInput)
-      generateLinkButton.loading = false
-      generateLinkButton.textContent = 'Copy Link'
-      generateLinkButton.addEventListener('click', () => {
-        navigator.clipboard.writeText(data)
-        generateLinkButton.textContent = 'Copied!'
-      })
+      if (data.error) {
+        window.alert(data.error)
+        shareFolderDialog.hide()
+      } else {
+        linkInput.value = data.publicUrl
+        shareLinkContainer.appendChild(linkInput)
+        generateLinkButton.loading = false
+        generateLinkButton.textContent = 'Copy Link'
+        generateLinkButton.addEventListener('click', () => {
+          navigator.clipboard.writeText(data)
+          generateLinkButton.textContent = 'Copied!'
+        })
+      }
     }
 
     async function generatePublicFolderUrl() {
@@ -361,21 +366,26 @@
       generateFolderLinkButton.loading = true
       const res = await fetch(`share/folder/${generateFolderLinkButton.dataset.id}?h=${hoursDuration}`)
       const data = await res.json()
-      linkInput.value = data.publicUrl
-      shareFolderLinkContainer.appendChild(linkInput)
-      generateFolderLinkButton.loading = false
-      shareFolderRadioButtons.forEach(button => button.disabled = true)
-      generateFolderLinkButton.textContent = 'Copy Link'
-      generateFolderLinkButton.addEventListener('click', () => {
-        navigator.clipboard.writeText(linkInput.value)
-        generateFolderLinkButton.textContent = 'Copied!'
-      })
-      // Reset dialog on hide
-      shareFolderDialog.addEventListener('sl-after-hide', () => {
-      shareFolderRadioButtons.forEach(button => button.disabled = false)
-      linkInput.remove()
-      generateFolderLinkButton.textContent = 'Generate Link'
-    }, { once: true })
+      if (data.error) {
+        window.alert(data.error)
+        shareFolderDialog.hide()
+      } else {
+        linkInput.value = data.publicUrl
+        shareFolderLinkContainer.appendChild(linkInput)
+        generateFolderLinkButton.loading = false
+        shareFolderRadioButtons.forEach(button => button.disabled = true)
+        generateFolderLinkButton.textContent = 'Copy Link'
+        generateFolderLinkButton.addEventListener('click', () => {
+          navigator.clipboard.writeText(linkInput.value)
+          generateFolderLinkButton.textContent = 'Copied!'
+        })
+        // Reset dialog on hide
+        shareFolderDialog.addEventListener('sl-after-hide', () => {
+          shareFolderRadioButtons.forEach(button => button.disabled = false)
+          linkInput.remove()
+          generateFolderLinkButton.textContent = 'Generate Link'
+        }, { once: true })
+      }
     }
 
   // File info drawer

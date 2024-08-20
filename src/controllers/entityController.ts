@@ -270,9 +270,9 @@ const shareFile = async (req: Request, res: Response, next: NextFunction) => {
       .createSignedUrl(filePath, 60 * 60 * 24 * 7)
 
     if (!data) {
-      return res.status(500).send({ errors: [{ message: defaultError }] })
+      return res.status(500).json({ error: defaultError })
     }
-    res.json(data.signedUrl)
+    res.json({ publicUrl: data.signedUrl })
   } catch (err) {
     console.log(err)
     next(err)
@@ -298,7 +298,7 @@ const shareFolder = async (req: Request, res: Response, next: NextFunction) => {
       },
     })
     if (!newSharedFolder) {
-      return res.status(500).send({ errors: [{ message: 'Error creating shared folder' }] })
+      return res.status(500).json({ error: defaultError })
     }
 
     res.json({ publicUrl: `http:localhost:3000/public/${newSharedFolder.id}` })
