@@ -163,6 +163,7 @@
     <sl-progress-bar class="upload-progress" value="0"></sl-progress-bar>
     <div class="form-group">
       <input type="file" name="uploaded_file"></input>
+      <p id='file-error' class="error">File size exceeds the 50MB limit</p>
       <input type="hidden" name="parentId" value="<%= id %>"></input>
       </br>
       <sl-button type="submit" slot="footer" variant="primary">Upload</sl-button>
@@ -229,15 +230,32 @@
   const overlay = document.querySelector('.overlay')
   const dialogs = document.querySelectorAll('sl-dialog')
   const newFolderDialog = document.querySelector('.new-folder-dialog')
-  const newFileDialog = document.querySelector('.new-file-dialog')
+
   const deleteFolderDialog = document.querySelector('.delete-folder-dialog')
+
   const shareFileDialog = document.querySelector('.share-dialog')
+
   const shareFolderDialog = document.querySelector('.share-folder-dialog')
-  const uploadProgressBar = document.querySelector('.upload-progress')
-  const uploadForm = document.querySelector('.upload-form')
-  const treeItems = document.querySelectorAll('sl-tree-item')
   const shareFolderRadioGroup = shareFolderDialog.querySelector('sl-radio-group')
   const shareFolderRadioButtons = shareFolderDialog.querySelectorAll('sl-radio-button')
+
+  const newFileDialog = document.querySelector('.new-file-dialog')
+  const uploadProgressBar = document.querySelector('.upload-progress')
+  const uploadForm = document.querySelector('.upload-form')
+  const fileInput = uploadForm.querySelector('input[type="file"]')
+  const fileError = document.getElementById('file-error')
+
+  const treeItems = document.querySelectorAll('sl-tree-item')
+
+  // Validate file upload size
+  fileInput.onchange = function() {
+    if (this.files[0].size > 52428800) {
+      this.value = ''
+      fileError.classList.add('active')
+    } else {
+      fileError.classList.remove('active')
+    }
+  }
   
   // Upload the file with feedback from xhr
   uploadForm.addEventListener('submit', (event) => {
