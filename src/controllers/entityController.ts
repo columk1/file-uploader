@@ -138,10 +138,16 @@ const uploadFile = async (req: Request, res: Response) => {
 
       if (error) {
         console.log(error)
-        if ('statusCode' in error && error.statusCode === '409') {
-          console.log('Duplicate')
-          return res.redirect(`/${path}?error=${error.message}`)
+        if ('statusCode' in error) {
+          if (error.statusCode === '409') {
+            console.log('Duplicate')
+            return res.redirect(`/${path}?error=${error.message}`)
+          } else if (error.statusCode === '413') {
+            console.log('File too large')
+            return res.redirect(`/${path}?error=${error.message}`)
+          }
         }
+        return res.redirect(`/${path}?error=${error.message}`)
       }
 
       // add to database using prisma
