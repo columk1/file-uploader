@@ -213,7 +213,12 @@
     customElements.whenDefined('sl-dialog'),
     customElements.whenDefined('sl-tree'),
     customElements.whenDefined('sl-tree-item'),
+    customElements.whenDefined('sl-breadcrumb'),
+    customElements.whenDefined('sl-breadcrumb-item'),
   ])
+
+  // Show body
+  document.body.style.display = 'block'
 
   const dataScript = document.getElementById('data-script')
   const files = JSON.parse(dataScript.textContent)
@@ -228,21 +233,13 @@
   const uploadProgressBar = document.querySelector('.upload-progress')
   const uploadForm = document.querySelector('.upload-form')
   const treeItems = document.querySelectorAll('sl-tree-item')
-
-  treeItems.forEach(item => {
-    item.addEventListener('click', (e) => {
-      console.log(item.selected)
-      // if (item.getAttribute('selected')) {
-      //   console.log('selected')
-      // }
-    })
-  })
   
   // Upload the file with feedback from xhr
   uploadForm.addEventListener('submit', (event) => {
     event.preventDefault()
     uploadProgressBar.classList.add('active')
     const formData = new FormData(uploadForm)
+    
     const xhr = new XMLHttpRequest()
     xhr.open('POST', '/upload', true)
     
@@ -349,6 +346,12 @@
       // Repopulate drawer with file info
       drawerContent.replaceChildren(newDrawerContent)
       downloadButton.href = `/download/${file.id}?name=${file.name}&mimeType=${file.mimeType}`
+      downloadButton.addEventListener('click', function() {
+        this.loading = true
+        setTimeout(() => {
+          this.loading = false
+        }, 2000)
+      })
       shareButton.addEventListener('click', () => shareFileDialog.show())
       generateLinkButton.dataset.filename = file.name
       deleteFileForm.action = `/delete/${file.id}`

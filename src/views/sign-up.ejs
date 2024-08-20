@@ -68,7 +68,10 @@
 <script type="module">
   await Promise.all([
     customElements.whenDefined('sl-input')
-  ]).then(() => {
+  ])
+
+  document.body.style.display = 'block'
+
     const form = document.getElementById('sign-up-form')
     const username = document.getElementById('username')
     const usernameErrorIcon = document.querySelector('#username sl-icon')
@@ -222,5 +225,4 @@
       username.helpText = 'Error checking username'
     }
   }, 500)
-  })
 </script>

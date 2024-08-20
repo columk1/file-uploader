@@ -115,6 +115,8 @@
     customElements.whenDefined('sl-tree-item'),
   ])
 
+  document.body.style.display = 'block'
+
   const dataScript = document.getElementById('data-script')
   const files = JSON.parse(dataScript.textContent)
 

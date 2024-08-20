@@ -52,7 +52,9 @@
 <script type="module">
   await Promise.all([
     customElements.whenDefined('sl-input')
-  ]).then(() => {
+  ])
+
+  document.body.style.display = 'block'
   const username = document.getElementById('username')
   const password = document.getElementById('password')
   const usernameError = document.getElementById('username-error')
@@ -69,5 +71,4 @@
   username.addEventListener('sl-input', () => onInput(usernameError), { once: true })
 
   password.addEventListener('sl-input', () => onInput(passwordError), { once: true })
-  })
 </script>
