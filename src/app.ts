@@ -6,6 +6,7 @@ import path from 'path'
 import morgan from 'morgan'
 import authRouter from 'src/routers/authRouter'
 import entityRouter from 'src/routers/entityRouter'
+import compression from 'compression'
 
 const PORT = process.env.PORT || 3000
 
@@ -15,6 +16,7 @@ app.set('view engine', 'ejs')
 app.use(express.static(path.join(__dirname, '../public')))
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
+app.use(compression())
 app.use(morgan('dev'))
 app.use(sessionConfig)
 
