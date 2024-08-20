@@ -361,12 +361,13 @@
         window.alert(data.error)
         shareFolderDialog.hide()
       } else {
-        linkInput.value = data.publicUrl
+        const url = data.publicUrl
+        linkInput.value = url
         shareLinkContainer.appendChild(linkInput)
         generateLinkButton.loading = false
         generateLinkButton.textContent = 'Copy Link'
         generateLinkButton.addEventListener('click', () => {
-          navigator.clipboard.writeText(data)
+          navigator.clipboard.writeText(url)
           generateLinkButton.textContent = 'Copied!'
         })
       }
@@ -382,13 +383,14 @@
         window.alert(data.error)
         shareFolderDialog.hide()
       } else {
-        linkInput.value = data.publicUrl
+        const url = data.publicUrl
+        linkInput.value = url
         shareFolderLinkContainer.appendChild(linkInput)
         generateFolderLinkButton.loading = false
         shareFolderRadioButtons.forEach(button => button.disabled = true)
         generateFolderLinkButton.textContent = 'Copy Link'
         generateFolderLinkButton.addEventListener('click', () => {
-          navigator.clipboard.writeText(linkInput.value)
+          navigator.clipboard.writeText(data.url)
           generateFolderLinkButton.textContent = 'Copied!'
         })
         // Reset dialog on hide
