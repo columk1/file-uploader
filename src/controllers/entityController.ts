@@ -3,8 +3,8 @@ import { getAllFilenames, getFolderTree, getPathSegments } from 'src/services/di
 import prisma from 'src/db/prismaClient'
 import helpers from 'src/lib/utils/ejsHelpers'
 import supabaseAdmin from 'src/db/supabaseAdminClient'
-import path from 'path'
 import { Readable } from 'stream'
+import { defaultError, defaultErrorQuery } from 'src/lib/utils/errorMessages'
 
 // GET: /
 const getDashboard = async (req: Request, res: Response) => {
@@ -27,6 +27,8 @@ const getDashboard = async (req: Request, res: Response) => {
     parentId: null,
     sortQuery,
     helpers,
+    error: req.query.error,
+    success: req.query.success,
   })
 }
 
@@ -63,6 +65,8 @@ const getEntityById = async (req: Request, res: Response) => {
     folders,
     sortQuery,
     helpers,
+    error: req.query.error,
+    success: req.query.success,
   })
 }
 
@@ -70,7 +74,7 @@ const getEntityById = async (req: Request, res: Response) => {
 const createFolder = async (req: Request, res: Response) => {
   {
     const id = req.user?.id
-    if (!id) return res.status(500).send({ errors: [{ message: 'Unauthorized' }] }) // TODO:Check if necessary
+    if (!id) return res.status(401).send({ errors: [{ message: defaultError }] })
 
     const parentId = Number(req.body.parentId) || null
 
@@ -89,7 +93,7 @@ const createFolder = async (req: Request, res: Response) => {
 // Unused function to allow client to upload directly to supabase bucket
 const getUploadUrl = async (req: Request, res: Response) => {
   const id = req.user?.id
-  if (!id) return res.status(401).send({ errors: [{ message: 'Unauthorized' }] })
+  if (!id) return res.status(401).send({ errors: [{ message: defaultError }] })
 
   console.log('Request body: ', req.body)
   const filename = req.body.filename
@@ -100,8 +104,8 @@ const getUploadUrl = async (req: Request, res: Response) => {
     .from(bucketName)
     .createSignedUploadUrl(filePath) // URL valid for 60 seconds
   if (error) {
-    console.log('supabase error: ', error)
-    return res.status(500).send({ errors: [{ message: error.message }] })
+    console.log(error)
+    return res.status(500).send({ errors: [{ message: defaultError }] })
   }
 
   res.send({ signedUrl: data.signedUrl })
@@ -113,10 +117,10 @@ const uploadFile = async (req: Request, res: Response) => {
     try {
       const id = req.user?.id
       const file = req.file
-      if (!id) return res.status(500).send({ errors: [{ message: 'Unauthorized' }] })
+      if (!id) return res.status(401).send({ errors: [{ message: defaultError }] })
 
       // req.file is the name of the user's file in the form, 'uploaded_file'
-      if (!file) return res.status(400).send({ errors: [{ message: 'No file uploaded' }] })
+      if (!file) return res.status(400).send({ errors: [{ message: 'Bad request' }] })
       const { originalname, mimetype, size, buffer } = file
       const parentId = Number(req.body.parentId) || null
 
@@ -140,14 +144,14 @@ const uploadFile = async (req: Request, res: Response) => {
         console.log(error)
         if ('statusCode' in error) {
           if (error.statusCode === '409') {
-            console.log('Duplicate')
-            return res.redirect(`/${path}?error=${error.message}`)
+            // duplicate file
+            return res.redirect(`/${parentId}?error=${encodeURIComponent(error.message)}`)
           } else if (error.statusCode === '413') {
-            console.log('File too large')
-            return res.redirect(`/${path}?error=${error.message}`)
+            // file size limit exceeded
+            return res.redirect(`/${parentId}?error=${encodeURIComponent(error.message)}`)
           }
         }
-        return res.redirect(`/${path}?error=${error.message}`)
+        return res.redirect(`/${parentId}?error=${defaultErrorQuery}`)
       }
 
       // add to database using prisma
@@ -174,12 +178,9 @@ const deleteEntity = async (req: Request, res: Response, next: NextFunction) => 
     const id = Number(req.params.entityId)
     const userId = req.user?.id
 
-    if (!userId) return res.status(500).send({ errors: [{ message: 'Unauthorized' }] })
+    if (!userId) return res.status(401).send({ errors: [{ message: 'Unauthorized' }] })
 
-    const { entityId } = req.params
     const { type, parentId } = req.body
-
-    if (entityId === 'null') throw new Error('Cannot delete root folder')
 
     // TODO: Clean up this section
     let filenames = []
@@ -196,7 +197,7 @@ const deleteEntity = async (req: Request, res: Response, next: NextFunction) => 
       },
     })
 
-    res.redirect(`/${parentId}`)
+    return res.redirect(`/${parentId}?success=${encodeURIComponent('Deleted Successfully')}`)
 
     // Continue to remove from storage
     filenames.forEach(async (filename) => {
@@ -217,6 +218,7 @@ const deleteEntity = async (req: Request, res: Response, next: NextFunction) => 
 const downloadFile = async (req: Request, res: Response) => {
   try {
     const fileName = req.query.name
+    const parentId = req.query.parentId || ''
     const filePath = `${req.user?.id}/${fileName}`
     const { data } = await supabaseAdmin.storage
       .from('files')
@@ -225,7 +227,8 @@ const downloadFile = async (req: Request, res: Response) => {
     if (data?.signedUrl) {
       res.redirect(data.signedUrl)
     } else {
-      res.status(500).send({ errors: [{ message: 'Error fetching signed URL' }] })
+      console.log('Error fetching signed URL')
+      res.redirect(`/${parentId}?error=${defaultErrorQuery}`)
     }
   } catch (err) {
     console.log(err)
@@ -250,14 +253,14 @@ const downloadPublicFile = async (req: Request, res: Response) => {
     if (data?.signedUrl) {
       res.redirect(data.signedUrl)
     } else {
-      res.status(500).send({ errors: [{ message: 'Error fetching signed URL' }] })
+      res.redirect(`/${req.originalUrl}?error=${defaultErrorQuery}`)
     }
   } catch (err) {
     console.log(err)
   }
 }
 
-// GET: /share/file/:fileName // TODO: This could be better as entityId with a query
+// GET: /share/file/:fileName
 const shareFile = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { fileName } = req.params
@@ -267,9 +270,9 @@ const shareFile = async (req: Request, res: Response, next: NextFunction) => {
       .createSignedUrl(filePath, 60 * 60 * 24 * 7)
 
     if (!data) {
-      return res.status(500).send({ errors: [{ message: 'Error fetching signed URL' }] })
+      return res.status(500).json({ error: defaultError })
     }
-    res.json(data.signedUrl)
+    res.json({ publicUrl: data.signedUrl })
   } catch (err) {
     console.log(err)
     next(err)
@@ -280,7 +283,7 @@ const shareFile = async (req: Request, res: Response, next: NextFunction) => {
 const shareFolder = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.user?.id
-    if (!userId) return res.status(500).send({ errors: [{ message: 'Unauthorized' }] })
+    if (!userId) return res.status(401).send({ errors: [{ message: 'Unauthorized' }] })
 
     const id = Number(req.params.entityId)
     const defaultDuration = 60 * 60 * 24 * 3 * 1000 // 3 days
@@ -295,7 +298,7 @@ const shareFolder = async (req: Request, res: Response, next: NextFunction) => {
       },
     })
     if (!newSharedFolder) {
-      return res.status(500).send({ errors: [{ message: 'Error creating shared folder' }] })
+      return res.status(500).json({ error: defaultError })
     }
 
     res.json({ publicUrl: `http:localhost:3000/public/${newSharedFolder.id}` })
@@ -318,11 +321,12 @@ const getPublicFolder = async (req: Request, res: Response, next: NextFunction) 
       include: { folder: true },
     })
     if (!sharedFolder) {
-      return res.status(404).send({ errors: [{ message: 'Not Found' }] })
+      return res.status(404).send({ errors: [{ message: 'Not found' }] })
     }
 
     if (new Date() > sharedFolder.expiresAt) {
-      return res.status(410).send('This link has expired')
+      console.log('Link has expired')
+      return res.status(404).send('Not found')
     }
 
     const userId = sharedFolder.userId

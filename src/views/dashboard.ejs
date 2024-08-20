@@ -8,6 +8,21 @@
     <sl-spinner style="font-size: 2rem;"></sl-spinner>
   </div>
 </div>
+
+<% const alertDuration = 3000 %>
+
+<% if (error) { %>
+<sl-alert id="error-alert" variant="warning" closable duration=<%= alertDuration %>>
+  <sl-icon slot="icon" name="exclamation-triangle"></sl-icon>
+  <%= error %>
+</sl-alert>
+<% } else if (success) { %>
+<sl-alert id="success-alert"variant="success" closable duration=<%= alertDuration %>>
+  <sl-icon slot="icon" name="check2-circle"></sl-icon>
+  <%= success %>
+</sl-alert>
+<% } %>
+
 <div class="layout">
   <aside class="layout-sidebar">
     <nav>
@@ -258,6 +273,9 @@
 
   const treeItems = document.querySelectorAll('sl-tree-item')
 
+  const alert = document.querySelector('sl-alert')
+  if (alert) alert.toast()
+
   // Validate file upload size
   fileInput.onchange = function() {
     if (this.files[0].size > 52428800) {
@@ -339,14 +357,19 @@
       generateLinkButton.loading = true
       const res = await fetch(`share/file/${generateLinkButton.dataset.filename}?h=${hoursDuration}`)
       const data = await res.json()
-      linkInput.value = data
-      shareLinkContainer.appendChild(linkInput)
-      generateLinkButton.loading = false
-      generateLinkButton.textContent = 'Copy Link'
-      generateLinkButton.addEventListener('click', () => {
-        navigator.clipboard.writeText(data)
-        generateLinkButton.textContent = 'Copied!'
-      })
+      if (data.error) {
+        window.alert(data.error)
+        shareFolderDialog.hide()
+      } else {
+        linkInput.value = data.publicUrl
+        shareLinkContainer.appendChild(linkInput)
+        generateLinkButton.loading = false
+        generateLinkButton.textContent = 'Copy Link'
+        generateLinkButton.addEventListener('click', () => {
+          navigator.clipboard.writeText(data)
+          generateLinkButton.textContent = 'Copied!'
+        })
+      }
     }
 
     async function generatePublicFolderUrl() {
@@ -355,21 +378,26 @@
       generateFolderLinkButton.loading = true
       const res = await fetch(`share/folder/${generateFolderLinkButton.dataset.id}?h=${hoursDuration}`)
       const data = await res.json()
-      linkInput.value = data.publicUrl
-      shareFolderLinkContainer.appendChild(linkInput)
-      generateFolderLinkButton.loading = false
-      shareFolderRadioButtons.forEach(button => button.disabled = true)
-      generateFolderLinkButton.textContent = 'Copy Link'
-      generateFolderLinkButton.addEventListener('click', () => {
-        navigator.clipboard.writeText(linkInput.value)
-        generateFolderLinkButton.textContent = 'Copied!'
-      })
-      // Reset dialog on hide
-      shareFolderDialog.addEventListener('sl-after-hide', () => {
-      shareFolderRadioButtons.forEach(button => button.disabled = false)
-      linkInput.remove()
-      generateFolderLinkButton.textContent = 'Generate Link'
-    }, { once: true })
+      if (data.error) {
+        window.alert(data.error)
+        shareFolderDialog.hide()
+      } else {
+        linkInput.value = data.publicUrl
+        shareFolderLinkContainer.appendChild(linkInput)
+        generateFolderLinkButton.loading = false
+        shareFolderRadioButtons.forEach(button => button.disabled = true)
+        generateFolderLinkButton.textContent = 'Copy Link'
+        generateFolderLinkButton.addEventListener('click', () => {
+          navigator.clipboard.writeText(linkInput.value)
+          generateFolderLinkButton.textContent = 'Copied!'
+        })
+        // Reset dialog on hide
+        shareFolderDialog.addEventListener('sl-after-hide', () => {
+          shareFolderRadioButtons.forEach(button => button.disabled = false)
+          linkInput.remove()
+          generateFolderLinkButton.textContent = 'Generate Link'
+        }, { once: true })
+      }
     }
 
   // File info drawer
@@ -388,7 +416,7 @@
 
       // Repopulate drawer with file info
       drawerContent.replaceChildren(newDrawerContent)
-      downloadButton.href = `/download/${file.id}?name=${file.name}&mimeType=${file.mimeType}`
+      downloadButton.href = `/download/${file.id}?name=${file.name}&mimeType=${file.mimeType}${file.parentId ? '&' + file.parentId : ''}`
       downloadButton.addEventListener('click', function() {
         this.loading = true
         setTimeout(() => {
