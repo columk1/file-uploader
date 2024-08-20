@@ -1,5 +1,6 @@
 import { formatDate } from './formatDate.js'
 
+import '@shoelace-style/shoelace/dist/themes/dark.css'
 import '@shoelace-style/shoelace/dist/components/button/button.js'
 import '@shoelace-style/shoelace/dist/components/dialog/dialog.js'
 import '@shoelace-style/shoelace/dist/components/icon/icon.js'

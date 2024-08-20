@@ -2,6 +2,7 @@ import path from 'path'
 import { nodeResolve } from '@rollup/plugin-node-resolve'
 import commonjs from '@rollup/plugin-commonjs'
 import copy from 'rollup-plugin-copy'
+import css from 'rollup-plugin-css-only'
 
 const __dirname = import.meta.dirname
 
@@ -14,6 +15,7 @@ export default {
   plugins: [
     nodeResolve(),
     commonjs(),
+    css({ output: 'bundle.css' }),
     copy({
       targets: [
         // Copies all icons from shoelace to the public folder, done manually to save space
