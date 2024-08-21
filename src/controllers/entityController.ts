@@ -193,7 +193,7 @@ const deleteEntity = async (req: Request, res: Response, next: NextFunction) => 
   }
 }
 
-// GET: /download/:entityId // TODO: could use filename as params instead of query
+// GET: /download/:entityId // ?: could use filename as params instead of query
 const downloadFile = async (req: Request, res: Response) => {
   try {
     const fileName = req.query.name
@@ -256,22 +256,15 @@ const shareFolder = async (req: Request, res: Response, next: NextFunction) => {
   }
 }
 
-// GET: /public/:sharedFolderId // TODO:/:entityId instead of query params
+// GET: /public/:sharedFolderId/:entityId
 const getPublicFolder = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const id = req.params.sharedFolderId
-    const { sortCriteria, sharedFolder } = req
+    const { sortCriteria, sharedFolder, entityId } = req
     if (!sharedFolder) return res.status(404).send('Not found')
 
-    const path = Number(req.query.path) // TODO: improve name, target/targetFolderId?
-
-    if (path) {
-      const isValidPath = await isChildOf(sharedFolder.folderId, path)
-      if (!isValidPath) return res.status(404).send('Not found')
-    }
-
     const rootFolder = { id: sharedFolder.folderId, name: sharedFolder.folder.name }
-    const currentFolderId = path ? path : rootFolder.id
+    const currentFolderId = entityId ? entityId : rootFolder.id
 
     const files = await getFolderContents(currentFolderId, sortCriteria)
     if (!files) return res.status(404).send('Not found')
@@ -303,7 +296,6 @@ const handleSharedFileDownload = async (req: Request, res: Response, next: NextF
     const { sharedFolder } = req
     const { filename } = req.query
 
-    // Get userId of file owner (could get from earlier query)
     const userId = sharedFolder.userId
 
     const filePath = `${userId}/${filename}`

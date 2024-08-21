@@ -11,7 +11,7 @@
 <div class="layout">
   <aside class="layout-sidebar">
     <sl-tree>
-      <sl-tree-item expanded <%= currentFolderId === rootFolder.id && "selected" %>><a href="?path=<%= rootFolder.id %>"><%= rootFolder.name %></a>
+      <sl-tree-item expanded <%= currentFolderId === rootFolder.id && "selected" %>><a href="/public/<%= id %>/<%= rootFolder.id %>"><%= rootFolder.name %></a>
         <% function renderTree(items) { %>
           <% items.forEach(item => { %>
             <sl-tree-item
@@ -19,7 +19,7 @@
               <%= item.id === locals.currentFolderId && "selected" %> 
               <%= locals.pathSegments && pathSegments.some(segment => segment.name === item.name) && "expanded" %>
             >
-              <a href="<%= id %>?path=<%= item.id %>"><%= item.name %></a>
+              <a href="/public/<%= id %>/<%= item.id %>"><%= item.name %></a>
               <% if (item.childEntities && item.childEntities.length > 0) { %>
                 <%= renderTree(item.childEntities) %>
               <% } %>
@@ -36,7 +36,7 @@
         <sl-breadcrumb>
           <% if (locals?.pathSegments?.length > 0) { %>
             <% locals.pathSegments.forEach((segment) => { %>
-              <sl-breadcrumb-item href="?path=<%= segment.id %>"><%= segment.name %></sl-breadcrumb-item>
+              <sl-breadcrumb-item href="/public/<%= id %>/<%= segment.id %>"><%= segment.name %></sl-breadcrumb-item>
             <% }) %>
           <% } %>
         </sl-breadcrumb>
@@ -44,7 +44,7 @@
       <!-- <br /> -->
       <div class='grid-container'>
         <div class="grid-header">
-          <a href="?path=<%= currentFolderId %><%= locals.helpers.generateSortLink(sortQuery, 'name', false) %>">
+          <a href="/public/<%= id %>/<%= currentFolderId %><%= locals.helpers.generateSortLink(sortQuery, 'name') %>">
             <div class="grid-header-col">
               <div class="grid-col">Name</div>
               <% if (sortQuery.name) { %>
@@ -52,7 +52,7 @@
               <% } %>
             </div>
           </a>
-          <a href="<%= locals.helpers.generateSortLink(sortQuery, 'size', false) %>">
+          <a href="<%= locals.helpers.generateSortLink(sortQuery, 'size') %>">
             <div class="grid-header-col">
               <div class="grid-col">Size</div>
               <% if (sortQuery.size) { %>
@@ -60,7 +60,7 @@
               <% } %>
             </div>
           </a>
-          <a href="<%= locals.helpers.generateSortLink(sortQuery, 'createdAt', false) %>">
+          <a href="<%= locals.helpers.generateSortLink(sortQuery, 'createdAt') %>">
             <div class="grid-header-col">
               <div class="grid-col">Created</div>
               <% if (sortQuery.createdAt) { %>
@@ -82,7 +82,7 @@
             <% if (files[i].type === 'FILE') { %>
               data-index="<%= i %>" 
             <% } else { %>
-              onclick="window.location.href='/public/<%= `${id}?path=${files[i].id}` %>'" 
+              onclick="window.location.href='/public/<%= `${id}/${files[i].id}` %>'" 
             <% } %>
             class="btn grid-row">
             <div class="grid-col col-name">

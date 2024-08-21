@@ -28,7 +28,12 @@ router.post('/delete/:entityId', isAuthenticated, deleteEntity)
 router.get('/download/:entityId', isAuthenticated, downloadFile)
 router.get('/share/file/:fileName', isAuthenticated, shareFile)
 router.get('/share/folder/:entityId', isAuthenticated, shareFolder)
-router.get('/public/:sharedFolderId', validateSharedFolder, handleSortQuery, getPublicFolder)
+router.get(
+  ['/public/:sharedFolderId', '/public/:sharedFolderId/:entityId'],
+  validateSharedFolder,
+  handleSortQuery,
+  getPublicFolder
+)
 router.get(
   '/public/:sharedFolderId/download/:entityId',
   validateSharedFolder,
