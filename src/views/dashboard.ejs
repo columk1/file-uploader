@@ -113,17 +113,17 @@
             </div>
           </a>
         </div>
-        <sl-drawer label="Drawer" class="drawer-overview">
+        <sl-drawer label="File Information" class="drawer-overview">
           <div class="drawer-content"></div>
           <div class="btn-group" slot="footer">
-            <sl-button type="submit" class="drawer-download-btn">Download</sl-button>
+            <sl-button class="drawer-close-btn">Close</sl-button>
             <sl-button class="drawer-share-btn">Share</sl-button>
             <form action="" class="delete-file-form" method="POST">
               <input type="hidden" name="type" value="FILE"></input>
               <input type="hidden" name="parentId" value="<%= id %>"></input>
               <sl-button type="submit" class="delete-file-btn">Delete</sl-button>
             </form>
-            <sl-button variant="primary">Close</sl-button>
+            <sl-button variant="primary" class="drawer-download-btn">Download</sl-button>
           </div>
         </sl-drawer>
 
@@ -132,7 +132,7 @@
           Create a folder to get started
         </div>
       <% } %>
-      
+
         <% for (var i = 0; i < files.length; i++) {
           let icon = files[i].type === 'FILE' ? 'file-earmark' : 'folder'; %>
           <button 
@@ -216,7 +216,7 @@
     </sl-radio-group>
     <div class="share-link-container"></div>
     <div class="btn-group">
-      <sl-button slot="footer">Cancel</sl-button>
+      <!-- Optional Cancel Buttons <sl-button slot="footer">Cancel</sl-button> -->
       <sl-button id="generate-folder-link-btn" slot="footer" variant="primary" data-id="<%= id %>">Generate Link</sl-button>
     </div>
   </form>
@@ -349,8 +349,8 @@
     const shareFolderButton = document.querySelector('.share-folder-btn')
     shareFolderButton.addEventListener('click', () => shareFolderDialog.show())
 
-    const closeShareFolderDialogButton = shareFolderDialog.querySelector('sl-button[slot="footer"]')
-    closeShareFolderDialogButton.addEventListener('click', () => shareFolderDialog.hide())
+    // const closeShareFolderDialogButton = shareFolderDialog.querySelector('sl-button[slot="footer"]')
+    // closeShareFolderDialogButton.addEventListener('click', () => shareFolderDialog.hide())
 
     const shareFolderLinkContainer = shareFolderDialog.querySelector('.share-link-container')
     const generateFolderLinkButton = shareFolderDialog.querySelector('#generate-folder-link-btn')
@@ -359,6 +359,7 @@
     async function generatePublicFileUrl() {
       const hoursDuration = shareFileRadioGroup.value
       const linkInput = document.createElement('sl-input')
+      linkInput.classList.add('link-input')
       generateLinkButton.loading = true
       const res = await fetch(`share/file/${generateLinkButton.dataset.filename}?h=${hoursDuration}`)
       const data = await res.json()
@@ -381,6 +382,7 @@
     async function generatePublicFolderUrl() {
       const hoursDuration = shareFolderRadioGroup.value
       const linkInput = document.createElement('sl-input')
+      linkInput.classList.add('link-input')
       generateFolderLinkButton.loading = true
       const res = await fetch(`share/folder/${generateFolderLinkButton.dataset.id}?h=${hoursDuration}`)
       const data = await res.json()
@@ -414,6 +416,9 @@
   const downloadButton = drawer.querySelector('.drawer-download-btn')
   const shareButton = drawer.querySelector('.drawer-share-btn')
   const deleteFileForm = drawer.querySelector('.delete-file-form')
+  const closeButton = drawer.querySelector('.drawer-close-btn')
+
+  closeButton.addEventListener('click', () => drawer.hide())
 
   openButtons.forEach(button => {
     button.addEventListener('click', () => {
@@ -438,9 +443,7 @@
       drawer.show()
     })
   })
-  const closeButton = drawer.querySelector('sl-button[variant="primary"]')
-  closeButton.addEventListener('click', () => drawer.hide())
-  
+
   function createFileInfoElement(label, value) {
   const fileInfoItem = document.createElement('div')
   fileInfoItem.classList.add('file-info-item')

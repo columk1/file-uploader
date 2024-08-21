@@ -69,11 +69,11 @@
             </div>
           </a>
         </div>
-        <sl-drawer label="Drawer" class="drawer-overview">
+        <sl-drawer label="File Information" class="drawer-overview">
           <div class="drawer-content"></div>
           <div class="btn-group" slot="footer">
-            <sl-button type="submit" class="drawer-download-btn">Download</sl-button>
-            <sl-button variant="primary">Close</sl-button>
+            <sl-button class="drawer-close-btn">Close</sl-button>
+            <sl-button type="submit" variant="primary" class="drawer-download-btn">Download</sl-button>
           </div>
         </sl-drawer>
         <% for (var i = 0; i < files.length; i++) {
@@ -150,7 +150,7 @@
       drawer.show()
     })
   })
-  const closeButton = drawer.querySelector('sl-button[variant="primary"]')
+  const closeButton = drawer.querySelector('.drawer-close-btn')
   closeButton.addEventListener('click', () => drawer.hide())
   
   function createFileInfoElement(label, value) {

@@ -328,7 +328,11 @@ sl-button.card-btn::part(label) {
 }
 
 .share-link-container {
-  padding: 1rem 0;
+  margin-top: 0.75rem;
+}
+
+.link-input {
+  padding-bottom: 1rem;
 }
 
 sl-radio-group {

@@ -8,7 +8,6 @@ import {
   getFolderTree,
   getPathSegments,
   getFolderContents,
-  isChildOf,
   getFilename,
 } from 'src/services/dirService'
 import helpers from 'src/lib/utils/ejsHelpers'
