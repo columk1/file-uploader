@@ -187,6 +187,15 @@ sl-tree-item::part(label) {
   /* padding: 0 0.75rem; */
 }
 
+.grid-body {
+  min-height: 200px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
 .grid-header-col {
   min-height: 38px;
   border-radius: var(--sl-input-border-radius-medium);

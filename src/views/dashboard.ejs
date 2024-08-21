@@ -74,7 +74,6 @@
   </aside>
   <main class="layout-main">
     <% if (locals.currentUser) { %>
-      <% console.dir(locals.pathSegments) %>
       <!-- <h2 class="title">Welcome back <%= currentUser.username %></h2> -->
       <div class="breadcrumb-container">
         <sl-breadcrumb>
@@ -127,6 +126,13 @@
             <sl-button variant="primary">Close</sl-button>
           </div>
         </sl-drawer>
+
+        <% if (files.length === 0) { %>
+        <div class="grid-body">
+          Create a folder to get started
+        </div>
+      <% } %>
+      
         <% for (var i = 0; i < files.length; i++) {
           let icon = files[i].type === 'FILE' ? 'file-earmark' : 'folder'; %>
           <button 
@@ -339,7 +345,6 @@
     const shareLinkContainer = shareFileDialog.querySelector('.share-link-container')
     const generateLinkButton = shareFileDialog.querySelector('#generate-link-btn')
     generateLinkButton.addEventListener('click', generatePublicFileUrl, { once: true})
-      // shareFileDialog.hide()
 
     const shareFolderButton = document.querySelector('.share-folder-btn')
     shareFolderButton.addEventListener('click', () => shareFolderDialog.show())
@@ -390,7 +395,7 @@
         shareFolderRadioButtons.forEach(button => button.disabled = true)
         generateFolderLinkButton.textContent = 'Copy Link'
         generateFolderLinkButton.addEventListener('click', () => {
-          navigator.clipboard.writeText(data.url)
+          navigator.clipboard.writeText(url)
           generateFolderLinkButton.textContent = 'Copied!'
         })
         // Reset dialog on hide
@@ -482,7 +487,6 @@ function createFileInfoContent(file) {
   const dateValue = document.createElement('span')
   const date = new Date(file.createdAt)
   dateLabel.textContent = 'Created: '
-  console.log(file.createdAt)
   dateValue.textContent = formatDate(new Date(file.createdAt)) + `, ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
   dateCreated.append(dateLabel, dateValue)
 
