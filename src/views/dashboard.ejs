@@ -4,47 +4,23 @@
 
 <%- include('partials/header') -%>
 
-<div class="overlay">
-  <div class="overlay__wrapper">
-    <sl-spinner style="font-size: 2rem;"></sl-spinner>
-  </div>
-</div>
+<%- include('partials/spinner') -%>
 
-<% const alertDuration = 3000 %>
-
-<% if (error) { %>
-  <sl-alert id="error-alert" variant="warning" closable duration=<%= alertDuration %>>
-    <sl-icon slot="icon" name="exclamation-triangle"></sl-icon>
-    <%= error %>
-  </sl-alert>
-  <% } else if (success) { %>
-    <sl-alert id="success-alert"variant="success" closable duration=<%= alertDuration %>>
-      <sl-icon slot="icon" name="check2-circle"></sl-icon>
-      <%= success %>
-    </sl-alert>
-    <% } %>
+<%- include('partials/alert') -%>
     
-    <div class="layout">
+<div class="layout">
 
-      <%- include('partials/desktop-sidebar') -%>
+  <%- include('partials/desktop-sidebar') -%>
       
   <main class="layout-main">
     <% if (locals.currentUser) { %>
       <!-- <h2 class="title">Welcome back <%= currentUser.username %></h2> -->
-      <div class="breadcrumb-container">
-        <sl-breadcrumb>
-          <sl-breadcrumb-item href="/"><%= `${currentUser.username}` %></sl-breadcrumb-item>
-          <% if (locals?.pathSegments?.length > 0) { %>
-            <% locals.pathSegments.forEach((segment) => { %>
-              <sl-breadcrumb-item href="<%= segment.id %>"><%= segment.name %></sl-breadcrumb-item>
-            <% }) %>
-          <% } %>
-        </sl-breadcrumb>
-      </div>
-      <!-- <br /> -->
+
+      <%- include('partials/breadcrumb', { baseUrl: ''}) -%>
+
       <div class='grid-container'>
         <div class="grid-header">
-          <a href="<%= locals.helpers.generateSortLink(sortQuery, 'name') %>">
+          <a href="<%= helpers.generateSortLink(sortQuery, 'name') %>">
             <div class="grid-header-col">
               <div class="grid-col">Name</div>
               <% if (sortQuery.name) { %>
@@ -52,7 +28,7 @@
               <% } %>
             </div>
           </a>
-          <a href="<%= locals.helpers.generateSortLink(sortQuery, 'size') %>">
+          <a href="<%= helpers.generateSortLink(sortQuery, 'size') %>">
             <div class="grid-header-col">
               <div class="grid-col">Size</div>
               <% if (sortQuery.size) { %>
@@ -60,7 +36,7 @@
               <% } %>
             </div>
           </a>
-          <a href="<%= locals.helpers.generateSortLink(sortQuery, 'createdAt') %>">
+          <a href="<%= helpers.generateSortLink(sortQuery, 'createdAt') %>">
             <div class="grid-header-col">
               <div class="grid-col">Created</div>
               <% if (sortQuery.createdAt) { %>
@@ -76,7 +52,7 @@
             <sl-button class="drawer-share-btn">Share</sl-button>
             <form action="" class="delete-file-form" method="POST">
               <input type="hidden" name="type" value="FILE"></input>
-              <input type="hidden" name="parentId" value="<%= id %>"></input>
+              <input type="hidden" name="parentId" value="<%= folderId %>"></input>
               <sl-button type="submit" class="delete-file-btn">Delete</sl-button>
             </form>
             <sl-button variant="primary" class="drawer-download-btn">Download</sl-button>
@@ -109,13 +85,13 @@
                 --
               <% } %>
             </small>
-            <small class="grid-col"><%= locals.helpers.formatDate(files[i].createdAt) %></small>
+            <small class="grid-col"><%= helpers.formatDate(files[i].createdAt) %></small>
           </button>
         <% } %>
       </div>
       <sl-dialog label="New Folder" class="dialog-focus new-folder-dialog">
         <form id="new-folder-form"action="/new" method="post">
-          <input type="hidden" name="parentId" value="<%= locals.id || null %>"></input>
+          <input type="hidden" name="parentId" value="<%= folderId || null %>"></input>
           <sl-input name="name" label="Name" autofocus placeholder=""></sl-input>
           </br>
           <sl-button type="submit" slot="footer" variant="primary">Create Folder</sl-button>
@@ -127,7 +103,7 @@
           <div class="form-group">
             <input type="file" name="uploaded_file"></input>
             <p id='file-error' class="error">File size exceeds the 50MB limit</p>
-            <input type="hidden" name="parentId" value="<%= id %>"></input>
+            <input type="hidden" name="parentId" value="<%= folderId %>"></input>
             </br>
             <sl-button type="submit" slot="footer" variant="primary">Upload</sl-button>
           </div>
@@ -135,7 +111,7 @@
       </sl-dialog>
       <sl-dialog label="Delete Folder" class="dialog-focus delete-folder-dialog">
         Are you sure you want to delete the current folder and all of its contents?
-        <form id="delete-form" action="<%=`/delete/${id}`%>" method="POST">
+        <form id="delete-form" action="<%=`/delete/${folderId}`%>" method="POST">
           <input type="hidden" name="type" value="FOLDER"></input>
           <input type="hidden" name="parentId" value="<%= parentId %>"></input>
           </br>
@@ -159,7 +135,7 @@
           <div class="share-link-container"></div>
           <div class="btn-group">
             <!-- Optional Cancel Buttons <sl-button slot="footer">Cancel</sl-button> -->
-            <sl-button id="generate-folder-link-btn" slot="footer" variant="primary" data-id="<%= id %>">Generate Link</sl-button>
+            <sl-button id="generate-folder-link-btn" slot="footer" variant="primary" data-id="<%= folderId %>">Generate Link</sl-button>
           </div>
         </form>
       </sl-dialog>
@@ -189,7 +165,7 @@
 <div class="mobile-footer">
   <sl-icon-button name="folder-plus" class="new-folder-btn" label="New Folder"></sl-icon-button>
   <sl-icon-button name="file-earmark-plus" class="new-file-btn" label="Upload File"></sl-icon-button>
-  <% if (locals.id) { %>
+  <% if (folderId) { %>
     <sl-icon-button name="trash" class="delete-folder-btn" label="Delete Folder"></sl-icon-button>
     <% } else { %>
       <sl-icon-button name="box-arrow-right" href="/logout" label="Logout"></sl-icon-button>  
