@@ -16,7 +16,7 @@
           <sl-icon class="card-icon" name="share"></sl-icon><span>Share Folder</span>
         </sl-button>
       </li>
-      <% if (locals.id) { %> 
+      <% if (folderId) { %> 
         <li>
           <sl-button class="card-btn delete-folder-btn">
             <sl-icon class="card-icon" name="trash"></sl-icon><span>Delete Folder</span>
@@ -26,23 +26,5 @@
     </ul>
   </nav>
   </br>
-  <sl-tree>
-    <sl-tree-item expanded <%= locals.id === null && "selected" %>><a href="/"><%= currentUser.username %></a>
-      <% function renderTree(items) { %>
-        <% items.forEach(item => { %>
-          <sl-tree-item
-            data-id="<%= item.id %>"
-            <%= item.id === locals.id && "selected" %> 
-            <%= locals.pathSegments && pathSegments.some(segment => segment.name === item.name) && "expanded" %>
-          >
-            <a href="/<%= item.id %>"><%= item.name %></a>
-            <% if (item.childEntities && item.childEntities.length > 0) { %>
-              <%= renderTree(item.childEntities) %>
-            <% } %>
-          </sl-tree-item>
-        <% }); %>
-      <% } %>
-      <%= renderTree(locals.folders) %>
-    </sl-tree-item>
-  </sl-tree>
+  <%- include('tree', { baseUrl: ''}) -%>
 </aside>

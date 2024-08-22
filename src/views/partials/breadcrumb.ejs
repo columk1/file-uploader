@@ -1,0 +1,12 @@
+<div class="breadcrumb-container">
+  <sl-breadcrumb>
+    <% if (rootFolder.id === null) { %>
+      <sl-breadcrumb-item href="/"><%= rootFolder.name %></sl-breadcrumb-item>
+    <% } %>
+    <% if (pathSegments?.length > 0) { %>
+      <% pathSegments.forEach((segment) => { %>
+        <sl-breadcrumb-item href="<%= baseUrl %>/<%= segment.id %>"><%= segment.name %></sl-breadcrumb-item>
+      <% }) %>
+    <% } %>
+  </sl-breadcrumb>
+</div>
