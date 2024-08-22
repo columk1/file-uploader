@@ -16,35 +16,9 @@
     <% if (locals.currentUser) { %>
       <!-- <h2 class="title">Welcome back <%= currentUser.username %></h2> -->
 
-      <%- include('partials/breadcrumb', { baseUrl: ''}) -%>
-
-      <div class='grid-container'>
-        <div class="grid-header">
-          <a href="<%= helpers.generateSortLink(sortQuery, 'name') %>">
-            <div class="grid-header-col">
-              <div class="grid-col">Name</div>
-              <% if (sortQuery.name) { %>
-                <sl-icon-button name="<%= sortQuery.name === 'desc' ? 'caret-down' : 'caret-up' %>" label="Sort by name"></sl-icon-button>
-              <% } %>
-            </div>
-          </a>
-          <a href="<%= helpers.generateSortLink(sortQuery, 'size') %>">
-            <div class="grid-header-col">
-              <div class="grid-col">Size</div>
-              <% if (sortQuery.size) { %>
-                <sl-icon-button name="<%= sortQuery.size === 'desc' ? 'caret-down' : 'caret-up' %>" label="Sort by size"></sl-icon-button>
-              <% } %>
-            </div>
-          </a>
-          <a href="<%= helpers.generateSortLink(sortQuery, 'createdAt') %>">
-            <div class="grid-header-col">
-              <div class="grid-col">Created</div>
-              <% if (sortQuery.createdAt) { %>
-                <sl-icon-button name="<%= sortQuery.createdAt === 'desc' ? 'caret-down' : 'caret-up' %>" label="Sort by date created"></sl-icon-button>
-              <% } %>
-            </div>
-          </a>
-        </div>
+      <%- include('partials/breadcrumb', { baseUrl: '' }) -%>
+      <%- include('partials/data-table', { baseUrl: '' }) -%>
+      
         <sl-drawer label="File Information" class="drawer-overview">
           <div class="drawer-content"></div>
           <div class="btn-group" slot="footer">
@@ -58,37 +32,6 @@
             <sl-button variant="primary" class="drawer-download-btn">Download</sl-button>
           </div>
         </sl-drawer>
-
-        <% if (files.length === 0) { %>
-        <div class="grid-body">
-          Create a folder to get started
-        </div>
-      <% } %>
-
-        <% for (var i = 0; i < files.length; i++) {
-          let icon = files[i].type === 'FILE' ? 'file-earmark' : 'folder'; %>
-          <button 
-            <% if (files[i].type === 'FILE') { %>
-              data-index="<%= i %>" 
-            <% } else { %>
-              onclick="window.location.href='/<%= files[i].id %>'" 
-            <% } %>
-            class="btn grid-row">
-            <div class="grid-col col-name">
-              <sl-icon class="col-name-icon" name="<%= icon %>"></sl-icon>
-              <small><%= files[i].name %></small>
-            </div>
-            <small class="grid-col">
-              <% if (files[i].size) { %>
-                <sl-format-bytes value="<%= files[i].size %>"></sl-format-bytes>
-              <% } else { %>
-                --
-              <% } %>
-            </small>
-            <small class="grid-col"><%= helpers.formatDate(files[i].createdAt) %></small>
-          </button>
-        <% } %>
-      </div>
       <sl-dialog label="New Folder" class="dialog-focus new-folder-dialog">
         <form id="new-folder-form"action="/new" method="post">
           <input type="hidden" name="parentId" value="<%= folderId || null %>"></input>
