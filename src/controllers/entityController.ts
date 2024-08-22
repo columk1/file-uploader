@@ -27,13 +27,16 @@ const getDashboard = async (req: Request, res: Response) => {
 
   const sortQuery = sortCriteria?.reduce((acc, curr) => ({ ...acc, ...curr }), {})
   const folders = await getFolderTree(req.user?.id, null)
+  const rootFolder = { id: null, name: req.user?.username }
 
   res.render('dashboard', {
     title: 'File Uploader',
     files,
     folders,
-    id: null,
+    folderId: null,
     parentId: null,
+    rootFolder,
+    pathSegments: null,
     sortQuery,
     helpers,
     error: req.query.error,
@@ -43,26 +46,28 @@ const getDashboard = async (req: Request, res: Response) => {
 
 // GET: /:folderId (Same view as Dashboard)
 const getFolder = async (req: Request, res: Response) => {
-  const id = Number(req.params.entityId)
-  if (!id) return res.redirect('/')
+  const folderId = Number(req.params.entityId)
+  if (!folderId) return res.redirect('/')
 
   const { sortCriteria } = req
 
-  const entity = await getFolderEntityById(id, sortCriteria)
+  const entity = await getFolderEntityById(folderId, sortCriteria)
   if (!entity) return res.status(404).send('Not found')
 
   const { name, type, childEntities: files, parentId } = entity
   const sortQuery = sortCriteria?.reduce((acc, curr) => ({ ...acc, ...curr }), {})
   const folders = await getFolderTree(req.user?.id, null)
-  const pathSegments = await getPathSegments(id)
+  const rootFolder = { id: null, name: req.user?.username }
+  const pathSegments = await getPathSegments(folderId)
 
   res.render('dashboard', {
     title: 'File Uploader',
-    id,
+    folderId,
     name,
     type,
     files,
     parentId,
+    rootFolder,
     pathSegments,
     folders,
     sortQuery,
@@ -258,30 +263,30 @@ const shareFolder = async (req: Request, res: Response, next: NextFunction) => {
 // GET: /public/:sharedFolderId/:entityId
 const getPublicFolder = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const id = req.params.sharedFolderId
+    const sharedFolderId = req.params.sharedFolderId
     const { sortCriteria, sharedFolder, entityId } = req
     if (!sharedFolder) return res.status(404).send('Not found')
 
     const rootFolder = { id: sharedFolder.folderId, name: sharedFolder.folder.name }
-    const currentFolderId = entityId ? entityId : rootFolder.id
+    const folderId = entityId ? entityId : rootFolder.id
 
-    const files = await getFolderContents(currentFolderId, sortCriteria)
+    const files = await getFolderContents(folderId, sortCriteria)
     if (!files) return res.status(404).send('Not found')
 
     const folders = await getFolderTree(4, rootFolder.id)
-    const pathSegments = await getPathSegments(currentFolderId)
+    const pathSegments = await getPathSegments(folderId)
     const sortQuery = sortCriteria?.reduce((acc, curr) => ({ ...acc, ...curr }), {})
 
     res.render('public-folder', {
       title: 'File Uploader',
-      id,
+      sharedFolderId,
+      folderId,
       files,
       folders,
       helpers,
       pathSegments,
       sortQuery,
       rootFolder,
-      currentFolderId,
     })
   } catch (err) {
     console.log(err)
