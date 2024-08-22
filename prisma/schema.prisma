@@ -59,7 +59,7 @@ model SharedFolder {
   expiresAt   DateTime
   
   user User @relation(fields: [userId], references: [id])
-  folder Entity @relation(fields: [folderId], references: [id])
+  folder Entity @relation(fields: [folderId], references: [id], onDelete: Cascade)
 
   @@map("shared_folders")
   @@index([userId])
