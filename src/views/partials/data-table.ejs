@@ -1,66 +1,78 @@
 <div class='grid-container'>
+  <!-- Header with sort filters -->
   <div class="grid-header">
+
     <a href="<%= helpers.generateSortLink(sortQuery, 'name') %>">
       <div class="grid-header-col">
         <div class="grid-col">Name</div>
         <% if (sortQuery.name) { %>
-          <sl-icon-button
-            name="<%= sortQuery.name === 'desc' ? 'caret-down' : 'caret-up' %>"
-            label="Sort by name">
-          </sl-icon-button>
+        <sl-icon-button 
+          name="<%= sortQuery.name === 'desc' ? 'caret-down' : 'caret-up' %>" 
+          label="Sort by name"
+        >
+        </sl-icon-button>
         <% } %>
       </div>
     </a>
+
     <a href="<%= helpers.generateSortLink(sortQuery, 'size') %>">
       <div class="grid-header-col">
         <div class="grid-col">Size</div>
         <% if (sortQuery.size) { %>
-          <sl-icon-button
-            name="<%= sortQuery.size === 'desc' ? 'caret-down' : 'caret-up' %>"
-            label="Sort by size">
-          </sl-icon-button>
+        <sl-icon-button 
+          name="<%= sortQuery.size === 'desc' ? 'caret-down' : 'caret-up' %>" 
+          label="Sort by size"
+        >
+        </sl-icon-button>
         <% } %>
       </div>
     </a>
+
     <a href="<%= helpers.generateSortLink(sortQuery, 'createdAt') %>">
       <div class="grid-header-col">
         <div class="grid-col">Created</div>
         <% if (sortQuery.createdAt) { %>
-          <sl-icon-button
-            name="<%= sortQuery.createdAt === 'desc' ? 'caret-down' : 'caret-up' %>"
-            label="Sort by date created">
-          </sl-icon-button>
+        <sl-icon-button 
+          name="<%= sortQuery.createdAt === 'desc' ? 'caret-down' : 'caret-up' %>" 
+          label="Sort by date created"
+        >
+        </sl-icon-button>
         <% } %>
       </div>
     </a>
+
   </div>
+  <!-- No files or folders case -->
   <% if (files.length === 0) { %>
-    <div class="grid-body">
-      Create a folder to get started
-    </div>
+  <div class="grid-body">
+    Create a folder to get started
+  </div>
   <% } %>
 
-    <% for (var i = 0; i < files.length; i++) {
+  <!-- Files and folders -->
+  <% for (var i = 0; i < files.length; i++) {
       let icon = files[i].type === 'FILE' ? 'file-earmark' : 'folder'; %>
-      <button 
-        <% if (files[i].type === 'FILE') { %>
-          data-index="<%= i %>" 
-        <% } else { %>
-          onclick="window.location.href='<%=`${baseUrl}/${files[i].id}` %>'" 
-        <% } %>
-        class="btn grid-row">
-        <div class="grid-col col-name">
-          <sl-icon class="col-name-icon" name="<%= icon %>"></sl-icon>
-          <small><%= files[i].name %></small>
-        </div>
-        <small class="grid-col">
-          <% if (files[i].size) { %>
-            <sl-format-bytes value="<%= files[i].size %>"></sl-format-bytes>
-          <% } else { %>
-            --
-          <% } %>
-        </small>
-        <small class="grid-col"><%= helpers.formatDate(files[i].createdAt) %></small>
-      </button>
-    <% } %>
-  </div>
+      
+  <button 
+    class="btn grid-row"
+  <% if (files[i].type === 'FILE') { %> 
+    data-index="<%= i %>" 
+  <% } else { %> 
+    onclick="window.location.href='<%=`${baseUrl}/${files[i].id}` %>'" 
+  <% } %> 
+  >
+    <div class="grid-col col-name">
+      <sl-icon class="col-name-icon" name="<%= icon %>"></sl-icon>
+      <small><%= files[i].name %></small>
+    </div>
+    <small class="grid-col">
+      <% if (files[i].size) { %>
+      <sl-format-bytes value="<%= files[i].size %>"></sl-format-bytes>
+      <% } else { %>
+      --
+      <% } %>
+    </small>
+    <small class="grid-col"><%= helpers.formatDate(files[i].createdAt) %></small>
+  </button>
+  <% } %>
+</div>

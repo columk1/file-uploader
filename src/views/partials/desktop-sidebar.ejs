@@ -1,4 +1,5 @@
 <aside class="layout-sidebar">
+  <!-- Folder Actions -->
   <nav>
     <ul>
       <li>
@@ -16,15 +17,16 @@
           <sl-icon class="card-icon" name="share"></sl-icon><span>Share Folder</span>
         </sl-button>
       </li>
-      <% if (folderId) { %> 
-        <li>
-          <sl-button class="card-btn delete-folder-btn">
-            <sl-icon class="card-icon" name="trash"></sl-icon><span>Delete Folder</span>
-          </sl-button>
-        </li>
+      <% if (folderId) { %>
+      <li>
+        <sl-button class="card-btn delete-folder-btn">
+          <sl-icon class="card-icon" name="trash"></sl-icon><span>Delete Folder</span>
+        </sl-button>
+      </li>
       <% } %>
     </ul>
   </nav>
   </br>
+  <!-- Folder Tree -->
   <%- include('tree', { baseUrl: ''}) -%>
 </aside>
