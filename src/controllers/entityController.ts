@@ -200,9 +200,9 @@ const deleteEntity = async (req: Request, res: Response, next: NextFunction) => 
 // GET: /download/:entityId // ?: could use filename as params instead of query
 const downloadFile = async (req: Request, res: Response) => {
   try {
-    const fileName = req.query.name
-    const parentId = req.query.parentId || ''
-    const filePath = `${req.user?.id}/${fileName}`
+    const { filename, parentId } = req.query
+    const filePath = `${req.user?.id}/${filename}`
+
     const { data } = await supabaseAdmin.storage
       .from('files')
       .createSignedUrl(filePath, 60, { download: true })
@@ -287,6 +287,8 @@ const getPublicFolder = async (req: Request, res: Response, next: NextFunction) 
       pathSegments,
       sortQuery,
       rootFolder,
+      error: req.query.error,
+      success: req.query.success,
       baseUrl: `/public/${sharedFolderId}`,
     })
   } catch (err) {
@@ -299,11 +301,11 @@ const getPublicFolder = async (req: Request, res: Response, next: NextFunction) 
 const handleSharedFileDownload = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { sharedFolder } = req
-    const { filename } = req.query
+    const { filename, parentId } = req.query
 
     const userId = sharedFolder.userId
-
     const filePath = `${userId}/${filename}`
+
     const { data } = await supabaseAdmin.storage
       .from('files')
       .createSignedUrl(filePath, 60, { download: true })
@@ -311,7 +313,7 @@ const handleSharedFileDownload = async (req: Request, res: Response, next: NextF
     if (data?.signedUrl) {
       res.redirect(data.signedUrl)
     } else {
-      res.redirect(`/${req.originalUrl}?error=${defaultErrorQuery}`)
+      res.redirect(`/public/${sharedFolder.id}/${parentId}?error=${defaultErrorQuery}`)
     }
   } catch (err) {
     console.log(err)

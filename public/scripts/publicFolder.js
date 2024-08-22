@@ -17,6 +17,10 @@ document.body.style.display = 'block'
 const dataScript = document.getElementById('data-script')
 const files = JSON.parse(dataScript.textContent)
 
+// Popup alert
+const alert = document.querySelector('sl-alert')
+if (alert) alert.toast()
+
 const dataContainer = document.getElementById('data-container')
 const sharedFolderId = dataContainer.getAttribute('data-id')
 
@@ -34,7 +38,8 @@ openButtons.forEach((button) => {
 
     // Repopulate drawer with file info
     drawerContent.replaceChildren(newDrawerContent)
-    downloadButton.href = `/public/${sharedFolderId}/download/${file.id}?filename=${file.name}&mimeType=${file.mimeType}`
+    const parentIdQuery = file.parentId ? '&parentId=' + file.parentId : ''
+    downloadButton.href = `/public/${sharedFolderId}/download/${file.id}?filename=${file.name}&mimeType=${file.mimeType}${parentIdQuery}`
     downloadButton.addEventListener('click', function () {
       this.loading = true
       setTimeout(() => {

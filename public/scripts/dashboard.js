@@ -41,7 +41,9 @@ openButtons.forEach((button) => {
 
     // Repopulate drawer with file info
     drawerContent.replaceChildren(newDrawerContent)
-    downloadButton.href = `/download/${file.id}?name=${file.name}&mimeType=${file.mimeType}`
+    // Add parentId to query for redirect in case of error
+    const parentIdQuery = file.parentId ? '&parentId=' + file.parentId : ''
+    downloadButton.href = `/download/${file.id}?filename=${file.name}&mimeType=${file.mimeType}${parentIdQuery}`
     downloadButton.addEventListener('click', function () {
       this.loading = true
       setTimeout(() => {
