@@ -14,3 +14,10 @@ namespace Express {
     sharedFolder?: Prisma.SharedFolder
   }
 }
+
+interface Error {
+  name: string
+  message: string
+  stack?: string
+  status?: number
+}
