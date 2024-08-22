@@ -287,6 +287,7 @@ const getPublicFolder = async (req: Request, res: Response, next: NextFunction) 
       pathSegments,
       sortQuery,
       rootFolder,
+      baseUrl: `/public/${sharedFolderId}`,
     })
   } catch (err) {
     console.log(err)

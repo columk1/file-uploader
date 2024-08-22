@@ -8,15 +8,15 @@
 
 <div class="layout">
   <aside class="layout-sidebar">
-    <%- include('partials/tree', { baseUrl: `/public/${sharedFolderId}`}) -%>
+    <%- include('partials/tree', { baseUrl }) -%>
   </aside>
   <main class="layout-main">
 
-      <%- include('partials/breadcrumb', { baseUrl: `/public/${sharedFolderId}`}) -%>
+      <%- include('partials/breadcrumb', { baseUrl }) -%>
 
       <div class='grid-container'>
         <div class="grid-header">
-          <a href="/public/<%= sharedFolderId %>/<%= folderId %><%= helpers.generateSortLink(sortQuery, 'name') %>">
+          <a href="<%= helpers.generateSortLink(sortQuery, 'name') %>">
             <div class="grid-header-col">
               <div class="grid-col">Name</div>
               <% if (sortQuery.name) { %>
