@@ -7,6 +7,7 @@ import morgan from 'morgan'
 import authRouter from 'src/routers/authRouter'
 import entityRouter from 'src/routers/entityRouter'
 import compression from 'compression'
+import createError from 'http-errors'
 
 const PORT = process.env.PORT || 3000
 
@@ -34,12 +35,14 @@ app.use(entityRouter)
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
-  res.status(404).send({ errors: [{ message: 'Not found' }] })
+  next(createError(404))
 })
 
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-  console.error(err)
-  res.status(500).send({ errors: [{ message: err.message || 'Something went wrong' }] })
+  const error = req.app.get('env') === 'development' ? err : {}
+  console.log(err)
+  res.status(err.status || 500)
+  res.render('error', { error })
 })
 
 app.listen(PORT, () => console.log(`Listening on port ${PORT}`))
