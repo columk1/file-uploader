@@ -3,9 +3,7 @@
 </script>
 
 <%- include('partials/header') -%>
-
 <%- include('partials/spinner') -%>
-
 <%- include('partials/alert') -%>
 
 <div class="layout">
@@ -43,13 +41,7 @@
     </sl-dialog>
 
     <sl-dialog label="New File" class="dialog-focus new-file-dialog">
-      <form 
-        id="upload-form" 
-        class="upload-form" 
-        action="/upload" 
-        enctype="multipart/form-data" 
-        method="post"
-      >
+      <form id="upload-form" class="upload-form" action="/upload" enctype="multipart/form-data" method="post">
         <sl-progress-bar class="upload-progress" value="0"></sl-progress-bar>
         <div class="form-group">
           <input type="file" name="uploaded_file"></input>
@@ -78,12 +70,7 @@
       Generate a public link to share the current folder and its contents
       <form id="share-folder-form">
         </br>
-        <sl-radio-group 
-          label="Duration" 
-          name="a" 
-          value="72" 
-          help-text="Links will expire after the specified duration"
-        >
+        <sl-radio-group label="Duration" name="a" value="72" help-text="Links will expire after the specified duration">
           <sl-radio-button value="1">1 hour</sl-radio-button>
           <sl-radio-button value="4">4 hours</sl-radio-button>
           <sl-radio-button value="24">1 day</sl-radio-button>
@@ -92,7 +79,7 @@
         </sl-radio-group>
         <div class="share-link-container"></div>
         <div class="btn-group">
-          <!-- Optional Cancel Buttons <sl-button slot="footer">Cancel</sl-button> -->
+          <sl-button slot="footer">Cancel</sl-button>
           <sl-button id="generate-folder-link-btn" slot="footer" variant="primary" data-id="<%= folderId %>">
             Generate Link
           </sl-button>
@@ -104,12 +91,7 @@
       Generate a public link to share the selected file
       <form id="share-file-form">
         </br>
-        <sl-radio-group 
-          label="Duration" 
-          name="a" 
-          value="72" 
-          help-text="Links will expire after the specified duration"
-        >
+        <sl-radio-group label="Duration" name="a" value="72" help-text="Links will expire after the specified duration">
           <sl-radio-button value="1">1 hour</sl-radio-button>
           <sl-radio-button value="4">4 hours</sl-radio-button>
           <sl-radio-button value="24">1 day</sl-radio-button>

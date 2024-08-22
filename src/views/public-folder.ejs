@@ -3,7 +3,6 @@
 </script>
 
 <%- include('partials/header') -%>
-
 <%- include('partials/spinner') -%>
 
 <div class="layout">
@@ -24,6 +23,8 @@
     </sl-drawer>
   </main>
 </div>
+
+<div id="data-container"data-id="<%= sharedFolderId %>"></div>
 
 <script type="module" src="/scripts/publicFolder.js"></script>
 
