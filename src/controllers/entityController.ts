@@ -10,8 +10,8 @@ import {
   getFolderContents,
   getFilename,
 } from 'src/services/dirService'
+import { storage } from 'src/services/storageService'
 import helpers from 'src/lib/utils/ejsHelpers'
-import supabaseAdmin from 'src/db/supabaseAdminClient'
 import { Readable } from 'stream'
 import { defaultError, defaultErrorQuery } from 'src/lib/utils/errorMessages'
 import { getUserEntities, getFolderEntityById } from 'src/services/dirService'
@@ -100,15 +100,11 @@ const getUploadUrl = async (req: Request, res: Response) => {
   const bucketName = 'files'
   const filePath = `${id}/${filename}`
 
-  const { data, error } = await supabaseAdmin.storage
-    .from(bucketName)
-    .createSignedUploadUrl(filePath) // URL valid for 60 seconds
-  if (error) {
-    console.log(error)
+  const fileUploadUrl = await storage.getFileUploadUrl(bucketName, filePath)
+  if (!fileUploadUrl) {
     return res.status(500).send({ errors: [{ message: defaultError }] })
   }
-
-  res.send({ signedUrl: data.signedUrl })
+  res.send({ fileUploadUrl })
 }
 
 // POST: /upload Upload a file
@@ -128,7 +124,7 @@ const uploadFile = async (req: Request, res: Response) => {
     const options = {
       contentType: mimetype,
       upsert: false,
-      duplex: 'half', // allows binary stream, otherwise must convert: decode(buffer.toString('base64')
+      duplex: 'half' as 'half' | 'full', // allows binary stream, otherwise must convert: decode(buffer.toString('base64')
     }
     const filePath = `${userId}/${originalname}`
 
@@ -136,9 +132,7 @@ const uploadFile = async (req: Request, res: Response) => {
     bufferStream.push(buffer)
     bufferStream.push(null) // end of stream
 
-    const { data, error } = await supabaseAdmin.storage
-      .from(bucketName)
-      .upload(filePath, bufferStream, options)
+    const { data, error } = await storage.uploadFile(bucketName, filePath, bufferStream, options)
 
     if (error) {
       console.log(error)
@@ -184,13 +178,7 @@ const deleteEntity = async (req: Request, res: Response, next: NextFunction) => 
 
     // Continue to remove from storage
     filenames.forEach(async (filename) => {
-      console.log({ filename })
-      const { data, error } = await supabaseAdmin.storage
-        .from('files')
-        .remove([`${userId}/${filename}`])
-      if (error) {
-        console.log(error)
-      }
+      const deletedFile = await storage.deleteFile('files', `${userId}/${filename}`)
     })
   } catch (err) {
     next(err)
@@ -198,23 +186,21 @@ const deleteEntity = async (req: Request, res: Response, next: NextFunction) => 
 }
 
 // GET: /download/:entityId // ?: could use filename as params instead of query
-const downloadFile = async (req: Request, res: Response) => {
+const downloadFile = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { filename, parentId } = req.query
     const filePath = `${req.user?.id}/${filename}`
 
-    const { data } = await supabaseAdmin.storage
-      .from('files')
-      .createSignedUrl(filePath, 60, { download: true })
+    const fileDownloadUrl = await storage.getFileUrl(filePath, 60, { download: true })
 
-    if (data?.signedUrl) {
-      res.redirect(data.signedUrl)
+    if (fileDownloadUrl) {
+      res.redirect(fileDownloadUrl)
     } else {
-      console.log('Error fetching signed URL')
       res.redirect(`/${parentId}?error=${defaultErrorQuery}`)
     }
   } catch (err) {
     console.log(err)
+    next(err)
   }
 }
 
@@ -223,14 +209,12 @@ const shareFile = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { fileName } = req.params
     const filePath = `${req.user?.id}/${fileName}`
-    const { data } = await supabaseAdmin.storage
-      .from('files')
-      .createSignedUrl(filePath, 60 * 60 * 24 * 7)
+    const publicUrl = await storage.getFileUrl(filePath, 60 * 60 * 24 * 7)
 
-    if (!data) {
+    if (!publicUrl) {
       return res.status(500).json({ error: defaultError })
     }
-    res.json({ publicUrl: data.signedUrl })
+    res.json({ publicUrl })
   } catch (err) {
     console.log(err)
     next(err)
@@ -306,12 +290,10 @@ const handleSharedFileDownload = async (req: Request, res: Response, next: NextF
     const userId = sharedFolder.userId
     const filePath = `${userId}/${filename}`
 
-    const { data } = await supabaseAdmin.storage
-      .from('files')
-      .createSignedUrl(filePath, 60, { download: true })
+    const publicUrl = await storage.getFileUrl(filePath, 60)
 
-    if (data?.signedUrl) {
-      res.redirect(data.signedUrl)
+    if (publicUrl) {
+      res.redirect(publicUrl)
     } else {
       res.redirect(`/public/${sharedFolder.id}/${parentId}?error=${defaultErrorQuery}`)
     }
