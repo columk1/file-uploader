@@ -77,6 +77,22 @@ nav {
   padding: 1rem;
 }
 
+.layout-error {
+  margin: 0 auto;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  max-width: 1080px;
+  overflow-x: auto;
+  word-break: break-word;
+  & pre {
+    margin: 0 auto;
+    /* white-space: pre-wrap; */
+  }
+}
+
 .mobile-footer {
   position: fixed;
   display: flex;
