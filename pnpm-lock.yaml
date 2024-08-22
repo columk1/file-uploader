@@ -41,6 +41,9 @@ importers:
       express-session:
         specifier: ^1.18.0
         version: 1.18.0
+      http-errors:
+        specifier: ^2.0.0
+        version: 2.0.0
       morgan:
         specifier: ^1.10.0
         version: 1.10.0
@@ -78,6 +81,9 @@ importers:
       '@types/express-session':
         specifier: ^1.18.0
         version: 1.18.0
+      '@types/http-errors':
+        specifier: ^2.0.4
+        version: 2.0.4
       '@types/morgan':
         specifier: ^1.9.9
         version: 1.9.9
