@@ -2,7 +2,8 @@
   <%- JSON.stringify(files) %>
 </script>
 
-<%- include('header') -%>
+<%- include('partials/header') -%>
+
 <div class="overlay">
   <div class="overlay__wrapper">
     <sl-spinner style="font-size: 2rem;"></sl-spinner>
@@ -12,66 +13,21 @@
 <% const alertDuration = 3000 %>
 
 <% if (error) { %>
-<sl-alert id="error-alert" variant="warning" closable duration=<%= alertDuration %>>
-  <sl-icon slot="icon" name="exclamation-triangle"></sl-icon>
-  <%= error %>
-</sl-alert>
-<% } else if (success) { %>
-<sl-alert id="success-alert"variant="success" closable duration=<%= alertDuration %>>
-  <sl-icon slot="icon" name="check2-circle"></sl-icon>
-  <%= success %>
-</sl-alert>
-<% } %>
+  <sl-alert id="error-alert" variant="warning" closable duration=<%= alertDuration %>>
+    <sl-icon slot="icon" name="exclamation-triangle"></sl-icon>
+    <%= error %>
+  </sl-alert>
+  <% } else if (success) { %>
+    <sl-alert id="success-alert"variant="success" closable duration=<%= alertDuration %>>
+      <sl-icon slot="icon" name="check2-circle"></sl-icon>
+      <%= success %>
+    </sl-alert>
+    <% } %>
+    
+    <div class="layout">
 
-<div class="layout">
-  <aside class="layout-sidebar">
-    <nav>
-      <ul>
-        <li>
-          <sl-button class="card-btn new-folder-btn">
-            <sl-icon class="card-icon" name="folder-plus"></sl-icon><span>New Folder</span>
-          </sl-button>
-        </li>
-        <li>
-          <sl-button class="card-btn new-file-btn">
-            <sl-icon class="card-icon" name="file-earmark-plus"></sl-icon><span>New File</span>
-          </sl-button>
-        </li>
-        <li>
-          <sl-button class="card-btn share-folder-btn">
-            <sl-icon class="card-icon" name="share"></sl-icon><span>Share Folder</span>
-          </sl-button>
-        </li>
-        <% if (locals.id) { %> 
-          <li>
-            <sl-button class="card-btn delete-folder-btn">
-              <sl-icon class="card-icon" name="trash"></sl-icon><span>Delete Folder</span>
-            </sl-button>
-          </li>
-        <% } %>
-      </ul>
-    </nav>
-    </br>
-    <sl-tree>
-      <sl-tree-item expanded <%= locals.id === null && "selected" %>><a href="/"><%= currentUser.username %></a>
-        <% function renderTree(items) { %>
-          <% items.forEach(item => { %>
-            <sl-tree-item
-              data-id="<%= item.id %>"
-              <%= item.id === locals.id && "selected" %> 
-              <%= locals.pathSegments && pathSegments.some(segment => segment.name === item.name) && "expanded" %>
-            >
-              <a href="/<%= item.id %>"><%= item.name %></a>
-              <% if (item.childEntities && item.childEntities.length > 0) { %>
-                <%= renderTree(item.childEntities) %>
-              <% } %>
-            </sl-tree-item>
-          <% }); %>
-        <% } %>
-        <%= renderTree(locals.folders) %>
-      </sl-tree-item>
-    </sl-tree>
-  </aside>
+      <%- include('partials/desktop-sidebar') -%>
+      
   <main class="layout-main">
     <% if (locals.currentUser) { %>
       <!-- <h2 class="title">Welcome back <%= currentUser.username %></h2> -->
@@ -239,5 +195,7 @@
       <sl-icon-button name="box-arrow-right" href="/logout" label="Logout"></sl-icon-button>  
   <% } %>
 </div>
+
 <script type="module" src="/scripts/dashboard.js"></script>
-<%- include('footer') -%>
+
+<%- include('partials/footer') -%>

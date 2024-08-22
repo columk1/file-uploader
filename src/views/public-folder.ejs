@@ -2,12 +2,14 @@
   <%- JSON.stringify(files) %>
 </script>
 
-<%- include('header') -%>
+<%- include('partials/header') -%>
+
 <div class="overlay">
   <div class="overlay__wrapper">
     <sl-spinner style="font-size: 2rem;"></sl-spinner>
   </div>
 </div>
+
 <div class="layout">
   <aside class="layout-sidebar">
     <sl-tree>
@@ -102,5 +104,7 @@
       </div>
   </main>
 </div>
+
 <script type="module" src="/scripts/publicFolder.js"></script>
-<%- include('footer') -%>
+
+<%- include('partials/footer') -%>
