@@ -8,6 +8,8 @@ import authRouter from 'src/routers/authRouter'
 import entityRouter from 'src/routers/entityRouter'
 import compression from 'compression'
 import createError from 'http-errors'
+import { handleError } from './lib/utils/handleError'
+import terminate from './lib/utils/terminate'
 
 const PORT = process.env.PORT || 3000
 
@@ -39,10 +41,14 @@ app.use(function (req, res, next) {
 })
 
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-  const error = req.app.get('env') === 'development' ? err : {}
-  console.log(err)
-  res.status(err.status || 500)
-  res.render('error', { error })
+  handleError(err, req, res)
 })
 
-app.listen(PORT, () => console.log(`Listening on port ${PORT}`))
+const server = app.listen(PORT, () => console.log(`Listening on port ${PORT}`))
+
+const exitHandler = terminate(server, { coredump: false, timeout: 500 })
+
+process.on('uncaughtException', exitHandler(1, 'Unexpected Error'))
+process.on('unhandledRejection', exitHandler(1, 'Unhandled Promise'))
+process.on('SIGTERM', exitHandler(0, 'SIGTERM'))
+process.on('SIGINT', exitHandler(0, 'SIGINT'))
