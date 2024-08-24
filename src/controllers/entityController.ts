@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from 'express'
+import createError from 'http-errors'
 import {
   createFile,
   createFolder,
@@ -17,108 +18,125 @@ import { defaultError, defaultErrorQuery } from 'src/lib/utils/errorMessages'
 import { getUserEntities, getFolderEntityById } from 'src/services/dirService'
 
 // GET: /
-const getDashboard = async (req: Request, res: Response) => {
-  const userId = req.user?.id
-  if (!userId) return res.status(401).send({ errors: [{ message: defaultError }] })
+const getDashboard = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const userId = req.user?.id
+    if (!userId) throw new createError.Unauthorized()
 
-  const { sortCriteria } = req
+    const { sortCriteria } = req
 
-  const files = await getUserEntities(userId, sortCriteria)
+    const files = await getUserEntities(userId, sortCriteria)
 
-  const sortQuery = sortCriteria?.reduce((acc, curr) => ({ ...acc, ...curr }), {})
-  const folders = await getFolderTree(req.user?.id, null)
-  const rootFolder = { id: null, name: req.user?.username }
+    const sortQuery = sortCriteria?.reduce((acc, curr) => ({ ...acc, ...curr }), {})
+    const folders = await getFolderTree(req.user?.id, null)
+    const rootFolder = { id: null, name: req.user?.username }
 
-  res.render('dashboard', {
-    title: 'File Uploader',
-    files,
-    folders,
-    folderId: null,
-    parentId: null,
-    rootFolder,
-    pathSegments: null,
-    sortQuery,
-    helpers,
-    error: req.query.error,
-    success: req.query.success,
-  })
+    res.render('dashboard', {
+      title: 'File Uploader',
+      files,
+      folders,
+      folderId: null,
+      parentId: null,
+      rootFolder,
+      pathSegments: null,
+      sortQuery,
+      helpers,
+      error: req.query.error,
+      success: req.query.success,
+    })
+  } catch (err) {
+    next(err)
+  }
 }
 
 // GET: /:folderId (Same view as Dashboard)
-const getFolder = async (req: Request, res: Response) => {
-  const folderId = Number(req.params.entityId)
-  if (!folderId) return res.redirect('/')
+const getFolder = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const folderId = Number(req.params.entityId)
+    if (!folderId) return res.redirect('/')
 
-  const { sortCriteria } = req
+    const { sortCriteria } = req
 
-  const entity = await getFolderEntityById(folderId, sortCriteria)
-  if (!entity) return res.status(404).send('Not found')
+    const entity = await getFolderEntityById(folderId, sortCriteria)
+    if (!entity) {
+      throw new createError.NotFound()
+    }
 
-  const { name, type, childEntities: files, parentId } = entity
-  const sortQuery = sortCriteria?.reduce((acc, curr) => ({ ...acc, ...curr }), {})
-  const folders = await getFolderTree(req.user?.id, null)
-  const rootFolder = { id: null, name: req.user?.username }
-  const pathSegments = await getPathSegments(folderId)
+    const { name, type, childEntities: files, parentId } = entity
+    const sortQuery = sortCriteria?.reduce((acc, curr) => ({ ...acc, ...curr }), {})
+    const folders = await getFolderTree(req.user?.id, null)
+    const rootFolder = { id: null, name: req.user?.username }
+    const pathSegments = await getPathSegments(folderId)
 
-  res.render('dashboard', {
-    title: 'File Uploader',
-    folderId,
-    name,
-    type,
-    files,
-    parentId,
-    rootFolder,
-    pathSegments,
-    folders,
-    sortQuery,
-    helpers,
-    error: req.query.error,
-    success: req.query.success,
-  })
+    res.render('dashboard', {
+      title: 'File Uploader',
+      folderId,
+      name,
+      type,
+      files,
+      parentId,
+      rootFolder,
+      pathSegments,
+      folders,
+      sortQuery,
+      helpers,
+      error: req.query.error,
+      success: req.query.success,
+    })
+  } catch (err) {
+    next(err)
+  }
 }
 
 // POST: /new Create a new folder
-const handleCreateFolder = async (req: Request, res: Response) => {
-  {
+const handleCreateFolder = async (req: Request, res: Response, next: NextFunction) => {
+  try {
     const userId = req.user?.id
-    if (!userId) return res.status(401).send({ errors: [{ message: defaultError }] })
+    if (!userId) throw new createError.Unauthorized()
 
     const parentId = Number(req.body.parentId) || null
     const name = req.body.name || 'New Folder'
 
     const newFolder = await createFolder(userId, parentId, name)
     res.redirect(`back`)
+  } catch (err) {
+    next(err)
   }
 }
 
 // Unused function to allow client to upload directly to supabase bucket
-const getUploadUrl = async (req: Request, res: Response) => {
-  const id = req.user?.id
-  if (!id) return res.status(401).send({ errors: [{ message: defaultError }] })
+const getUploadUrl = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const userId = req.user?.id
+    if (!userId) throw new createError.Unauthorized()
 
-  const filename = req.body.filename
-  const bucketName = 'files'
-  const filePath = `${id}/${filename}`
+    const filename = req.body.filename
+    const bucketName = 'files'
+    const filePath = `${userId}/${filename}`
 
-  const fileUploadUrl = await storage.getFileUploadUrl(bucketName, filePath)
-  if (!fileUploadUrl) {
-    return res.status(500).send({ errors: [{ message: defaultError }] })
+    const fileUploadUrl = await storage.getFileUploadUrl(bucketName, filePath)
+    if (!fileUploadUrl) {
+      throw new createError.InternalServerError()
+    }
+
+    res.send({ fileUploadUrl })
+  } catch (err) {
+    next(err)
   }
-  res.send({ fileUploadUrl })
 }
 
 // POST: /upload Upload a file
-const uploadFile = async (req: Request, res: Response) => {
+const uploadFile = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.user?.id
-    if (!userId) return res.status(401).send({ errors: [{ message: defaultError }] })
+    if (!userId) throw new createError.Unauthorized()
 
     // req.file is the name of the user's file in the form, 'uploaded_file'
     const file = req.file
-    if (!file) return res.status(400).send({ errors: [{ message: 'Bad request' }] })
+    const parentId = Number(req.body.parentId) || null
+    if (!file) return res.redirect(`/${parentId}?error=${encodeURIComponent(defaultError)}`)
 
     const { originalname, mimetype, size, buffer } = file
-    const parentId = Number(req.body.parentId) || null
 
     const bucketName = 'files'
     const options = {
@@ -153,7 +171,7 @@ const uploadFile = async (req: Request, res: Response) => {
 
     res.redirect('/' + parentId)
   } catch (error) {
-    console.log(error)
+    next(error)
   }
 }
 
@@ -163,7 +181,7 @@ const deleteEntity = async (req: Request, res: Response, next: NextFunction) => 
     const id = Number(req.params.entityId)
     const userId = req.user?.id
 
-    if (!userId) return res.status(401).send({ errors: [{ message: 'Unauthorized' }] })
+    if (!userId) throw new createError.Unauthorized()
 
     const { type, parentId } = req.body
 
@@ -199,7 +217,6 @@ const downloadFile = async (req: Request, res: Response, next: NextFunction) => 
       res.redirect(`/${parentId}?error=${defaultErrorQuery}`)
     }
   } catch (err) {
-    console.log(err)
     next(err)
   }
 }
@@ -216,7 +233,6 @@ const shareFile = async (req: Request, res: Response, next: NextFunction) => {
     }
     res.json({ publicUrl })
   } catch (err) {
-    console.log(err)
     next(err)
   }
 }
@@ -225,7 +241,7 @@ const shareFile = async (req: Request, res: Response, next: NextFunction) => {
 const shareFolder = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.user?.id
-    if (!userId) return res.status(401).send({ errors: [{ message: 'Unauthorized' }] })
+    if (!userId) throw new createError.Unauthorized()
 
     const folderId = Number(req.params.entityId)
     const defaultDuration = 60 * 60 * 24 * 3 * 1000 // 3 days
@@ -239,7 +255,6 @@ const shareFolder = async (req: Request, res: Response, next: NextFunction) => {
 
     res.json({ publicUrl: `http:localhost:3000/public/${newSharedFolder.id}` })
   } catch (err) {
-    console.log(err)
     next(err)
   }
 }
@@ -249,13 +264,17 @@ const getPublicFolder = async (req: Request, res: Response, next: NextFunction) 
   try {
     const sharedFolderId = req.params.sharedFolderId
     const { sortCriteria, sharedFolder, entityId } = req
-    if (!sharedFolder) return res.status(404).send('Not found')
+    if (!sharedFolder) {
+      throw new createError.NotFound()
+    }
 
     const rootFolder = { id: sharedFolder.folderId, name: sharedFolder.folder.name }
     const folderId = entityId ? entityId : rootFolder.id
 
     const files = await getFolderContents(folderId, sortCriteria)
-    if (!files) return res.status(404).send('Not found')
+    if (!files) {
+      throw new createError.NotFound()
+    }
 
     const folders = await getFolderTree(4, rootFolder.id)
     const pathSegments = await getPathSegments(folderId)
@@ -276,7 +295,6 @@ const getPublicFolder = async (req: Request, res: Response, next: NextFunction) 
       baseUrl: `/public/${sharedFolderId}`,
     })
   } catch (err) {
-    console.log(err)
     next(err)
   }
 }
@@ -298,7 +316,6 @@ const handleSharedFileDownload = async (req: Request, res: Response, next: NextF
       res.redirect(`/public/${sharedFolder.id}/${parentId}?error=${defaultErrorQuery}`)
     }
   } catch (err) {
-    console.log(err)
     next(err)
   }
 }
