@@ -79,6 +79,7 @@ nav {
 
 .layout-error {
   margin: 0 auto;
+  min-height: 50%;
   padding: 1rem;
   display: flex;
   flex-direction: column;
@@ -87,6 +88,9 @@ nav {
   max-width: 1080px;
   overflow-x: auto;
   word-break: break-word;
+  & h1 {
+    font-size: 3rem;
+  }
   & pre {
     margin: 0 auto;
     /* white-space: pre-wrap; */
