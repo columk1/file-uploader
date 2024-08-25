@@ -7,10 +7,11 @@ import {
   getFolderTree,
   getPathSegments,
   getEntityById,
-} from 'src/services/entityService'
-import { storage } from 'src/services/storageService'
+  getFolderEntityById,
+  getUserEntities,
+} from 'src/repositories/entities.repository'
+import { storage } from 'src/repositories/storage.repository'
 import helpers from 'src/lib/utils/ejsHelpers'
-import { getUserEntities, getFolderEntityById } from 'src/services/entityService'
 
 // GET: /
 const getDashboard = async (req: Request, res: Response, next: NextFunction) => {

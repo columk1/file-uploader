@@ -1,9 +1,13 @@
 import { Request, Response, NextFunction } from 'express'
 import createError from 'http-errors'
-import { getFolderContents, getFolderTree, getPathSegments } from '../services/entityService'
+import {
+  getFolderContents,
+  getFolderTree,
+  getPathSegments,
+} from '../repositories/entities.repository'
 import helpers from 'src/lib/utils/ejsHelpers'
 import { defaultErrorQuery } from 'src/lib/utils/errorMessages'
-import { storage } from 'src/services/storageService'
+import { storage } from 'src/repositories/storage.repository'
 
 // GET: /public/:sharedFolderId/:folderId
 export const getPublicFolder = async (req: Request, res: Response, next: NextFunction) => {
