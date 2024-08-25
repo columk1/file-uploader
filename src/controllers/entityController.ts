@@ -127,7 +127,7 @@ const getUploadUrl = async (req: Request, res: Response, next: NextFunction) => 
 }
 
 // POST: /files Upload a file
-const uploadFile = async (req: Request, res: Response, next: NextFunction) => {
+const handleFileUpload = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.user?.id
     if (!userId) throw new createError.Unauthorized()
@@ -229,7 +229,7 @@ const deleteFolder = async (req: Request, res: Response, next: NextFunction) => 
 }
 
 // GET: /download/:fileId // ?: could use filename as params instead of query
-const downloadFile = async (req: Request, res: Response, next: NextFunction) => {
+const handleFileDownload = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const fileId = Number(req.params.fileId)
     const file = await getFileById(fileId)
@@ -360,10 +360,10 @@ export {
   getFolder,
   handleCreateFolder,
   getUploadUrl,
-  uploadFile,
+  handleFileUpload,
   deleteFile,
   deleteFolder,
-  downloadFile,
+  handleFileDownload,
   handleSharedFileDownload,
   shareFile,
   shareFolder,

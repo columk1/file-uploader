@@ -2,9 +2,9 @@ import { Router } from 'express'
 import {
   getDashboard,
   getFolder,
-  uploadFile,
+  handleFileUpload,
   deleteFolder,
-  downloadFile,
+  handleFileDownload,
   shareFile,
   handleCreateFolder,
   shareFolder,
@@ -20,15 +20,19 @@ import multer from 'multer'
 const upload = multer({ storage: multer.memoryStorage() })
 
 const router = Router()
+
 router.get(['/', '/folders'], isAuthenticated, handleSortQuery, getDashboard)
 router.post('/folders', isAuthenticated, handleCreateFolder)
 router.get('/folders/:entityId', isAuthenticated, handleSortQuery, getFolder)
 router.delete('/folders/:folderId', isAuthenticated, deleteFolder)
-router.post('/files', isAuthenticated, upload.single('uploaded_file'), uploadFile)
+
+router.post('/files', isAuthenticated, upload.single('uploaded_file'), handleFileUpload)
 router.delete('/files/:fileId', isAuthenticated, deleteFile)
-router.get('/files/download/:fileId', isAuthenticated, downloadFile)
+router.get('/files/download/:fileId', isAuthenticated, handleFileDownload)
+
 router.get('/share/file/:fileId', isAuthenticated, shareFile)
 router.get('/share/folder/:folderId', isAuthenticated, shareFolder)
+
 router.get(
   ['/public/:sharedFolderId', '/public/:sharedFolderId/:folderId'],
   validateSharedFolder,
