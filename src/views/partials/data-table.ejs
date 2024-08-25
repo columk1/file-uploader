@@ -58,7 +58,7 @@
   <% if (files[i].type === 'FILE') { %> 
     data-index="<%= i %>" 
   <% } else { %> 
-    onclick="window.location.href='<%=`${baseUrl}/folders/${files[i].id}` %>'" 
+    onclick="window.location.href='<%=`${baseUrl}/${files[i].id}` %>'" 
   <% } %> 
   >
     <div class="grid-col col-name">

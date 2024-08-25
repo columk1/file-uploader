@@ -14,8 +14,8 @@
     <% if (locals.currentUser) { %>
     <!-- <h2 class="title">Welcome back <%= currentUser.username %></h2> -->
 
-    <%- include('partials/breadcrumb', { baseUrl: '' }) -%>
-    <%- include('partials/data-table', { baseUrl: '' }) -%>
+    <%- include('partials/breadcrumb', { baseUrl: '/folders' }) -%>
+    <%- include('partials/data-table', { baseUrl: '/folders' }) -%>
 
     <sl-drawer label="File Information" class="drawer-overview">
       <div class="drawer-content"></div>

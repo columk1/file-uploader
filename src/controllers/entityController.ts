@@ -9,7 +9,6 @@ import {
   getFolderTree,
   getPathSegments,
   getFolderContents,
-  getFilename,
   getEntityById,
   getFileById,
 } from 'src/services/dirService'
@@ -295,7 +294,7 @@ const shareFolder = async (req: Request, res: Response, next: NextFunction) => {
   }
 }
 
-// GET: /public/:sharedFolderId/folders/:folderId
+// GET: /public/:sharedFolderId/:folderId
 const getPublicFolder = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const sharedFolderId = req.params.sharedFolderId
@@ -349,7 +348,7 @@ const handleSharedFileDownload = async (req: Request, res: Response, next: NextF
     if (publicUrl) {
       res.redirect(publicUrl)
     } else {
-      res.redirect(`/public/${sharedFolder.id}/folders/${parentId}?error=${defaultErrorQuery}`)
+      res.redirect(`/public/${sharedFolder.id}/${parentId}?error=${defaultErrorQuery}`)
     }
   } catch (err) {
     next(err)

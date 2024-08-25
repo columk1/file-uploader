@@ -1,10 +1,10 @@
 <sl-tree>
   <sl-tree-item expanded <%= folderId === rootFolder.id && "selected" %>>
-    <a href="<%= baseUrl %>/folders/<%= rootFolder.id %>"><%= rootFolder.name %></a>
+    <a href="<%= baseUrl %>/<%= rootFolder.id %>"><%= rootFolder.name %></a>
     <% function renderTree(items) { %>
     <% items.forEach(item => { %>
     <sl-tree-item data-id="<%= item.id %>" <%= item.id === folderId && "selected" %> <%= pathSegments && pathSegments.some(segment => segment.name === item.name) && "expanded" %>>
-      <a href="<%= baseUrl %>/folders/<%= item.id %>"><%= item.name %></a>
+      <a href="<%= baseUrl %>/<%= item.id %>"><%= item.name %></a>
       <% if (item.childEntities && item.childEntities.length > 0) { %>
       <%= renderTree(item.childEntities) %>
       <% } %>

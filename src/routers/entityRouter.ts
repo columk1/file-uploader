@@ -30,7 +30,7 @@ router.get('/files/download/:fileId', isAuthenticated, downloadFile)
 router.get('/share/file/:fileId', isAuthenticated, shareFile)
 router.get('/share/folder/:folderId', isAuthenticated, shareFolder)
 router.get(
-  ['/public/:sharedFolderId', '/public/:sharedFolderId/folders/:folderId'],
+  ['/public/:sharedFolderId', '/public/:sharedFolderId/:folderId'],
   validateSharedFolder,
   handleSortQuery,
   getPublicFolder
