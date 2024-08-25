@@ -1,32 +1,32 @@
 import { Request, Response, NextFunction } from 'express'
 import { getSharedFolderById, isChildOf } from '../services/dirService'
+import createError from 'http-errors'
 
 export const validateSharedFolder = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { sharedFolderId, entityId } = req.params
+    const { sharedFolderId, folderId } = req.params
 
-    if (!sharedFolderId) return res.status(404).send('Not found')
+    if (!sharedFolderId) throw new createError.NotFound()
 
     // Check that shared folder exists
     const sharedFolder = await getSharedFolderById(sharedFolderId)
     if (!sharedFolder) {
-      return res.status(404).send('Not found')
+      throw new createError.NotFound()
     }
 
     // Check that shared folder has not expired
     if (new Date() > sharedFolder.expiresAt) {
-      return res.status(404).send('Not found')
+      throw new createError.Gone('The Requested Link has Expired')
     }
 
     req.sharedFolder = sharedFolder
 
-    // If an entityId is provided, validate that it belongs to the shared folder
-    if (entityId) {
-      const isSharedEntity = await isChildOf(sharedFolder.folderId, Number(entityId))
+    // If an folderId is provided, validate that it belongs to the shared folder
+    if (folderId) {
+      const isSharedEntity = await isChildOf(sharedFolder.folderId, Number(folderId))
       if (!isSharedEntity) {
-        return res.status(404).send('Not found')
+        throw new createError.NotFound()
       }
-      req.entityId = Number(entityId)
     }
 
     next()

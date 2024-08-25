@@ -3,13 +3,14 @@ import {
   getDashboard,
   getFolder,
   uploadFile,
-  deleteEntity,
+  deleteFolder,
   downloadFile,
   shareFile,
   handleCreateFolder,
   shareFolder,
   getPublicFolder,
   handleSharedFileDownload,
+  deleteFile,
 } from 'src/controllers/entityController'
 import { isAuthenticated } from 'src/middleware/isAuthenticated'
 import { handleSortQuery } from 'src/middleware/handleSortQuery'
@@ -19,23 +20,23 @@ import multer from 'multer'
 const upload = multer({ storage: multer.memoryStorage() })
 
 const router = Router()
-
-router.get('/', isAuthenticated, handleSortQuery, getDashboard)
-router.get('/:entityId', isAuthenticated, handleSortQuery, getFolder)
-router.post('/new', isAuthenticated, handleCreateFolder)
-router.post('/upload', isAuthenticated, upload.single('uploaded_file'), uploadFile)
-router.post('/delete/:entityId', isAuthenticated, deleteEntity)
-router.get('/download/:entityId', isAuthenticated, downloadFile)
-router.get('/share/file/:fileName', isAuthenticated, shareFile)
-router.get('/share/folder/:entityId', isAuthenticated, shareFolder)
+router.get(['/', '/folders'], isAuthenticated, handleSortQuery, getDashboard)
+router.post('/folders', isAuthenticated, handleCreateFolder)
+router.get('/folders/:entityId', isAuthenticated, handleSortQuery, getFolder)
+router.delete('/folders/:folderId', isAuthenticated, deleteFolder)
+router.post('/files', isAuthenticated, upload.single('uploaded_file'), uploadFile)
+router.delete('/files/:fileId', isAuthenticated, deleteFile)
+router.get('/files/download/:fileId', isAuthenticated, downloadFile)
+router.get('/share/file/:fileId', isAuthenticated, shareFile)
+router.get('/share/folder/:folderId', isAuthenticated, shareFolder)
 router.get(
-  ['/public/:sharedFolderId', '/public/:sharedFolderId/:entityId'],
+  ['/public/:sharedFolderId', '/public/:sharedFolderId/folders/:folderId'],
   validateSharedFolder,
   handleSortQuery,
   getPublicFolder
 )
 router.get(
-  '/public/:sharedFolderId/download/:entityId',
+  '/public/:sharedFolderId/download/:fileId',
   validateSharedFolder,
   handleSharedFileDownload
 )

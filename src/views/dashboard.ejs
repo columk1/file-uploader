@@ -32,8 +32,8 @@
     </sl-drawer>
 
     <sl-dialog label="New Folder" class="dialog-focus new-folder-dialog">
-      <form id="new-folder-form" action="/new" method="post">
-        <input type="hidden" name="parentId" value="<%= folderId || null %>"></input>
+      <form id="new-folder-form" action="/folders" method="post">
+        <input type="hidden" name="parentId" value="<%= folderId || null %>">
         <sl-input name="name" label="Name" autofocus placeholder=""></sl-input>
         </br>
         <sl-button type="submit" slot="footer" variant="primary">Create Folder</sl-button>
@@ -41,12 +41,12 @@
     </sl-dialog>
 
     <sl-dialog label="New File" class="dialog-focus new-file-dialog">
-      <form id="upload-form" class="upload-form" action="/upload" enctype="multipart/form-data" method="post">
+      <form id="upload-form" class="upload-form" action="/files" enctype="multipart/form-data" method="POST">
         <sl-progress-bar class="upload-progress" value="0"></sl-progress-bar>
         <div class="form-group">
           <input type="file" name="uploaded_file"></input>
           <p id='file-error' class="error">File size exceeds the 50MB limit</p>
-          <input type="hidden" name="parentId" value="<%= folderId %>"></input>
+          <input type="hidden" name="parentId" value="<%= folderId %>">
           </br>
           <sl-button type="submit" slot="footer" variant="primary">Upload</sl-button>
         </div>
@@ -55,9 +55,8 @@
 
     <sl-dialog label="Delete Folder" class="dialog-focus delete-folder-dialog">
       Are you sure you want to delete the current folder and all of its contents?
-      <form id="delete-form" action="<%=`/delete/${folderId}`%>" method="POST">
-        <input type="hidden" name="type" value="FOLDER"></input>
-        <input type="hidden" name="parentId" value="<%= parentId %>"></input>
+      <form id="delete-form" action="<%=`/folders/${folderId}?_method=DELETE`%>" method="POST">
+        <input type="hidden" name="parentId" value="<%= parentId %>">
         </br>
         <div class="btn-group">
           <sl-button slot="footer">Cancel</sl-button>

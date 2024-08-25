@@ -10,6 +10,8 @@ import {
   getPathSegments,
   getFolderContents,
   getFilename,
+  getEntityById,
+  getFileById,
 } from 'src/services/dirService'
 import { storage } from 'src/services/storageService'
 import helpers from 'src/lib/utils/ejsHelpers'
@@ -125,7 +127,7 @@ const getUploadUrl = async (req: Request, res: Response, next: NextFunction) => 
   }
 }
 
-// POST: /upload Upload a file
+// POST: /files Upload a file
 const uploadFile = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.user?.id
@@ -134,7 +136,7 @@ const uploadFile = async (req: Request, res: Response, next: NextFunction) => {
     // req.file is the name of the user's file in the form, 'uploaded_file'
     const file = req.file
     const parentId = Number(req.body.parentId) || null
-    if (!file) return res.redirect(`/${parentId}?error=${encodeURIComponent(defaultError)}`)
+    if (!file) return res.redirect(`/folders/${parentId}?error=${encodeURIComponent(defaultError)}`)
 
     const { originalname, mimetype, size, buffer } = file
 
@@ -157,44 +159,68 @@ const uploadFile = async (req: Request, res: Response, next: NextFunction) => {
       if ('statusCode' in error) {
         if (error.statusCode === '409') {
           // duplicate file
-          return res.redirect(`/${parentId}?error=${encodeURIComponent(error.message)}`)
+          return res.redirect(`/folders/${parentId}?error=${encodeURIComponent(error.message)}`)
         } else if (error.statusCode === '413') {
           // file size limit exceeded
-          return res.redirect(`/${parentId}?error=${encodeURIComponent(error.message)}`)
+          return res.redirect(`/folders/${parentId}?error=${encodeURIComponent(error.message)}`)
         }
       }
-      return res.redirect(`/${parentId}?error=${defaultErrorQuery}`)
+      return res.redirect(`/folders/${parentId}?error=${defaultErrorQuery}`)
     }
 
     // add to database
     await createFile(originalname, mimetype, size, userId, parentId)
 
-    res.redirect('/' + parentId)
+    res.redirect('/folders/' + parentId)
   } catch (error) {
     next(error)
   }
 }
 
-// POST: /delete/:entityId
-const deleteEntity = async (req: Request, res: Response, next: NextFunction) => {
+// DELETE: /files/:fileId
+const deleteFile = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const id = Number(req.params.entityId)
+    const fileId = Number(req.params.fileId)
     const userId = req.user?.id
 
     if (!userId) throw new createError.Unauthorized()
 
-    const { type, parentId } = req.body
+    // const { parentId } = req.body
 
-    const filenames =
-      type === 'FOLDER'
-        ? await getAllFilenames(userId, id) // recursively get all filenames
-        : [await getFilename(id)]
+    const file = await getEntityById(fileId)
+    if (!file) throw new createError.NotFound()
 
-    await deleteEntityById(id)
+    const { name, parentId } = file
+    await deleteEntityById(fileId)
 
-    res.redirect(`/${parentId}?success=${encodeURIComponent('Deleted Successfully')}`)
+    res.redirect(`/folders/${parentId}?success=${encodeURIComponent('Deleted Successfully')}`)
 
     // Continue to remove from storage
+    const deletedFile = storage.deleteFile('files', `${userId}/${name}`)
+  } catch (err) {
+    next(err)
+  }
+}
+
+// DELETE: /folders/:folderId
+const deleteFolder = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const folderId = Number(req.params.folderId)
+    const userId = req.user?.id
+
+    if (!userId) throw new createError.Unauthorized()
+
+    const folder = await getEntityById(folderId)
+    if (!folder) throw new createError.NotFound()
+
+    await deleteEntityById(folderId)
+
+    res.redirect(
+      `/folders/${folder.parentId}?success=${encodeURIComponent('Deleted Successfully')}`
+    )
+
+    // Continue to remove from storage
+    const filenames = await getAllFilenames(userId, folderId) // recursively get all filenames
     filenames.forEach(async (filename) => {
       const deletedFile = await storage.deleteFile('files', `${userId}/${filename}`)
     })
@@ -203,10 +229,15 @@ const deleteEntity = async (req: Request, res: Response, next: NextFunction) => 
   }
 }
 
-// GET: /download/:entityId // ?: could use filename as params instead of query
+// GET: /download/:fileId // ?: could use filename as params instead of query
 const downloadFile = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { filename, parentId } = req.query
+    const fileId = Number(req.params.fileId)
+    const file = await getFileById(fileId)
+
+    if (!file) throw new createError.NotFound()
+
+    const { name: filename, parentId } = file
     const filePath = `${req.user?.id}/${filename}`
 
     const fileDownloadUrl = await storage.getFileUrl(filePath, 60, { download: true })
@@ -221,11 +252,16 @@ const downloadFile = async (req: Request, res: Response, next: NextFunction) => 
   }
 }
 
-// GET: /share/file/:fileName
+// GET: /share/file/:fileId
 const shareFile = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { fileName } = req.params
-    const filePath = `${req.user?.id}/${fileName}`
+    const fileId = Number(req.params.fileId)
+    const file = await getFileById(fileId)
+
+    if (!file) throw new createError.NotFound()
+
+    const { name: filename } = file
+    const filePath = `${req.user?.id}/${filename}`
     const publicUrl = await storage.getFileUrl(filePath, 60 * 60 * 24 * 7)
 
     if (!publicUrl) {
@@ -237,13 +273,13 @@ const shareFile = async (req: Request, res: Response, next: NextFunction) => {
   }
 }
 
-// GET: /share/folder/:entityId
+// GET: /share/folder/:folderId
 const shareFolder = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.user?.id
     if (!userId) throw new createError.Unauthorized()
 
-    const folderId = Number(req.params.entityId)
+    const folderId = Number(req.params.folderId)
     const defaultDuration = 60 * 60 * 24 * 3 * 1000 // 3 days
     const durationMS = Number(req.query.h) * 60 * 60 * 1000 || defaultDuration
     const expiresAt = new Date(Date.now() + durationMS)
@@ -259,17 +295,17 @@ const shareFolder = async (req: Request, res: Response, next: NextFunction) => {
   }
 }
 
-// GET: /public/:sharedFolderId/:entityId
+// GET: /public/:sharedFolderId/folders/:folderId
 const getPublicFolder = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const sharedFolderId = req.params.sharedFolderId
-    const { sortCriteria, sharedFolder, entityId } = req
+    const { sortCriteria, sharedFolder } = req
     if (!sharedFolder) {
       throw new createError.NotFound()
     }
 
+    const folderId = req.params.folderId ? Number(req.params.folderId) : sharedFolder.folderId
     const rootFolder = { id: sharedFolder.folderId, name: sharedFolder.folder.name }
-    const folderId = entityId ? entityId : rootFolder.id
 
     const files = await getFolderContents(folderId, sortCriteria)
     if (!files) {
@@ -299,7 +335,7 @@ const getPublicFolder = async (req: Request, res: Response, next: NextFunction) 
   }
 }
 
-// GET: /public/:sharedFolderId/download/:entityId
+// GET: /public/:sharedFolderId/download/:fileId
 const handleSharedFileDownload = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { sharedFolder } = req
@@ -308,12 +344,12 @@ const handleSharedFileDownload = async (req: Request, res: Response, next: NextF
     const userId = sharedFolder.userId
     const filePath = `${userId}/${filename}`
 
-    const publicUrl = await storage.getFileUrl(filePath, 60)
+    const publicUrl = await storage.getFileUrl(filePath, 60, { download: true })
 
     if (publicUrl) {
       res.redirect(publicUrl)
     } else {
-      res.redirect(`/public/${sharedFolder.id}/${parentId}?error=${defaultErrorQuery}`)
+      res.redirect(`/public/${sharedFolder.id}/folders/${parentId}?error=${defaultErrorQuery}`)
     }
   } catch (err) {
     next(err)
@@ -326,7 +362,8 @@ export {
   handleCreateFolder,
   getUploadUrl,
   uploadFile,
-  deleteEntity,
+  deleteFile,
+  deleteFolder,
   downloadFile,
   handleSharedFileDownload,
   shareFile,

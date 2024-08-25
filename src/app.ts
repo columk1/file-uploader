@@ -10,6 +10,7 @@ import compression from 'compression'
 import createError from 'http-errors'
 import { handleError } from './lib/utils/handleError'
 import terminate from './lib/utils/terminate'
+import methodOverride from 'method-override'
 
 const PORT = process.env.PORT || 3000
 
@@ -22,6 +23,7 @@ app.use(express.json())
 app.use(compression())
 app.use(morgan('dev'))
 app.use(sessionConfig)
+app.use(methodOverride('_method'))
 
 app.use(passport.session())
 app.use(passport.initialize())

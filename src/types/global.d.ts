@@ -10,7 +10,7 @@ namespace Express {
   interface Request {
     session: Session
     sortCriteria?: Prisma.EntityOrderByWithRelationInput[]
-    entityId?: number
+    folderId?: number
     sharedFolder?: Prisma.SharedFolder
   }
 }

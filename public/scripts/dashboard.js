@@ -43,7 +43,7 @@ openButtons.forEach((button) => {
     drawerContent.replaceChildren(newDrawerContent)
     // Add parentId to query for redirect in case of error
     const parentIdQuery = file.parentId ? '&parentId=' + file.parentId : ''
-    downloadButton.href = `/download/${file.id}?filename=${file.name}&mimeType=${file.mimeType}${parentIdQuery}`
+    downloadButton.href = `/files/download/${file.id}?filename=${file.name}&mimeType=${file.mimeType}${parentIdQuery}`
     downloadButton.addEventListener('click', function () {
       this.loading = true
       setTimeout(() => {
@@ -52,7 +52,8 @@ openButtons.forEach((button) => {
     })
     shareButton.addEventListener('click', () => shareFileDialog.show())
     generateLinkButton.dataset.filename = file.name
-    deleteFileForm.action = `/delete/${file.id}`
+    generateLinkButton.dataset.id = file.id
+    deleteFileForm.action = `/files/${file.id}?_method=DELETE`
 
     // Show the drawer
     drawer.show()
@@ -112,7 +113,7 @@ uploadForm.addEventListener('submit', (event) => {
   const formData = new FormData(uploadForm)
 
   const xhr = new XMLHttpRequest()
-  xhr.open('POST', '/upload', true)
+  xhr.open(uploadForm.method, uploadForm.action, true)
 
   xhr.upload.addEventListener('progress', (e) => {
     const percentComplete = Math.round((e.loaded / e.total) * 100)
@@ -154,7 +155,7 @@ async function generatePublicFileUrl() {
   const linkInput = document.createElement('sl-input')
   linkInput.classList.add('link-input')
   generateLinkButton.loading = true
-  const res = await fetch(`share/file/${generateLinkButton.dataset.filename}?h=${hoursDuration}`)
+  const res = await fetch(`/share/file/${generateLinkButton.dataset.id}?h=${hoursDuration}`)
   const data = await res.json()
   if (data.error) {
     window.alert(data.error)
@@ -188,7 +189,7 @@ async function generatePublicFolderUrl() {
   const linkInput = document.createElement('sl-input')
   linkInput.classList.add('link-input')
   generateFolderLinkButton.loading = true
-  const res = await fetch(`share/folder/${generateFolderLinkButton.dataset.id}?h=${hoursDuration}`)
+  const res = await fetch(`/share/folder/${generateFolderLinkButton.dataset.id}?h=${hoursDuration}`)
   const data = await res.json()
   if (data.error) {
     window.alert(data.error)
