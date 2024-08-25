@@ -1,6 +1,6 @@
 <%- include('partials/header') %>
 
-<main>
+<main class="login">
   <div class="form-container">
 
     <% if (locals.currentUser) { %>
@@ -22,7 +22,7 @@
             autofocus 
             value="<%= locals.username %>"
           >
-            <sl-icon slot="suffix" name="exclamation-circle" class="icon hidden"></sl-icon>
+            <sl-icon slot="suffix" name="exclamation-octagon" class="icon hidden"></sl-icon>
           </sl-input>
           <span id='username-error' class="<%= locals.usernameError ? "error active" : "error" %>">
             <%= locals.usernameError %>
@@ -39,7 +39,7 @@
           label="Password" 
           required
           >
-            <sl-icon slot="suffix" name="exclamation-circle" class="icon hidden"></sl-icon>
+            <sl-icon slot="suffix" name="exclamation-octagon" class="icon hidden"></sl-icon>
           </sl-input>
           <span id='password-error' class="<%= locals.passwordError ? "error active" : "error" %>">
             <%= locals.passwordError %>

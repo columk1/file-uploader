@@ -12,6 +12,7 @@ body {
   margin: 0;
   font-family: 'Roboto', sans-serif;
   font-size: 14px;
+  color: var(--sl-color-neutral-900);
 }
 
 a {
@@ -25,13 +26,6 @@ header {
   justify-content: space-between;
   align-items: baseline;
   border-bottom: 1px solid var(--sl-color-neutral-200);
-}
-
-header .logout-btn {
-  /* display: none;
-  @media (min-width: 800px) {
-    display: block;
-  } */
 }
 
 .logo {
@@ -48,6 +42,25 @@ nav {
   min-height: 1rem;
   margin-top: 1rem;
 } */
+
+.login,
+.signup {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 80%;
+  & a {
+    text-decoration: underline;
+    color: var(--sl-color-primary-700);
+    &:hover {
+      color: var(--sl-color-primary-800);
+    }
+  }
+}
+
+.form-container {
+  width: 100%;
+}
 
 .layout {
   height: 100%;

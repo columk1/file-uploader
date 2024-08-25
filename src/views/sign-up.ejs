@@ -1,6 +1,6 @@
 <%- include('partials/header') -%>
 
-<main>
+<main class="signup">
   <div class="form-container">
     <form novalidate action="/sign-up" method="POST" id="sign-up-form" class="input-validation-required validity-styles">
       <p class="error"><%= locals.error %></p>
@@ -20,7 +20,7 @@
           <% if (locals.usernameError) { %>autofocus<% } %>
           value="<%= locals.username %>"
         >
-        <sl-icon slot="suffix" name="exclamation-circle" class="icon hidden"></sl-icon>
+        <sl-icon slot="suffix" name="exclamation-octagon" class="icon hidden"></sl-icon>
       </sl-input>
         <span class="<%= locals.usernameError ? "error active" : "error" %>"><%= locals.usernameError %></span>
       </div>
@@ -38,7 +38,7 @@
           minlength="8"
           autocomplete="new-password"
         >
-        <sl-icon slot="suffix" name="exclamation-circle" class="icon hidden"></sl-icon>
+        <sl-icon slot="suffix" name="exclamation-octagon" class="icon hidden"></sl-icon>
         </sl-input>
         <span class="error">Error message</span>
       </div>
@@ -55,7 +55,7 @@
           required
           autocomplete="new-password"
         >
-        <sl-icon slot="suffix" name="exclamation-circle" class="icon hidden"></sl-icon>
+        <sl-icon slot="suffix" name="exclamation-octagon" class="icon hidden"></sl-icon>
         </sl-input>
         <span class="error">Error message</span>
       </div>

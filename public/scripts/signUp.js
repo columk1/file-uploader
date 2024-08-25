@@ -53,11 +53,11 @@ function validateUsername() {
   usernameErrorIcon.classList.remove('hidden')
   if (username.validity.valid) {
     username.helpText = getUsernameError()
-    usernameErrorIcon.name = 'check-circle'
+    usernameErrorIcon.name = 'check2-circle'
   } else {
     // If there is still an error, show the correct error
     username.helpText = getUsernameError()
-    usernameErrorIcon.name = 'exclamation-circle'
+    usernameErrorIcon.name = 'exclamation-octagon'
   }
 }
 
@@ -65,10 +65,10 @@ function validatePassword() {
   passwordErrorIcon.classList.remove('hidden')
   if (password.validity.valid) {
     password.helpText = ''
-    passwordErrorIcon.name = 'check-circle'
+    passwordErrorIcon.name = 'check2-circle'
   } else {
     password.helpText = getPasswordError()
-    passwordErrorIcon.name = 'exclamation-circle'
+    passwordErrorIcon.name = 'exclamation-octagon'
   }
   if (confirmPassword.value) validateConfirmPassword()
 }
@@ -84,10 +84,10 @@ function validateConfirmPassword() {
   }
   if (confirmPassword.validity.valid) {
     confirmPassword.helpText = ''
-    confirmPasswordErrorIcon.name = 'check-circle'
+    confirmPasswordErrorIcon.name = 'check2-circle'
   } else {
     confirmPassword.helpText = confirmPassword.validationMessage
-    confirmPasswordErrorIcon.name = 'exclamation-circle'
+    confirmPasswordErrorIcon.name = 'exclamation-octagon'
   }
 }
 
