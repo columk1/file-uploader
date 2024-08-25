@@ -5,12 +5,16 @@ import passport from 'src/auth/passportConfig'
 import path from 'path'
 import morgan from 'morgan'
 import authRouter from 'src/routers/authRouter'
-import entityRouter from 'src/routers/entityRouter'
+import folderRouter from 'src/routers/folderRouter'
+import fileRouter from 'src/routers/fileRouter'
 import compression from 'compression'
 import createError from 'http-errors'
 import { handleError } from './lib/utils/handleError'
 import terminate from './lib/utils/terminate'
 import methodOverride from 'method-override'
+import shareRouter from './routers/shareRouter'
+import publicRouter from './routers/publicRouter'
+import { isAuthenticated } from 'src/middleware/isAuthenticated'
 
 const PORT = process.env.PORT || 3000
 
@@ -35,7 +39,11 @@ app.use((req, res, next) => {
 })
 
 app.use(authRouter)
-app.use(entityRouter)
+app.get('/', (req: Request, res: Response) => res.redirect('/folders'))
+app.use('/files', isAuthenticated, fileRouter)
+app.use('/folders', isAuthenticated, folderRouter)
+app.use('/share', isAuthenticated, shareRouter)
+app.use('/public', publicRouter)
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

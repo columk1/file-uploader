@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express'
-import { getSharedFolderById, isChildOf } from '../services/dirService'
+import { getSharedFolderById, isChildOf } from 'src/services/entityService'
 import createError from 'http-errors'
 
 export const validateSharedFolder = async (req: Request, res: Response, next: NextFunction) => {
@@ -21,7 +21,7 @@ export const validateSharedFolder = async (req: Request, res: Response, next: Ne
 
     req.sharedFolder = sharedFolder
 
-    // If an folderId is provided, validate that it belongs to the shared folder
+    // If a folderId is provided, validate that it belongs to the shared folder
     if (folderId) {
       const isSharedEntity = await isChildOf(sharedFolder.folderId, Number(folderId))
       if (!isSharedEntity) {

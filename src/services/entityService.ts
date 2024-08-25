@@ -13,6 +13,12 @@ export const getUserEntities = async (
 
 export const getEntityById = async (id: number) => prisma.entity.findUnique({ where: { id } })
 
+export const getFileById = async (id: number) =>
+  prisma.entity.findUnique({ where: { id, type: 'FILE' } })
+
+export const getFolderById = async (id: number) =>
+  prisma.entity.findUnique({ where: { id, type: 'FOLDER' } })
+
 export const getFolderContents = async (
   parentId: number | null,
   sortCriteria: Prisma.EntityOrderByWithRelationInput[] = []
@@ -22,11 +28,6 @@ export const getFolderContents = async (
     orderBy: sortCriteria,
   })
 }
-
-export const getFileById = async (id: number) =>
-  prisma.entity.findUnique({ where: { id, type: 'FILE' } })
-export const getFolderById = async (id: number) =>
-  prisma.entity.findUnique({ where: { id, type: 'FOLDER' } })
 
 export const getFolderEntityById = async (
   id: number,
