@@ -13,11 +13,18 @@ export const getRootFolderData = async (
   sortCriteria: Prisma.EntityOrderByWithRelationInput[] | undefined
 ) => {
   // Fetch files and folders
-  const files = await getUserEntities(userId, sortCriteria)
+  const entities = await getUserEntities(userId, sortCriteria)
+  if (!entities) {
+    throw new createError.NotFound()
+  }
+  // Generate sort query
   const sortQuery = sortCriteria?.reduce((acc, curr) => ({ ...acc, ...curr }), {})
+  // Get complete folder tree for sidebar
   const folders = await getFolderTree(userId, null)
+  // Get path segments for breadcrumb
+  const pathSegments = await getPathSegments()
 
-  return { files, folders, sortQuery }
+  return { files: entities, folders, parentId: null, sortQuery, pathSegments }
 }
 
 export const getFolderData = async (
@@ -25,17 +32,17 @@ export const getFolderData = async (
   userId: number,
   sortCriteria: Prisma.EntityOrderByWithRelationInput[] | undefined
 ) => {
-  const entity = await getFolderEntityById(folderId, sortCriteria)
-  if (!entity) {
+  const folder = await getFolderEntityById(folderId, sortCriteria)
+  if (!folder) {
     throw new createError.NotFound()
   }
 
-  const { name, childEntities: files, parentId } = entity
+  const { childEntities, parentId } = folder
   const sortQuery = sortCriteria?.reduce((acc, curr) => ({ ...acc, ...curr }), {})
   const folders = await getFolderTree(userId, null)
   const pathSegments = await getPathSegments(folderId)
 
-  return { name, files, folders, parentId, sortQuery, pathSegments }
+  return { files: childEntities, folders, parentId, sortQuery, pathSegments }
 }
 
 export const getPublicFolderData = async (
