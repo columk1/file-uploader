@@ -4,7 +4,7 @@ import {
   getUserEntities,
   getPathSegments,
   getFolderContents,
-} from 'src/repositories/entities.repository'
+} from 'src/entity/entities.repository'
 import { Prisma } from '@prisma/client'
 import createError from 'http-errors'
 

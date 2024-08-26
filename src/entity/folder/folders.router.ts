@@ -4,7 +4,7 @@ import {
   handleCreateFolder,
   getFolder,
   deleteFolder,
-} from 'src/controllers/folderController'
+} from 'src/entity/folder/folders.controller'
 import { handleSortQuery } from 'src/middleware/handleSortQuery'
 
 const router = Router()

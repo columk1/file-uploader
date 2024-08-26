@@ -1,4 +1,4 @@
-import prisma from 'src/db/prismaClient'
+import prisma from 'src/database/prismaClient'
 import { Entity, Prisma } from '@prisma/client'
 
 export const getUserEntities = async (

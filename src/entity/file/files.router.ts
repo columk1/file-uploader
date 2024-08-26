@@ -3,7 +3,7 @@ import {
   handleFileUpload,
   handleFileDownload,
   handleDeleteFile,
-} from 'src/controllers/fileController'
+} from 'src/entity/file/files.controller'
 import multer from 'multer'
 
 const upload = multer({ storage: multer.memoryStorage() })

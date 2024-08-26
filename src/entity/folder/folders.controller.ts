@@ -5,10 +5,10 @@ import {
   deleteEntityById,
   getAllFilenames,
   getEntityById,
-} from 'src/repositories/entities.repository'
-import { storage } from 'src/repositories/storage.repository'
+} from 'src/entity/entities.repository'
+import { storage } from 'src/storage/storage.repository'
 import helpers from 'src/lib/utils/ejsHelpers'
-import { getDashboardData, getFolderData } from 'src/services/folder.service'
+import { getDashboardData, getFolderData } from 'src/entity/folder/folders.service'
 
 // GET: /
 const getDashboard = async (req: Request, res: Response, next: NextFunction) => {

@@ -6,7 +6,7 @@ import {
   renderLogin,
   renderSignup,
   validateUniqueUsername,
-} from 'src/controllers/authController'
+} from 'src/auth/auth.controller'
 
 const router = Router()
 

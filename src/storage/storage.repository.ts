@@ -1,4 +1,4 @@
-import supabaseAdmin from 'src/db/supabaseAdminClient'
+import supabaseAdmin from 'src/database/supabaseAdminClient'
 import { Readable } from 'stream'
 
 const uploadFile = async (

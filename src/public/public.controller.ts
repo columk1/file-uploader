@@ -2,8 +2,8 @@ import { Request, Response, NextFunction } from 'express'
 import createError from 'http-errors'
 import helpers from 'src/lib/utils/ejsHelpers'
 import { defaultErrorQuery } from 'src/lib/utils/errorMessages'
-import { storage } from 'src/repositories/storage.repository'
-import { getPublicFolderData } from 'src/services/folder.service'
+import { storage } from 'src/storage/storage.repository'
+import { getPublicFolderData } from 'src/entity/folder/folders.service'
 
 // GET: /public/:sharedFolderId/:folderId
 export const getPublicFolder = async (req: Request, res: Response, next: NextFunction) => {

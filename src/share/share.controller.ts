@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
-import { getFileById, createSharedFolder } from 'src/repositories/entities.repository'
-import { storage } from 'src/repositories/storage.repository'
+import { getFileById, createSharedFolder } from 'src/entity/entities.repository'
+import { storage } from 'src/storage/storage.repository'
 import createError from 'http-errors'
 import { defaultError } from 'src/lib/utils/errorMessages'
 

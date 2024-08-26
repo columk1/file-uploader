@@ -1,7 +1,7 @@
-import { storage } from 'src/repositories/storage.repository'
+import { storage } from 'src/storage/storage.repository'
 import { Readable } from 'stream'
 import { defaultErrorQuery } from 'src/lib/utils/errorMessages'
-import { createFile } from 'src/repositories/entities.repository'
+import { createFile } from 'src/entity/entities.repository'
 
 export const uploadFile = async (
   userId: number,

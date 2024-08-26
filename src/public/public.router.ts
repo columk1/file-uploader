@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { getPublicFolder, handleSharedFileDownload } from '../controllers/publicController'
+import { getPublicFolder, handleSharedFileDownload } from './public.controller'
 import { handleSortQuery } from '../middleware/handleSortQuery'
 import { validateSharedFolder } from '../middleware/validateSharedFolder'
 

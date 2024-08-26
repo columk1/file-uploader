@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from 'express'
-import passport from 'src/auth/passportConfig'
+import passport from 'src/config/passportConfig'
 import bcrypt from 'bcrypt'
 import { SignUpSchema } from 'src/models/schemas'
-import { createUser, findUserByUsername } from 'src/repositories/users.repository'
+import { createUser, findUserByUsername } from 'src/user/users.repository'
 import { Prisma } from '@prisma/client'
 
 export const login = async (req: Request, res: Response, next: NextFunction) => {
