@@ -10,47 +10,21 @@ import { storage } from 'src/storage/storage.repository'
 import helpers from 'src/lib/utils/ejsHelpers'
 import { getRootFolderData, getFolderData } from 'src/entity/folder/folders.service'
 
-// GET: /
-const getRootFolder = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    if (!req.user?.id) throw new createError.Unauthorized()
-    const { id, username } = req.user
-    const rootFolder = { id: null, name: username }
-
-    const { sortCriteria } = req
-
-    const folderData = await getRootFolderData(id, sortCriteria)
-
-    res.render('folder', {
-      title: 'File Uploader',
-      ...folderData,
-      folderId: null,
-      parentId: null,
-      rootFolder,
-      pathSegments: null,
-      helpers,
-      error: req.query.error,
-      success: req.query.success,
-    })
-  } catch (err) {
-    next(err)
-  }
-}
-
-// GET: /:folderId (Same view as Dashboard)
+// GET: ['/', '/folders/:folderId]
 const getFolder = async (req: Request, res: Response, next: NextFunction) => {
   try {
     if (!req.user?.id) throw new createError.Unauthorized()
     const { id, username } = req.user
 
     const folderId = Number(req.params.folderId)
-    if (!folderId) return res.redirect('/')
 
     const { sortCriteria } = req
 
     const rootFolder = { id: null, name: username }
 
-    const folderData = await getFolderData(folderId, id, sortCriteria)
+    const folderData = !folderId
+      ? await getRootFolderData(id, sortCriteria)
+      : await getFolderData(folderId, id, sortCriteria)
 
     res.render('folder', {
       title: 'File Uploader',
@@ -130,4 +104,4 @@ const deleteFolder = async (req: Request, res: Response, next: NextFunction) => 
   }
 }
 
-export { getRootFolder, getFolder, handleCreateFolder, getUploadUrl, deleteFolder }
+export { getFolder, handleCreateFolder, getUploadUrl, deleteFolder }
