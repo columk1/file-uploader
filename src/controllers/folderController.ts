@@ -4,38 +4,30 @@ import {
   createFolder,
   deleteEntityById,
   getAllFilenames,
-  getFolderTree,
-  getPathSegments,
   getEntityById,
-  getFolderEntityById,
-  getUserEntities,
 } from 'src/repositories/entities.repository'
 import { storage } from 'src/repositories/storage.repository'
 import helpers from 'src/lib/utils/ejsHelpers'
+import { getDashboardData, getFolderData } from 'src/services/folder.service'
 
 // GET: /
 const getDashboard = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const userId = req.user?.id
-    if (!userId) throw new createError.Unauthorized()
+    if (!req.user?.id) throw new createError.Unauthorized()
+    const { id, username } = req.user
+    const rootFolder = { id: null, name: username }
 
     const { sortCriteria } = req
 
-    const files = await getUserEntities(userId, sortCriteria)
-
-    const sortQuery = sortCriteria?.reduce((acc, curr) => ({ ...acc, ...curr }), {})
-    const folders = await getFolderTree(req.user?.id, null)
-    const rootFolder = { id: null, name: req.user?.username }
+    const dashboardData = await getDashboardData(id, sortCriteria)
 
     res.render('dashboard', {
       title: 'File Uploader',
-      files,
-      folders,
+      ...dashboardData,
       folderId: null,
       parentId: null,
       rootFolder,
       pathSegments: null,
-      sortQuery,
       helpers,
       error: req.query.error,
       success: req.query.success,
@@ -48,33 +40,23 @@ const getDashboard = async (req: Request, res: Response, next: NextFunction) => 
 // GET: /:folderId (Same view as Dashboard)
 const getFolder = async (req: Request, res: Response, next: NextFunction) => {
   try {
+    if (!req.user?.id) throw new createError.Unauthorized()
+    const { id, username } = req.user
+
     const folderId = Number(req.params.folderId)
     if (!folderId) return res.redirect('/')
 
     const { sortCriteria } = req
 
-    const entity = await getFolderEntityById(folderId, sortCriteria)
-    if (!entity) {
-      throw new createError.NotFound()
-    }
+    const rootFolder = { id: null, name: username }
 
-    const { name, type, childEntities: files, parentId } = entity
-    const sortQuery = sortCriteria?.reduce((acc, curr) => ({ ...acc, ...curr }), {})
-    const folders = await getFolderTree(req.user?.id, null)
-    const rootFolder = { id: null, name: req.user?.username }
-    const pathSegments = await getPathSegments(folderId)
+    const dashboardData = await getFolderData(folderId, id, sortCriteria)
 
     res.render('dashboard', {
       title: 'File Uploader',
+      ...dashboardData,
       folderId,
-      name,
-      type,
-      files,
-      parentId,
       rootFolder,
-      pathSegments,
-      folders,
-      sortQuery,
       helpers,
       error: req.query.error,
       success: req.query.success,

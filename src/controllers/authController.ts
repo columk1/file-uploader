@@ -1,4 +1,3 @@
-import asyncHandler from 'express-async-handler'
 import { NextFunction, Request, Response } from 'express'
 import passport from 'src/auth/passportConfig'
 import bcrypt from 'bcrypt'
@@ -51,8 +50,10 @@ export const signup = async (req: Request, res: Response, next: NextFunction) =>
     'Validation failed. Please ensure all fields are filled out correctly.'
   try {
     const validationResult = SignUpSchema.safeParse(req.body)
+
     if (!validationResult.success) {
       const errors = validationResult.error.flatten().fieldErrors
+
       return res.status(400).render('sign-up', {
         title: 'Sign Up',
         usernameError: errors.username ? errors.username[0] : null,

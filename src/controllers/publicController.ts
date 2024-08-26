@@ -1,13 +1,9 @@
 import { Request, Response, NextFunction } from 'express'
 import createError from 'http-errors'
-import {
-  getFolderContents,
-  getFolderTree,
-  getPathSegments,
-} from '../repositories/entities.repository'
 import helpers from 'src/lib/utils/ejsHelpers'
 import { defaultErrorQuery } from 'src/lib/utils/errorMessages'
 import { storage } from 'src/repositories/storage.repository'
+import { getPublicFolderData } from 'src/services/folder.service'
 
 // GET: /public/:sharedFolderId/:folderId
 export const getPublicFolder = async (req: Request, res: Response, next: NextFunction) => {
@@ -21,24 +17,19 @@ export const getPublicFolder = async (req: Request, res: Response, next: NextFun
     const folderId = req.params.folderId ? Number(req.params.folderId) : sharedFolder.folderId
     const rootFolder = { id: sharedFolder.folderId, name: sharedFolder.folder.name }
 
-    const files = await getFolderContents(folderId, sortCriteria)
-    if (!files) {
-      throw new createError.NotFound()
-    }
-
-    const folders = await getFolderTree(4, rootFolder.id)
-    const pathSegments = await getPathSegments(folderId)
-    const sortQuery = sortCriteria?.reduce((acc, curr) => ({ ...acc, ...curr }), {})
+    const publicFolderData = await getPublicFolderData(
+      sharedFolder.userId,
+      rootFolder.id,
+      folderId,
+      sortCriteria
+    )
 
     res.render('public-folder', {
       title: 'File Uploader',
       sharedFolderId,
       folderId,
-      files,
-      folders,
+      ...publicFolderData,
       helpers,
-      pathSegments,
-      sortQuery,
       rootFolder,
       error: req.query.error,
       success: req.query.success,

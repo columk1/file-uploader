@@ -1,9 +1,9 @@
-import { createFile, getFileById, deleteEntityById } from 'src/repositories/entities.repository'
+import { getFileById, deleteEntityById } from 'src/repositories/entities.repository'
 import { NextFunction, Request, Response } from 'express'
-import { Readable } from 'stream'
 import createError from 'http-errors'
-import { defaultError, defaultErrorQuery } from 'src/lib/utils/errorMessages'
+import { defaultErrorQuery } from 'src/lib/utils/errorMessages'
 import { storage } from 'src/repositories/storage.repository'
+import { uploadFile } from 'src/services/files.service'
 
 // POST: /files Upload a file
 export const handleFileUpload = async (req: Request, res: Response, next: NextFunction) => {
@@ -12,43 +12,13 @@ export const handleFileUpload = async (req: Request, res: Response, next: NextFu
     if (!userId) throw new createError.Unauthorized()
 
     // req.file is the name of the user's file in the form, 'uploaded_file'
-    const file = req.file
+    const { file } = req
     const parentId = Number(req.body.parentId) || null
-    if (!file) return res.redirect(`/folders/${parentId}?error=${encodeURIComponent(defaultError)}`)
 
-    const { originalname, mimetype, size, buffer } = file
-
-    const bucketName = 'files'
-    const options = {
-      contentType: mimetype,
-      upsert: false,
-      duplex: 'half' as 'half' | 'full', // allows binary stream, otherwise must convert: decode(buffer.toString('base64')
-    }
-    const filePath = `${userId}/${originalname}`
-
-    const bufferStream = new Readable()
-    bufferStream.push(buffer)
-    bufferStream.push(null) // end of stream
-
-    const { data, error } = await storage.uploadFile(bucketName, filePath, bufferStream, options)
-
+    const { data, error } = await uploadFile(userId, parentId, file)
     if (error) {
-      console.log(error)
-      if ('statusCode' in error) {
-        if (error.statusCode === '409') {
-          // duplicate file
-          return res.redirect(`/folders/${parentId}?error=${encodeURIComponent(error.message)}`)
-        } else if (error.statusCode === '413') {
-          // file size limit exceeded
-          return res.redirect(`/folders/${parentId}?error=${encodeURIComponent(error.message)}`)
-        }
-      }
-      return res.redirect(`/folders/${parentId}?error=${defaultErrorQuery}`)
+      return res.redirect(`/folders/${parentId}?error=${encodeURIComponent(error.message)}`)
     }
-
-    // add to database
-    await createFile(originalname, mimetype, size, userId, parentId)
-
     res.redirect('/folders/' + parentId)
   } catch (error) {
     next(error)
@@ -56,7 +26,7 @@ export const handleFileUpload = async (req: Request, res: Response, next: NextFu
 }
 
 // DELETE: /files/:fileId
-export const deleteFile = async (req: Request, res: Response, next: NextFunction) => {
+export const handleDeleteFile = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const fileId = Number(req.params.fileId)
     const userId = req.user?.id
@@ -72,7 +42,7 @@ export const deleteFile = async (req: Request, res: Response, next: NextFunction
     res.redirect(`/folders/${parentId}?success=${encodeURIComponent('Deleted Successfully')}`)
 
     // Continue to remove from storage
-    const deletedFile = storage.deleteFile('files', `${userId}/${name}`)
+    process.nextTick(() => storage.deleteFile('files', `${userId}/${name}`))
   } catch (err) {
     next(err)
   }
