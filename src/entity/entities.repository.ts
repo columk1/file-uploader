@@ -126,8 +126,9 @@ export const isChildOf = async (parentId: number, childId: number) => {
   return false
 }
 
-export const getPathSegments = async (entityId: number) => {
+export const getPathSegments = async (entityId?: number) => {
   const pathSegments: { id: number; name: string }[] = []
+  if (!entityId) return pathSegments
 
   async function buildPath(id: number) {
     const entity = await prisma.entity.findUnique({
