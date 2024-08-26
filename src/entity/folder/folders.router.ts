@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import {
-  getDashboard,
+  getRootFolder,
   handleCreateFolder,
   getFolder,
   deleteFolder,
@@ -9,7 +9,7 @@ import { handleSortQuery } from 'src/middleware/handleSortQuery'
 
 const router = Router()
 
-router.get('/', handleSortQuery, getDashboard)
+router.get('/', handleSortQuery, getRootFolder)
 router.post('/', handleCreateFolder)
 router.get('/:folderId', handleSortQuery, getFolder)
 router.delete('/:folderId', deleteFolder)

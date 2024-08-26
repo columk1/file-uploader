@@ -8,10 +8,10 @@ import {
 } from 'src/entity/entities.repository'
 import { storage } from 'src/storage/storage.repository'
 import helpers from 'src/lib/utils/ejsHelpers'
-import { getDashboardData, getFolderData } from 'src/entity/folder/folders.service'
+import { getRootFolderData, getFolderData } from 'src/entity/folder/folders.service'
 
 // GET: /
-const getDashboard = async (req: Request, res: Response, next: NextFunction) => {
+const getRootFolder = async (req: Request, res: Response, next: NextFunction) => {
   try {
     if (!req.user?.id) throw new createError.Unauthorized()
     const { id, username } = req.user
@@ -19,11 +19,11 @@ const getDashboard = async (req: Request, res: Response, next: NextFunction) => 
 
     const { sortCriteria } = req
 
-    const dashboardData = await getDashboardData(id, sortCriteria)
+    const folderData = await getRootFolderData(id, sortCriteria)
 
-    res.render('dashboard', {
+    res.render('folder', {
       title: 'File Uploader',
-      ...dashboardData,
+      ...folderData,
       folderId: null,
       parentId: null,
       rootFolder,
@@ -50,11 +50,11 @@ const getFolder = async (req: Request, res: Response, next: NextFunction) => {
 
     const rootFolder = { id: null, name: username }
 
-    const dashboardData = await getFolderData(folderId, id, sortCriteria)
+    const folderData = await getFolderData(folderId, id, sortCriteria)
 
-    res.render('dashboard', {
+    res.render('folder', {
       title: 'File Uploader',
-      ...dashboardData,
+      ...folderData,
       folderId,
       rootFolder,
       helpers,
@@ -130,4 +130,4 @@ const deleteFolder = async (req: Request, res: Response, next: NextFunction) => 
   }
 }
 
-export { getDashboard, getFolder, handleCreateFolder, getUploadUrl, deleteFolder }
+export { getRootFolder, getFolder, handleCreateFolder, getUploadUrl, deleteFolder }

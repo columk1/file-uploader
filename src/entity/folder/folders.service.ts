@@ -8,7 +8,7 @@ import {
 import { Prisma } from '@prisma/client'
 import createError from 'http-errors'
 
-export const getDashboardData = async (
+export const getRootFolderData = async (
   userId: number,
   sortCriteria: Prisma.EntityOrderByWithRelationInput[] | undefined
 ) => {
@@ -30,12 +30,12 @@ export const getFolderData = async (
     throw new createError.NotFound()
   }
 
-  const { name, type, childEntities: files, parentId } = entity
+  const { name, childEntities: files, parentId } = entity
   const sortQuery = sortCriteria?.reduce((acc, curr) => ({ ...acc, ...curr }), {})
   const folders = await getFolderTree(userId, null)
   const pathSegments = await getPathSegments(folderId)
 
-  return { name, type, files, folders, parentId, sortQuery, pathSegments }
+  return { name, files, folders, parentId, sortQuery, pathSegments }
 }
 
 export const getPublicFolderData = async (
