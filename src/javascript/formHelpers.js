@@ -24,3 +24,11 @@ export const getError = (field, errorMessages) => {
   // Return the default message if no other message was found
   return errorMessages.defaultMessage
 }
+
+export const debounce = (callback, wait) => {
+  let timeout
+  return function (...args) {
+    clearTimeout(timeout)
+    timeout = setTimeout(() => callback.apply(this, args), wait)
+  }
+}
