@@ -1,25 +1,25 @@
 import 'dotenv/config.js'
-import express, { Request, Response, NextFunction } from 'express'
+import express, { type Request, type Response } from 'express'
 import sessionConfig from 'src/config/sessionConfig'
 import passport from 'src/config/passportConfig'
-import path from 'path'
+import path from 'node:path'
 import morgan from 'morgan'
 import authRouter from 'src/auth/auth.router'
 import folderRouter from 'src/entity/folder/folders.router'
 import fileRouter from 'src/entity/file/files.router'
 import compression from 'compression'
 import createError from 'http-errors'
-import { handleError } from './lib/utils/handleError'
 import terminate from './lib/utils/terminate'
 import methodOverride from 'method-override'
 import shareRouter from './share/share.router'
 import publicRouter from './public/public.router'
 import { isAuthenticated } from 'src/middleware/isAuthenticated'
+import { errorHandler } from './middleware/errorHandler'
 
 const PORT = process.env.PORT || 3000
 
 const app = express()
-app.set('views', __dirname + '/views')
+app.set('views', `${__dirname}/views`)
 app.set('view engine', 'ejs')
 app.use(express.static(path.join(__dirname, '../public')))
 app.use(express.urlencoded({ extended: true }))
@@ -46,13 +46,11 @@ app.use('/share', isAuthenticated, shareRouter)
 app.use('/public', publicRouter)
 
 // catch 404 and forward to error handler
-app.use(function (req, res, next) {
+app.use((req, res, next) => {
   next(createError(404))
 })
 
-app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-  handleError(err, req, res)
-})
+app.use(errorHandler)
 
 const server = app.listen(PORT, () => console.log(`Listening on port ${PORT}`))
 
