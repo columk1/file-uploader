@@ -1,11 +1,11 @@
-import { NextFunction, Request, Response } from 'express'
+import type { RequestHandler } from 'express'
 import passport from 'src/config/passportConfig'
 import bcrypt from 'bcrypt'
 import { SignUpSchema } from 'src/models/schemas'
 import { createUser, findUserByUsername } from 'src/user/users.repository'
 import { Prisma } from '@prisma/client'
 
-export const login = async (req: Request, res: Response, next: NextFunction) => {
+export const login: RequestHandler = async (req, res, next) => {
   try {
     // returns a middleware function which is immediately invoked with (req, res, next)
     passport.authenticate('local', {
@@ -19,10 +19,11 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
 }
 
 // Todo: create type for possible error messages
-export const renderLogin = async (req: Request, res: Response, next: NextFunction) => {
+export const renderLogin: RequestHandler = async (req, res, next) => {
   try {
     if (req.isAuthenticated()) return res.redirect('/')
-    let usernameError, passwordError
+    let usernameError = ''
+    let passwordError = ''
     const { messages } = req.session
     if (messages) {
       if (messages[0].includes('Username')) {
@@ -42,10 +43,10 @@ export const renderLogin = async (req: Request, res: Response, next: NextFunctio
   }
 }
 
-export const logout = async (req: Request, res: Response, next: NextFunction) =>
+export const logout: RequestHandler = async (req, res, next) =>
   req.logout((err) => (err ? next(err) : res.redirect('/')))
 
-export const signup = async (req: Request, res: Response, next: NextFunction) => {
+export const signup: RequestHandler = async (req, res, next) => {
   const defaultErrorMessage =
     'Validation failed. Please ensure all fields are filled out correctly.'
   try {
@@ -78,7 +79,7 @@ export const signup = async (req: Request, res: Response, next: NextFunction) =>
   }
 }
 
-export const renderSignup = async (req: Request, res: Response, next: NextFunction) => {
+export const renderSignup: RequestHandler = async (req, res, next) => {
   try {
     if (req.isAuthenticated()) return res.redirect('/')
     res.render('sign-up', { title: 'Sign Up' })
@@ -87,7 +88,7 @@ export const renderSignup = async (req: Request, res: Response, next: NextFuncti
   }
 }
 
-export const validateUniqueUsername = async (req: Request, res: Response, next: NextFunction) => {
+export const validateUniqueUsername: RequestHandler = async (req, res, next) => {
   try {
     const username = req.query.username
     if (!username || typeof username !== 'string') {

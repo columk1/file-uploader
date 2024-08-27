@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express'
+import type { RequestHandler } from 'express'
 import createError from 'http-errors'
 import helpers from 'src/lib/utils/ejsHelpers'
 import { defaultErrorQuery } from 'src/lib/utils/errorMessages'
@@ -6,7 +6,7 @@ import { storage } from 'src/storage/storage.repository'
 import { getPublicFolderData } from 'src/entity/folder/folders.service'
 
 // GET: /public/:sharedFolderId/:folderId
-export const getPublicFolder = async (req: Request, res: Response, next: NextFunction) => {
+export const getPublicFolder: RequestHandler = async (req, res, next) => {
   try {
     const sharedFolderId = req.params.sharedFolderId
     const { sortCriteria, sharedFolder } = req
@@ -41,7 +41,7 @@ export const getPublicFolder = async (req: Request, res: Response, next: NextFun
 }
 
 // GET: /public/:sharedFolderId/download/:fileId
-export const handleSharedFileDownload = async (req: Request, res: Response, next: NextFunction) => {
+export const handleSharedFileDownload: RequestHandler = async (req, res, next) => {
   try {
     const { sharedFolder } = req
     const { filename, parentId } = req.query

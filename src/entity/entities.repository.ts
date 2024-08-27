@@ -1,5 +1,5 @@
 import prisma from 'src/database/prismaClient'
-import { Entity, Prisma } from '@prisma/client'
+import type { Entity, Prisma } from '@prisma/client'
 
 export const getUserEntities = async (
   userId: number,
@@ -192,7 +192,7 @@ export const getAllFilenames = async (userId: number, parentId: number) => {
     },
   })
 
-  let filenames: string[] = []
+  const filenames: string[] = []
 
   for (const entity of entities) {
     if (entity.type === 'FILE') {

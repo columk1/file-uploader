@@ -5,8 +5,12 @@ import {
   getPathSegments,
   getFolderContents,
 } from 'src/entity/entities.repository'
-import { Prisma } from '@prisma/client'
+import type { Prisma } from '@prisma/client'
 import createError from 'http-errors'
+
+const getSortQuery = (sortCriteria: Prisma.EntityOrderByWithRelationInput[] | undefined) => {
+  return sortCriteria?.reduce((acc, curr) => Object.assign(acc, curr), {})
+}
 
 export const getRootFolderData = async (
   userId: number,
@@ -18,7 +22,7 @@ export const getRootFolderData = async (
     throw new createError.NotFound()
   }
   // Generate sort query
-  const sortQuery = sortCriteria?.reduce((acc, curr) => ({ ...acc, ...curr }), {})
+  const sortQuery = getSortQuery(sortCriteria)
   // Get complete folder tree for sidebar
   const folders = await getFolderTree(userId, null)
   // Get path segments for breadcrumb
@@ -38,7 +42,7 @@ export const getFolderData = async (
   }
 
   const { childEntities, parentId } = folder
-  const sortQuery = sortCriteria?.reduce((acc, curr) => ({ ...acc, ...curr }), {})
+  const sortQuery = getSortQuery(sortCriteria)
   const folders = await getFolderTree(userId, null)
   const pathSegments = await getPathSegments(folderId)
 
@@ -57,7 +61,7 @@ export const getPublicFolderData = async (
   }
   const folders = await getFolderTree(userId, rootFolderId)
   const pathSegments = await getPathSegments(folderId)
-  const sortQuery = sortCriteria?.reduce((acc, curr) => ({ ...acc, ...curr }), {})
+  const sortQuery = getSortQuery(sortCriteria)
 
   return { files, folders, pathSegments, sortQuery }
 }

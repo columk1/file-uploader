@@ -1,11 +1,11 @@
-import { Request, Response, NextFunction } from 'express'
+import type { RequestHandler } from 'express'
 import { getFileById, createSharedFolder } from 'src/entity/entities.repository'
 import { storage } from 'src/storage/storage.repository'
 import createError from 'http-errors'
 import { defaultError } from 'src/lib/utils/errorMessages'
 
 // GET: /share/file/:fileId
-export const shareFile = async (req: Request, res: Response, next: NextFunction) => {
+export const shareFile: RequestHandler = async (req, res, next) => {
   try {
     const fileId = Number(req.params.fileId)
     const file = await getFileById(fileId)
@@ -26,7 +26,7 @@ export const shareFile = async (req: Request, res: Response, next: NextFunction)
 }
 
 // GET: /share/folder/:folderId
-export const shareFolder = async (req: Request, res: Response, next: NextFunction) => {
+export const shareFolder: RequestHandler = async (req, res, next) => {
   try {
     const userId = req.user?.id
     if (!userId) throw new createError.Unauthorized()

@@ -1,6 +1,6 @@
-import { Request, Response, NextFunction } from 'express'
+import type { RequestHandler } from 'express'
 
-export const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
+export const isAuthenticated: RequestHandler = (req, res, next) => {
   if (req.isAuthenticated()) return next()
   res.redirect('/login')
 }

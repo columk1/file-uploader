@@ -33,7 +33,7 @@ const closeButton = drawer.querySelector('.drawer-close-btn')
 
 closeButton.addEventListener('click', () => drawer.hide())
 
-openButtons.forEach((button) => {
+for (const button of openButtons) {
   button.addEventListener('click', () => {
     const index = button.getAttribute('data-index')
     const file = files[index]
@@ -42,7 +42,7 @@ openButtons.forEach((button) => {
     // Repopulate drawer with file info
     drawerContent.replaceChildren(newDrawerContent)
     // Add parentId to query for redirect in case of error
-    const parentIdQuery = file.parentId ? '&parentId=' + file.parentId : ''
+    const parentIdQuery = file.parentId ? `&parentId=${file.parentId}` : ''
     downloadButton.href = `/files/download/${file.id}?filename=${file.name}&mimeType=${file.mimeType}${parentIdQuery}`
     downloadButton.addEventListener('click', function () {
       this.loading = true
@@ -58,7 +58,7 @@ openButtons.forEach((button) => {
     // Show the drawer
     drawer.show()
   })
-})
+}
 
 // Dialogs
 const newFolderDialog = document.querySelector('.new-folder-dialog')
@@ -68,15 +68,19 @@ const shareFolderDialog = document.querySelector('.share-folder-dialog')
 const newFileDialog = document.querySelector('.new-file-dialog')
 
 const newFolderButtons = document.querySelectorAll('.new-folder-btn')
-newFolderButtons.forEach((button) => button.addEventListener('click', () => newFolderDialog.show()))
+for (const button of newFolderButtons) {
+  button.addEventListener('click', () => newFolderDialog.show())
+}
 
 const newFileButtons = document.querySelectorAll('.new-file-btn')
-newFileButtons.forEach((button) => button.addEventListener('click', () => newFileDialog.show()))
+for (const button of newFileButtons) {
+  button.addEventListener('click', () => newFileDialog.show())
+}
 
 const deleteFolderButtons = document.querySelectorAll('.delete-folder-btn')
-deleteFolderButtons.forEach((button) =>
+for (const button of deleteFolderButtons) {
   button.addEventListener('click', () => deleteFolderDialog.show())
-)
+}
 
 const closeDeleteFolderDialogButton = deleteFolderDialog.querySelector('sl-button[slot="footer"]')
 closeDeleteFolderDialogButton.addEventListener('click', () => deleteFolderDialog.hide())
@@ -174,7 +178,9 @@ async function generatePublicFileUrl() {
     shareFileDialog.addEventListener(
       'sl-after-hide',
       () => {
-        shareFileRadioButtons.forEach((button) => (button.disabled = false))
+        for (const button of shareFileRadioButtons) {
+          button.disabled = false
+        }
         linkInput.remove()
         generateLinkButton.textContent = 'Generate Link'
         generateLinkButton.addEventListener('click', generatePublicFolderUrl, { once: true })
@@ -199,7 +205,9 @@ async function generatePublicFolderUrl() {
     linkInput.value = url
     shareFolderLinkContainer.appendChild(linkInput)
     generateFolderLinkButton.loading = false
-    shareFolderRadioButtons.forEach((button) => (button.disabled = true))
+    for (const button of shareFolderRadioButtons) {
+      button.disabled = true
+    }
     generateFolderLinkButton.textContent = 'Copy Link'
     generateFolderLinkButton.addEventListener('click', () => {
       navigator.clipboard.writeText(url)
@@ -209,7 +217,9 @@ async function generatePublicFolderUrl() {
     shareFolderDialog.addEventListener(
       'sl-after-hide',
       () => {
-        shareFolderRadioButtons.forEach((button) => (button.disabled = false))
+        for (const button of shareFolderRadioButtons) {
+          button.disabled = false
+        }
         linkInput.remove()
         generateFolderLinkButton.textContent = 'Generate Link'
         generateFolderLinkButton.addEventListener('click', generatePublicFolderUrl, { once: true })

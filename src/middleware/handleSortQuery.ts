@@ -1,7 +1,7 @@
-import { Request, Response, NextFunction } from 'express'
-import { Prisma } from '@prisma/client'
+import type { RequestHandler } from 'express'
+import type { Prisma } from '@prisma/client'
 
-export const handleSortQuery = (req: Request, res: Response, next: NextFunction) => {
+export const handleSortQuery: RequestHandler = (req, res, next) => {
   const defaultSort = [{ type: 'asc' as 'asc' | 'desc' }]
   const sortQuery = req.query.sort
 
@@ -9,7 +9,7 @@ export const handleSortQuery = (req: Request, res: Response, next: NextFunction)
     req.sortCriteria = defaultSort
     return next()
   }
-  let sortCriteria: Prisma.EntityOrderByWithRelationInput[] = defaultSort
+  const sortCriteria: Prisma.EntityOrderByWithRelationInput[] = defaultSort
 
   if (typeof sortQuery === 'string') {
     const getSortCriteria = (searchParams: string) =>

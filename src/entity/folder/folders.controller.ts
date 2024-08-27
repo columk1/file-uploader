@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from 'express'
+import type { RequestHandler } from 'express'
 import createError from 'http-errors'
 import {
   createFolder,
@@ -11,7 +11,7 @@ import helpers from 'src/lib/utils/ejsHelpers'
 import { getRootFolderData, getFolderData } from 'src/entity/folder/folders.service'
 
 // GET: ['/', '/folders/:folderId]
-const getFolder = async (req: Request, res: Response, next: NextFunction) => {
+const getFolder: RequestHandler = async (req, res, next) => {
   try {
     if (!req.user?.id) throw new createError.Unauthorized()
     const { id, username } = req.user
@@ -41,7 +41,7 @@ const getFolder = async (req: Request, res: Response, next: NextFunction) => {
 }
 
 // POST: /new Create a new folder
-const handleCreateFolder = async (req: Request, res: Response, next: NextFunction) => {
+const handleCreateFolder: RequestHandler = async (req, res, next) => {
   try {
     const userId = req.user?.id
     if (!userId) throw new createError.Unauthorized()
@@ -50,14 +50,14 @@ const handleCreateFolder = async (req: Request, res: Response, next: NextFunctio
     const name = req.body.name || 'New Folder'
 
     const newFolder = await createFolder(userId, parentId, name)
-    res.redirect(`back`)
+    res.redirect('back')
   } catch (err) {
     next(err)
   }
 }
 
 // Unused function to allow client to upload directly to supabase bucket
-const getUploadUrl = async (req: Request, res: Response, next: NextFunction) => {
+const getUploadUrl: RequestHandler = async (req, res, next) => {
   try {
     const userId = req.user?.id
     if (!userId) throw new createError.Unauthorized()
@@ -78,7 +78,7 @@ const getUploadUrl = async (req: Request, res: Response, next: NextFunction) => 
 }
 
 // DELETE: /folders/:folderId
-const deleteFolder = async (req: Request, res: Response, next: NextFunction) => {
+const deleteFolder: RequestHandler = async (req, res, next) => {
   try {
     const folderId = Number(req.params.folderId)
     const userId = req.user?.id
@@ -96,9 +96,9 @@ const deleteFolder = async (req: Request, res: Response, next: NextFunction) => 
 
     // Continue to remove from storage
     const filenames = await getAllFilenames(userId, folderId) // recursively get all filenames
-    filenames.forEach(async (filename) => {
-      const deletedFile = await storage.deleteFile('files', `${userId}/${filename}`)
-    })
+    for (const filename of filenames) {
+      await storage.deleteFile('files', `${userId}/${filename}`)
+    }
   } catch (err) {
     next(err)
   }

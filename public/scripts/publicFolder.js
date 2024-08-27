@@ -30,7 +30,7 @@ const drawerContent = document.querySelector('.drawer-content')
 const openButtons = document.querySelectorAll('.btn.grid-row[data-index]')
 const downloadButton = drawer.querySelector('.drawer-download-btn')
 
-openButtons.forEach((button) => {
+for (const button of openButtons) {
   button.addEventListener('click', () => {
     const index = button.getAttribute('data-index')
     const file = files[index]
@@ -38,7 +38,7 @@ openButtons.forEach((button) => {
 
     // Repopulate drawer with file info
     drawerContent.replaceChildren(newDrawerContent)
-    const parentIdQuery = file.parentId ? '&parentId=' + file.parentId : ''
+    const parentIdQuery = file.parentId ? `&parentId=${file.parentId}` : ''
     downloadButton.href = `/public/${sharedFolderId}/download/${file.id}?filename=${file.name}&mimeType=${file.mimeType}${parentIdQuery}`
     downloadButton.addEventListener('click', function () {
       this.loading = true
@@ -50,6 +50,6 @@ openButtons.forEach((button) => {
     // Show the drawer
     drawer.show()
   })
-})
+}
 const closeButton = drawer.querySelector('.drawer-close-btn')
 closeButton.addEventListener('click', () => drawer.hide())

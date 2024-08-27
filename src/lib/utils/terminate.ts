@@ -1,4 +1,4 @@
-import { Server } from 'http'
+import type { Server } from 'node:http'
 
 interface TerminateOptions {
   coredump?: boolean
@@ -17,7 +17,7 @@ export default function terminate(
     }
   }
 
-  return (code: number, reason: string) => (err?: Error, promise?: Promise<any>) => {
+  return (code: number, reason: string) => (err?: Error, promise?: Promise<unknown>) => {
     if (err && err instanceof Error) {
       // Log error information, use a proper logging library here
       console.error(err.message, err.stack)

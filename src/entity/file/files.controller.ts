@@ -1,12 +1,12 @@
 import { getFileById, deleteEntityById } from 'src/entity/entities.repository'
-import { NextFunction, Request, Response } from 'express'
+import type { RequestHandler } from 'express'
 import createError from 'http-errors'
 import { defaultErrorQuery } from 'src/lib/utils/errorMessages'
 import { storage } from 'src/storage/storage.repository'
 import { uploadFile } from 'src/entity/file/files.service'
 
 // POST: /files Upload a file
-export const handleFileUpload = async (req: Request, res: Response, next: NextFunction) => {
+export const handleFileUpload: RequestHandler = async (req, res, next) => {
   try {
     const userId = req.user?.id
     if (!userId) throw new createError.Unauthorized()
@@ -19,14 +19,14 @@ export const handleFileUpload = async (req: Request, res: Response, next: NextFu
     if (error) {
       return res.redirect(`/folders/${parentId}?error=${encodeURIComponent(error.message)}`)
     }
-    res.redirect('/folders/' + parentId)
+    res.redirect(`/folders/${parentId}`)
   } catch (error) {
     next(error)
   }
 }
 
 // DELETE: /files/:fileId
-export const handleDeleteFile = async (req: Request, res: Response, next: NextFunction) => {
+export const handleDeleteFile: RequestHandler = async (req, res, next) => {
   try {
     const fileId = Number(req.params.fileId)
     const userId = req.user?.id
@@ -49,7 +49,7 @@ export const handleDeleteFile = async (req: Request, res: Response, next: NextFu
 }
 
 // GET: /files/download/:fileId
-export const handleFileDownload = async (req: Request, res: Response, next: NextFunction) => {
+export const handleFileDownload: RequestHandler = async (req, res, next) => {
   try {
     const fileId = Number(req.params.fileId)
     const file = await getFileById(fileId)

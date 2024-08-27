@@ -1,4 +1,4 @@
-import { Request, Response } from 'express'
+import type { Request, Response } from 'express'
 
 export const handleError = (err: Error, req: Request, res: Response) => {
   console.error(err)

@@ -1,5 +1,5 @@
 import { storage } from 'src/storage/storage.repository'
-import { Readable } from 'stream'
+import { Readable } from 'node:stream'
 import { defaultErrorQuery } from 'src/lib/utils/errorMessages'
 import { createFile } from 'src/entity/entities.repository'
 

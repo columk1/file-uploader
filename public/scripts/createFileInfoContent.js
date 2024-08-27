@@ -44,9 +44,10 @@ export const createFileInfoContent = (file) => {
   const dateValue = document.createElement('span')
   const date = new Date(file.createdAt)
   dateLabel.textContent = 'Created: '
-  dateValue.textContent =
-    formatDate(new Date(file.createdAt)) +
-    `, ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
+  dateValue.textContent = `${formatDate(new Date(file.createdAt))}, ${date.toLocaleTimeString([], {
+    hour: '2-digit',
+    minute: '2-digit',
+  })}`
   dateCreated.append(dateLabel, dateValue)
 
   drawerContent.append(name, mimeType, size, dateCreated)
