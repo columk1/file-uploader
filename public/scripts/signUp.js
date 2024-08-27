@@ -13,27 +13,39 @@ const confirmPassword = document.getElementById('confirm-password')
 const confirmPasswordErrorIcon = document.querySelector('#confirm-password sl-icon')
 const confirmPasswordError = document.querySelector('#confirm-password ~ span.error')
 
-const getUsernameError = () => {
-  console.log(username.validity.customError)
-  console.log(username.validationMessage)
-  return username.validity.valueMissing
-    ? 'Username is required'
-    : username.validity.typeMismatch
-    ? 'Please enter a valid username'
-    : username.validity.tooShort
-    ? `Username should be at least ${username.minlength} characters`
-    : username.validity.customError
-    ? username.validationMessage // Username is not available
-    : 'Username is available'
+// Helper functions for displaying errors
+const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1)
+
+const createErrorMessageLookup = (fieldName, defaultMessage = '') => ({
+  valueMissing: `${capitalize(fieldName)} is required`,
+  typeMismatch: `Please enter a valid ${fieldName}`,
+  tooShort: (field) => `${capitalize(fieldName)} should be at least ${field.minlength} characters`,
+  customError: (field) => field.validationMessage,
+  defaultMessage: defaultMessage,
+})
+
+const usernameErrorMessages = createErrorMessageLookup('username', 'Username is available')
+const passwordErrorMessages = createErrorMessageLookup('password')
+
+const getError = (field, errorMessages) => {
+  const validity = field.validity
+
+  // Find the first validity state that is true and return the corresponding error message
+  for (const [key, message] of Object.entries(errorMessages)) {
+    if (validity[key] && typeof message === 'function') {
+      return message(field)
+    }
+    if (validity[key]) {
+      return message
+    }
+  }
+
+  // Return the default message if no other message was found
+  return errorMessages.defaultMessage
 }
 
-const getPasswordError = () => {
-  return password.validity.valueMissing
-    ? 'Password is required'
-    : password.validity.tooShort
-    ? `Password should be at least ${password.minlength} characters`
-    : confirmPassword.validationMessage
-}
+const getUsernameError = () => getError(username, usernameErrorMessages)
+const getPasswordError = () => getError(password, passwordErrorMessages)
 
 // Logic for error messages returned from the server
 const removeError = (e) => {
