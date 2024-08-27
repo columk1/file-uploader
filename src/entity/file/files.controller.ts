@@ -1,9 +1,9 @@
 import type { RequestHandler } from 'express'
 import createError from 'http-errors'
-import { deleteEntityById, getFileById } from 'src/entity/entities.repository'
-import { uploadFile } from 'src/entity/file/files.service'
-import { defaultErrorQuery } from 'src/lib/utils/errorMessages'
-import { storage } from 'src/storage/storage.repository'
+import { deleteEntityById, getFileById } from '@/entity/entities.repository'
+import { uploadFile } from '@/entity/file/files.service'
+import { defaultErrorQuery } from '@/lib/utils/errorMessages'
+import { storage } from '@/storage/storage.repository'
 
 // POST: /files Upload a file
 export const handleFileUpload: RequestHandler = async (req, res, next) => {

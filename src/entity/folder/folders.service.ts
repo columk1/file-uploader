@@ -6,7 +6,7 @@ import {
   getFolderTree,
   getPathSegments,
   getUserEntities,
-} from 'src/entity/entities.repository'
+} from '@/entity/entities.repository'
 
 const getSortQuery = (sortCriteria: Prisma.EntityOrderByWithRelationInput[] | undefined) => {
   return sortCriteria?.reduce((acc, curr) => Object.assign(acc, curr), {})

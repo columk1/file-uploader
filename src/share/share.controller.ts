@@ -1,8 +1,8 @@
 import type { RequestHandler } from 'express'
 import createError from 'http-errors'
-import { createSharedFolder, getFileById } from 'src/entity/entities.repository'
-import { defaultError } from 'src/lib/utils/errorMessages'
-import { storage } from 'src/storage/storage.repository'
+import { createSharedFolder, getFileById } from '@/entity/entities.repository'
+import { defaultError } from '@/lib/utils/errorMessages'
+import { storage } from '@/storage/storage.repository'
 
 // GET: /share/file/:fileId
 export const shareFile: RequestHandler = async (req, res, next) => {

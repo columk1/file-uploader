@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { shareFile, shareFolder } from 'src/share/share.controller'
+import { shareFile, shareFolder } from '@/share/share.controller'
 
 const router = Router()
 

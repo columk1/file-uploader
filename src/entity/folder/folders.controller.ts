@@ -5,10 +5,10 @@ import {
   deleteEntityById,
   getAllFilenames,
   getEntityById,
-} from 'src/entity/entities.repository'
-import { getFolderData, getRootFolderData } from 'src/entity/folder/folders.service'
-import helpers from 'src/lib/utils/ejsHelpers'
-import { storage } from 'src/storage/storage.repository'
+} from '@/entity/entities.repository'
+import { getFolderData, getRootFolderData } from '@/entity/folder/folders.service'
+import helpers from '@/lib/utils/ejsHelpers'
+import { storage } from '@/storage/storage.repository'
 
 // GET: ['/', '/folders/:folderId]
 const getFolder: RequestHandler = async (req, res, next) => {

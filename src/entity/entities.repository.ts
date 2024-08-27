@@ -1,5 +1,5 @@
 import type { Entity, Prisma } from '@prisma/client'
-import prisma from 'src/database/prismaClient'
+import prisma from '@/database/prismaClient'
 
 export const getUserEntities = async (
   userId: number,

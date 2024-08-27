@@ -1,4 +1,4 @@
-import prisma from 'src/database/prismaClient'
+import prisma from '@/database/prismaClient'
 
 export const findUserByUsername = async (username: string) =>
   prisma.user.findUnique({
