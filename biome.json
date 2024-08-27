@@ -23,5 +23,6 @@
       "quoteStyle": "single",
       "attributePosition": "auto"
     }
-  }
+  },
+  "files": { "ignore": ["sandbox/**/*", "public/scripts/bundle.js"] }
 }
