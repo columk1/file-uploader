@@ -22,12 +22,12 @@ import shareRouter from '@/share/share.router'
 const PORT = process.env.PORT || 3000
 
 const app = express()
+app.use(compression())
 app.set('views', `${__dirname}/views`)
 app.set('view engine', 'ejs')
 app.use(express.static(path.join(__dirname, '../public')))
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
-app.use(compression())
 app.use(morgan('dev'))
 app.use(sessionConfig)
 app.use(methodOverride('_method'))
