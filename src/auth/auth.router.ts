@@ -2,9 +2,9 @@ import { Router } from 'express'
 import {
   login,
   logout,
-  signup,
   renderLogin,
   renderSignup,
+  signup,
   validateUniqueUsername,
 } from 'src/auth/auth.controller'
 

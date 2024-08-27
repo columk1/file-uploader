@@ -1,10 +1,10 @@
 import { Router } from 'express'
-import {
-  handleFileUpload,
-  handleFileDownload,
-  handleDeleteFile,
-} from 'src/entity/file/files.controller'
 import multer from 'multer'
+import {
+  handleDeleteFile,
+  handleFileDownload,
+  handleFileUpload,
+} from 'src/entity/file/files.controller'
 
 const upload = multer({ storage: multer.memoryStorage() })
 

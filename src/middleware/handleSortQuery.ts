@@ -1,5 +1,5 @@
-import type { RequestHandler } from 'express'
 import type { Prisma } from '@prisma/client'
+import type { RequestHandler } from 'express'
 
 export const handleSortQuery: RequestHandler = (req, res, next) => {
   const defaultSort = [{ type: 'asc' as 'asc' | 'desc' }]

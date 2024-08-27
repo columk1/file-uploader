@@ -1,7 +1,7 @@
 import { Router } from 'express'
-import { getPublicFolder, handleSharedFileDownload } from './public.controller'
 import { handleSortQuery } from '../middleware/handleSortQuery'
 import { validateSharedFolder } from '../middleware/validateSharedFolder'
+import { getPublicFolder, handleSharedFileDownload } from './public.controller'
 
 const router = Router()
 

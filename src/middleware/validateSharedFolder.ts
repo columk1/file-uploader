@@ -1,6 +1,6 @@
 import type { RequestHandler } from 'express'
-import { getSharedFolderById, isChildOf } from 'src/entity/entities.repository'
 import createError from 'http-errors'
+import { getSharedFolderById, isChildOf } from 'src/entity/entities.repository'
 
 export const validateSharedFolder: RequestHandler = async (req, res, next) => {
   try {

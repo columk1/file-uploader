@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { handleCreateFolder, getFolder, deleteFolder } from 'src/entity/folder/folders.controller'
+import { deleteFolder, getFolder, handleCreateFolder } from 'src/entity/folder/folders.controller'
 import { handleSortQuery } from 'src/middleware/handleSortQuery'
 
 const router = Router()

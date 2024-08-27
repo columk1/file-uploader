@@ -1,9 +1,9 @@
 import type { RequestHandler } from 'express'
 import createError from 'http-errors'
+import { getPublicFolderData } from 'src/entity/folder/folders.service'
 import helpers from 'src/lib/utils/ejsHelpers'
 import { defaultErrorQuery } from 'src/lib/utils/errorMessages'
 import { storage } from 'src/storage/storage.repository'
-import { getPublicFolderData } from 'src/entity/folder/folders.service'
 
 // GET: /public/:sharedFolderId/:folderId
 export const getPublicFolder: RequestHandler = async (req, res, next) => {

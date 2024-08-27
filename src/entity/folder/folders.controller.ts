@@ -6,9 +6,9 @@ import {
   getAllFilenames,
   getEntityById,
 } from 'src/entity/entities.repository'
-import { storage } from 'src/storage/storage.repository'
+import { getFolderData, getRootFolderData } from 'src/entity/folder/folders.service'
 import helpers from 'src/lib/utils/ejsHelpers'
-import { getRootFolderData, getFolderData } from 'src/entity/folder/folders.service'
+import { storage } from 'src/storage/storage.repository'
 
 // GET: ['/', '/folders/:folderId]
 const getFolder: RequestHandler = async (req, res, next) => {

@@ -1,6 +1,6 @@
 import path from 'node:path'
-import { nodeResolve } from '@rollup/plugin-node-resolve'
 import commonjs from '@rollup/plugin-commonjs'
+import { nodeResolve } from '@rollup/plugin-node-resolve'
 import copy from 'rollup-plugin-copy'
 import css from 'rollup-plugin-css-only'
 

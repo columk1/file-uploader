@@ -1,12 +1,12 @@
-import {
-  getFolderEntityById,
-  getFolderTree,
-  getUserEntities,
-  getPathSegments,
-  getFolderContents,
-} from 'src/entity/entities.repository'
 import type { Prisma } from '@prisma/client'
 import createError from 'http-errors'
+import {
+  getFolderContents,
+  getFolderEntityById,
+  getFolderTree,
+  getPathSegments,
+  getUserEntities,
+} from 'src/entity/entities.repository'
 
 const getSortQuery = (sortCriteria: Prisma.EntityOrderByWithRelationInput[] | undefined) => {
   return sortCriteria?.reduce((acc, curr) => Object.assign(acc, curr), {})

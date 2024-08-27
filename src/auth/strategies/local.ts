@@ -1,6 +1,6 @@
+import bcrypt from 'bcrypt'
 import { Strategy as LocalStrategy } from 'passport-local'
 import prisma from 'src/database/prismaClient'
-import bcrypt from 'bcrypt'
 
 export default new LocalStrategy(async (username, password, done) => {
   console.log('New Local Strategy')

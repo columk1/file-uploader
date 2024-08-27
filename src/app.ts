@@ -1,20 +1,20 @@
 import 'dotenv/config.js'
-import express, { type Request, type Response } from 'express'
-import sessionConfig from 'src/config/sessionConfig'
-import passport from 'src/config/passportConfig'
 import path from 'node:path'
+import compression from 'compression'
+import express, { type Request, type Response } from 'express'
+import createError from 'http-errors'
+import methodOverride from 'method-override'
 import morgan from 'morgan'
 import authRouter from 'src/auth/auth.router'
-import folderRouter from 'src/entity/folder/folders.router'
+import passport from 'src/config/passportConfig'
+import sessionConfig from 'src/config/sessionConfig'
 import fileRouter from 'src/entity/file/files.router'
-import compression from 'compression'
-import createError from 'http-errors'
-import terminate from './lib/utils/terminate'
-import methodOverride from 'method-override'
-import shareRouter from './share/share.router'
-import publicRouter from './public/public.router'
+import folderRouter from 'src/entity/folder/folders.router'
 import { isAuthenticated } from 'src/middleware/isAuthenticated'
+import terminate from './lib/utils/terminate'
 import { errorHandler } from './middleware/errorHandler'
+import publicRouter from './public/public.router'
+import shareRouter from './share/share.router'
 
 const PORT = process.env.PORT || 3000
 
@@ -46,9 +46,7 @@ app.use('/share', isAuthenticated, shareRouter)
 app.use('/public', publicRouter)
 
 // catch 404 and forward to error handler
-app.use((req, res, next) => {
-  next(createError(404))
-})
+app.use((req, res, next) => next(createError(404)))
 
 app.use(errorHandler)
 

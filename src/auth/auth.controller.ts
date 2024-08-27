@@ -1,9 +1,9 @@
+import { Prisma } from '@prisma/client'
+import bcrypt from 'bcrypt'
 import type { RequestHandler } from 'express'
 import passport from 'src/config/passportConfig'
-import bcrypt from 'bcrypt'
 import { SignUpSchema } from 'src/models/schemas'
 import { createUser, findUserByUsername } from 'src/user/users.repository'
-import { Prisma } from '@prisma/client'
 
 export const login: RequestHandler = async (req, res, next) => {
   try {

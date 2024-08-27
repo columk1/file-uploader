@@ -1,5 +1,5 @@
-import supabaseAdmin from 'src/database/supabaseAdminClient'
 import type { Readable } from 'node:stream'
+import supabaseAdmin from 'src/database/supabaseAdminClient'
 
 const uploadFile = async (
   bucketName: string,
