@@ -1,3 +1,5 @@
+import { getError, debounce } from './formHelpers.js'
+
 await Promise.all([customElements.whenDefined('sl-input')])
 
 document.body.style.display = 'block'
@@ -12,37 +14,6 @@ const passwordError = document.querySelector('#password ~ span.error')
 const confirmPassword = document.getElementById('confirm-password')
 const confirmPasswordErrorIcon = document.querySelector('#confirm-password sl-icon')
 const confirmPasswordError = document.querySelector('#confirm-password ~ span.error')
-
-// Helper functions for displaying errors
-const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1)
-
-const createErrorMessageLookup = (fieldName, defaultMessage = '') => ({
-  valueMissing: `${capitalize(fieldName)} is required`,
-  typeMismatch: `Please enter a valid ${fieldName}`,
-  tooShort: (field) => `${capitalize(fieldName)} should be at least ${field.minlength} characters`,
-  customError: (field) => field.validationMessage,
-  defaultMessage: defaultMessage,
-})
-
-const usernameErrorMessages = createErrorMessageLookup('username', 'Username is available')
-const passwordErrorMessages = createErrorMessageLookup('password')
-
-const getError = (field, errorMessages) => {
-  const validity = field.validity
-
-  // Find the first validity state that is true and return the corresponding error message
-  for (const [key, message] of Object.entries(errorMessages)) {
-    if (validity[key] && typeof message === 'function') {
-      return message(field)
-    }
-    if (validity[key]) {
-      return message
-    }
-  }
-
-  // Return the default message if no other message was found
-  return errorMessages.defaultMessage
-}
 
 const getUsernameError = () => getError(username, usernameErrorMessages)
 const getPasswordError = () => getError(password, passwordErrorMessages)
@@ -135,14 +106,6 @@ form.addEventListener('submit', (event) => {
 username.addEventListener('input', (e) => {
   validateUniqueUsername(e.target.value)
 })
-
-const debounce = (callback, wait) => {
-  let timeout
-  return function (...args) {
-    clearTimeout(timeout)
-    timeout = setTimeout(() => callback.apply(this, args), wait)
-  }
-}
 
 const validateUniqueUsername = debounce(async (usernameInputValue) => {
   // Avoid validating too early
