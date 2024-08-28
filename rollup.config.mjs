@@ -3,19 +3,29 @@ import commonjs from '@rollup/plugin-commonjs'
 import { nodeResolve } from '@rollup/plugin-node-resolve'
 import copy from 'rollup-plugin-copy'
 import css from 'rollup-plugin-css-only'
+import terser from '@rollup/plugin-terser'
 
 const __dirname = import.meta.dirname
 
 export default {
-  input: 'src/javascript/index.js',
+  input: {
+    main: 'src/javascript/index.js',
+    folder: 'src/javascript/folder.js',
+    publicFolder: 'src/javascript/publicFolder.js',
+    login: 'src/javascript/login.js',
+    signup: 'src/javascript/signup.js',
+  },
   output: {
-    file: 'public/bundle.js',
+    dir: 'public',
     format: 'es',
+    entryFileNames: 'scripts/[name].min.js',
+    chunkFileNames: 'scripts/chunks/[name]-[hash].js',
+    assetFileNames: '[name].[ext]',
   },
   plugins: [
     nodeResolve(),
     commonjs(),
-    css({ output: 'bundle.css' }),
+    css({ output: 'stylesheets/bundle.css' }),
     copy({
       targets: [
         // Copies all icons from shoelace to the public folder, done manually to save space
@@ -29,5 +39,6 @@ export default {
         },
       ],
     }),
+    terser(), // minify js
   ],
 }
