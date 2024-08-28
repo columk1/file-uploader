@@ -9,7 +9,7 @@ const __dirname = import.meta.dirname
 
 export default {
   input: {
-    main: 'src/javascript/index.js',
+    bundle: 'src/javascript/index.js',
     folder: 'src/javascript/folder.js',
     publicFolder: 'src/javascript/publicFolder.js',
     login: 'src/javascript/login.js',

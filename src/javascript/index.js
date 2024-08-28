@@ -2,6 +2,14 @@ import { formatDate } from './formatDate.js'
 
 import '../../public/stylesheets/styles.css'
 
+import { registerIconLibrary } from '@shoelace-style/shoelace/dist/utilities/icon-library.js'
+
+registerIconLibrary('sprite', {
+  resolver: (name) => `/assets/icons/sprite.svg#${name}`,
+  mutator: (svg) => svg.setAttribute('fill', 'currentColor'),
+  spriteSheet: true,
+})
+
 import '@shoelace-style/shoelace/dist/themes/dark.css'
 import '@shoelace-style/shoelace/dist/components/button/button.js'
 import '@shoelace-style/shoelace/dist/components/dialog/dialog.js'
@@ -21,9 +29,9 @@ import '@shoelace-style/shoelace/dist/components/radio-button/radio-button.js'
 import '@shoelace-style/shoelace/dist/components/spinner/spinner.js'
 import '@shoelace-style/shoelace/dist/components/alert/alert.js'
 
-import { setBasePath } from '@shoelace-style/shoelace/dist/utilities/base-path.js'
+// import { setBasePath } from '@shoelace-style/shoelace/dist/utilities/base-path.js'
 
-setBasePath('/vendors/shoelace')
+// setBasePath('/vendors/shoelace')
 
 window.formatDate = formatDate
 

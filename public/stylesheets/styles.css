@@ -333,6 +333,10 @@ sl-button.card-btn::part(label) {
   gap: 0.5rem;
 }
 
+.card-icon {
+  font-size: 1rem;
+}
+
 /* sl-button.card-btn {
   min-width: 110px;
   min-height: 80px;
