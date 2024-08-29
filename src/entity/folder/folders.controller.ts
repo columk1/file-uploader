@@ -16,7 +16,7 @@ const getFolder: RequestHandler = async (req, res, next) => {
     if (!req.user?.id) throw new createError.Unauthorized()
     const { id, username } = req.user
 
-    const folderId = Number(req.params.folderId)
+    const folderId = Number(req.params.folderId?.split('&')[0])
 
     const { sortCriteria } = req
 
@@ -50,7 +50,10 @@ const handleCreateFolder: RequestHandler = async (req, res, next) => {
     const name = req.body.name || 'New Folder'
 
     const newFolder = await createFolder(userId, parentId, name)
-    res.redirect('back')
+
+    res.redirect(
+      `/folders/${parentId || ''}&success=${encodeURIComponent(`Created folder: ${name}`)}`
+    )
   } catch (err) {
     next(err)
   }
@@ -91,7 +94,7 @@ const deleteFolder: RequestHandler = async (req, res, next) => {
     await deleteEntityById(folderId)
 
     res.redirect(
-      `/folders/${folder.parentId}?success=${encodeURIComponent('Deleted Successfully')}`
+      `/folders/${folder.parentId}?success=${encodeURIComponent(`Deleted folder: ${folder.name}`)}`
     )
 
     // Continue to remove from storage
