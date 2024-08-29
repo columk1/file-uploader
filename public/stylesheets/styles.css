@@ -32,11 +32,11 @@ header {
   padding: 0 1rem;
 }
 
-nav {
+header nav {
   display: flex;
   gap: 1rem;
   padding: 0 1rem;
-  /* size svg icons */
+  /* size svg icon */
   font-size: 1.25rem;
 }
 
@@ -325,6 +325,7 @@ nav ul {
 .card-btn {
   width: 100%;
   display: flex;
+  font-size: 1rem;
 }
 
 sl-button.card-btn::part(label) {
@@ -333,21 +334,12 @@ sl-button.card-btn::part(label) {
   align-items: center;
   justify-content: left;
   gap: 0.5rem;
+  padding: 1px 0.5rem;
 }
 
 .card-icon {
   font-size: 1rem;
 }
-
-/* sl-button.card-btn {
-  min-width: 110px;
-  min-height: 80px;
-  --sl-input-height-medium: 80px;
-} */
-
-/* sl-button.card-btn::part(base) {
-  min-height: 80px;
-} */
 
 .card-overview {
   min-width: 110px;
