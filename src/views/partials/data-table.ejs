@@ -53,7 +53,8 @@
 <% for (var i = 0; i < files.length; i++) { 
   const isFolder = files[i].type === 'FOLDER';
   const url = `${baseUrl}/${files[i].id}`;
-  let icon = isFolder ? 'folder' : 'file-earmark';
+  let icon = 'folder'
+  if (!isFolder) icon = helpers.getMimeTypeIconLabel(files[i].mimeType || '');
 %>
   <% if (isFolder) { %>
     <a href="<%= url %>">
