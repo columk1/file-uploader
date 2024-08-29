@@ -1,5 +1,5 @@
 <sl-tree>
-  <sl-tree-item expanded <%= folderId === rootFolder.id && "selected" %>>
+  <sl-tree-item expanded <%= !folderId && "selected" %>>
     <a href="<%= baseUrl %>/<%= rootFolder.id %>"><%= rootFolder.name %></a>
     <% function renderTree(items) { %>
     <% items.forEach(item => { %>
