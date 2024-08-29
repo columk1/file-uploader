@@ -10,6 +10,9 @@ dist
 dist-ssr
 *.local
 
+# Bundled scripts
+public/scripts
+
 # dotenv environment variable files
 .env
 .env.development.local
