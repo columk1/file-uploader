@@ -19,7 +19,7 @@
     <nav class="nav">
       <% if (currentUser) { %>
       <sl-tooltip content="Logout" class="logout-btn">
-        <sl-icon-button library="sprite" name="box-arrow-right" href="/logout" label="Logout" style="font-size: 1.25rem;">Logout</sl-icon-button>
+        <sl-icon-button name="box-arrow-right" href="/logout" label="Logout">Logout</sl-icon-button>
       </sl-tooltip>
       <% } else { %>
       <sl-button onclick="window.location.href='/login'">Login</sl-button>

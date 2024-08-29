@@ -24,7 +24,7 @@ header {
   min-height: 69px;
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
+  align-items: center;
   border-bottom: 1px solid var(--sl-color-neutral-200);
 }
 
@@ -36,6 +36,8 @@ nav {
   display: flex;
   gap: 1rem;
   padding: 0 1rem;
+  /* size svg icons */
+  font-size: 1.25rem;
 }
 
 /* footer {

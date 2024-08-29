@@ -111,12 +111,12 @@
   </main>
 </div>
 <div class="mobile-footer">
-  <sl-icon-button library="sprite" name="folder-plus" class="new-folder-btn" label="New Folder"></sl-icon-button>
-  <sl-icon-button library="sprite" name="file-earmark-plus" class="new-file-btn" label="Upload File"></sl-icon-button>
+  <sl-icon-button name="folder-plus" class="new-folder-btn" label="New Folder"></sl-icon-button>
+  <sl-icon-button name="file-earmark-plus" class="new-file-btn" label="Upload File"></sl-icon-button>
   <% if (folderId) { %>
-  <sl-icon-button library="sprite" name="trash" class="delete-folder-btn" label="Delete Folder"></sl-icon-button>
+  <sl-icon-button name="trash" class="delete-folder-btn" label="Delete Folder"></sl-icon-button>
   <% } else { %>
-  <sl-icon-button library="sprite" name="box-arrow-right" href="/logout" label="Logout"></sl-icon-button>
+  <sl-icon-button name="box-arrow-right" href="/logout" label="Logout"></sl-icon-button>
   <% } %>
 </div>
 

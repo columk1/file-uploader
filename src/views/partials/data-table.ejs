@@ -7,7 +7,6 @@
         <div class="grid-col">Name</div>
         <% if (sortQuery.name) { %>
         <sl-icon-button
-          library="sprite" 
           name="<%= sortQuery.name === 'desc' ? 'caret-down' : 'caret-up' %>" 
           label="Sort by name"
           >
@@ -21,7 +20,6 @@
         <div class="grid-col">Size</div>
         <% if (sortQuery.size) { %>
           <sl-icon-button 
-          library="sprite" 
           name="<%= sortQuery.size === 'desc' ? 'caret-down' : 'caret-up' %>" 
           label="Sort by size"
           >
@@ -35,7 +33,6 @@
         <div class="grid-col">Created</div>
         <% if (sortQuery.createdAt) { %>
           <sl-icon-button 
-          library="sprite" 
           name="<%= sortQuery.createdAt === 'desc' ? 'caret-down' : 'caret-up' %>" 
           label="Sort by date created"
         >
@@ -71,7 +68,7 @@
     <% } %>
   >
     <div class="grid-col col-name">
-      <sl-icon library="sprite" class="col-name-icon" name="<%= icon %>"></sl-icon>
+      <sl-icon class="col-name-icon" name="<%= icon %>"></sl-icon>
       <small><%= files[i].name %></small>
     </div>
     <small class="grid-col">
