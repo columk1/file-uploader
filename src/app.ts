@@ -18,10 +18,12 @@ import terminate from './lib/utils/terminate'
 import { errorHandler } from '@/middleware/errorHandler'
 import publicRouter from '@/public/public.router'
 import shareRouter from '@/share/share.router'
+import helmet from 'helmet'
 
 const PORT = process.env.PORT || 3000
 
 const app = express()
+app.use(helmet())
 app.use(compression())
 app.set('views', `${__dirname}/views`)
 app.set('view engine', 'ejs')
