@@ -5,7 +5,7 @@
   "main": "dist/app.js",
   "scripts": {
     "build": "tsc && pnpm run copy",
-    "bundle": "rollup -c",
+    "bundle": "npx rollup -c",
     "clean": "rm -rf ./dist",
     "copy": "cp -r ./src/views ./dist/",
     "generate": "npx prisma generate",
