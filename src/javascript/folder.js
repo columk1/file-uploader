@@ -60,6 +60,12 @@ for (const button of openButtons) {
   })
 }
 
+// Delete File Button
+const deleteFileButton = deleteFileForm.querySelector('sl-button[type="submit"]')
+deleteFileForm.addEventListener('submit', () => {
+  deleteFileButton.loading = true
+})
+
 // Dialogs
 const newFolderDialog = document.querySelector('.new-folder-dialog')
 const deleteFolderDialog = document.querySelector('.delete-folder-dialog')
@@ -67,21 +73,40 @@ const shareFileDialog = document.querySelector('.share-dialog')
 const shareFolderDialog = document.querySelector('.share-folder-dialog')
 const newFileDialog = document.querySelector('.new-file-dialog')
 
+// New Folder
 const newFolderButtons = document.querySelectorAll('.new-folder-btn')
 for (const button of newFolderButtons) {
   button.addEventListener('click', () => newFolderDialog.show())
 }
+const newFolderForm = document.getElementById('new-folder-form')
+const newFolderSubmitButton = newFolderDialog.querySelector('sl-button[type="submit"]')
+newFolderForm.addEventListener('submit', () => {
+  newFolderSubmitButton.loading = true
+})
 
+// New File
 const newFileButtons = document.querySelectorAll('.new-file-btn')
 for (const button of newFileButtons) {
   button.addEventListener('click', () => newFileDialog.show())
 }
+const newFileForm = document.getElementById('upload-form')
+const newFileSubmitButton = newFileForm.querySelector('sl-button[type="submit"]')
+newFileForm.addEventListener('submit', () => {
+  newFileSubmitButton.loading = true
+})
 
+// Delete Folder
 const deleteFolderButtons = document.querySelectorAll('.delete-folder-btn')
 for (const button of deleteFolderButtons) {
   button.addEventListener('click', () => deleteFolderDialog.show())
 }
+const deleteFolderForm = document.getElementById('delete-form')
+const deleteFolderSubmitButton = deleteFolderDialog.querySelector('sl-button[type="submit"]')
+deleteFolderForm.addEventListener('submit', () => {
+  deleteFolderSubmitButton.loading = true
+})
 
+// Close Buttons
 const closeDeleteFolderDialogButton = deleteFolderDialog.querySelector('sl-button[slot="footer"]')
 closeDeleteFolderDialogButton.addEventListener('click', () => deleteFolderDialog.hide())
 
@@ -113,6 +138,7 @@ fileInput.onchange = function () {
 // Upload the file with feedback from xhr
 uploadForm.addEventListener('submit', (event) => {
   event.preventDefault()
+
   uploadProgressBar.classList.add('active')
   const formData = new FormData(uploadForm)
 

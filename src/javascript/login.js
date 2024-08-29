@@ -17,3 +17,10 @@ const onInput = (e) => removeError(e)
 username.addEventListener('sl-input', () => onInput(usernameError), { once: true })
 
 password.addEventListener('sl-input', () => onInput(passwordError), { once: true })
+
+const loginForm = document.getElementById('login-form')
+const submitButton = document.querySelector('sl-button[type="submit"]')
+
+loginForm.addEventListener('submit', () => {
+  submitButton.loading = true
+})

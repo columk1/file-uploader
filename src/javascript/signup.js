@@ -130,3 +130,10 @@ const validateUniqueUsername = debounce(async (usernameInputValue) => {
     username.helpText = 'Error checking username'
   }
 }, 500)
+
+const signupForm = document.getElementById('login-form')
+const submitButton = document.querySelector('sl-button[type="submit"]')
+
+signupForm.addEventListener('submit', () => {
+  submitButton.loading = true
+})
