@@ -40,10 +40,9 @@ nav {
   font-size: 1.25rem;
 }
 
-/* footer {
-  min-height: 1rem;
-  margin-top: 1rem;
-} */
+.mobile-footer {
+  background-color: var(--sl-color-neutral-0);
+}
 
 .login,
 .signup {
