@@ -2,12 +2,12 @@
 
 <% if (error) { %>
 <sl-alert id="error-alert" variant="warning" closable duration=<%= alertDuration %>>
-  <sl-icon slot="icon" name="exclamation-triangle"></sl-icon>
+  <sl-icon library="sprite" slot="icon" name="exclamation-triangle"></sl-icon>
   <%= error %>
 </sl-alert>
 <% } else if (success) { %>
 <sl-alert id="success-alert" variant="success" closable duration=<%= alertDuration %>>
-  <sl-icon slot="icon" name="check2-circle"></sl-icon>
+  <sl-icon library="sprite" slot="icon" name="check2-circle"></sl-icon>
   <%= success %>
 </sl-alert>
 <% } %>
