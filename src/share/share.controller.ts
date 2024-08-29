@@ -43,6 +43,7 @@ export const shareFolder: RequestHandler = async (req, res, next) => {
 
     res.json({ publicUrl: `http:localhost:3000/public/${newSharedFolder.id}` })
   } catch (err) {
-    next(err)
+    console.log(err)
+    return res.status(500).json({ error: defaultError })
   }
 }
