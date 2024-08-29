@@ -1,9 +1,9 @@
 <%- include('partials/header') %>
 <main class="layout-error">
-  <h1><%= error.status || 500 %></h1>
-  <h2><%= error.message || 'Something went wrong'%></h2>
+  <h1><%= error.status %></h1>
+  <h2><%= error.message %></h2>
   <pre><%= error.stack %></pre>
   </br>
-  <sl-button href="/">Go back</sl-button>
+  <sl-button href="/">Home</sl-button>
 </main>
 <%- include('partials/footer') %>
