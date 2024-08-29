@@ -1,4 +1,5 @@
 import { formatDate } from './formatDate.js'
+import { showSpinner } from './showSpinner.js'
 
 import '../../public/stylesheets/styles.css'
 
@@ -34,6 +35,14 @@ import '@shoelace-style/shoelace/dist/components/alert/alert.js'
 // setBasePath('/vendors/shoelace')
 
 window.formatDate = formatDate
+window.showSpinner = showSpinner
+
+document.addEventListener('click', (event) => {
+  const isNavigationElement = (elem) => elem.closest('a[href], [role="link"], sl-breadcrumb-item')
+  if (isNavigationElement(event.target)) {
+    window.showSpinner()
+  }
+})
 
 /* Icons */
 

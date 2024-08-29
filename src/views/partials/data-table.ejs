@@ -53,29 +53,40 @@
   <% } %>
 
   <!-- Files and folders -->
-  <% for (var i = 0; i < files.length; i++) {
-      let icon = files[i].type === 'FILE' ? 'file-earmark' : 'folder'; %>
-      
+<% for (var i = 0; i < files.length; i++) { 
+  const isFolder = files[i].type === 'FOLDER';
+  const url = `${baseUrl}/${files[i].id}`;
+  let icon = isFolder ? 'folder' : 'file-earmark';
+%>
+  <% if (isFolder) { %>
+    <a href="<%= url %>">
+  <% } %>
+  
   <button 
     class="btn grid-row"
-  <% if (files[i].type === 'FILE') { %> 
-    data-index="<%= i %>" 
-  <% } else { %> 
-    onclick="window.location.href='<%=`${baseUrl}/${files[i].id}` %>'" 
-  <% } %> 
+    <% if (!isFolder) { %> 
+      data-index="<%= i %>" 
+    <% } else { %>
+      onclick="window.showSpinner()"
+    <% } %>
   >
     <div class="grid-col col-name">
-      <sl-icon library="sprite"class="col-name-icon" name="<%= icon %>"></sl-icon>
+      <sl-icon library="sprite" class="col-name-icon" name="<%= icon %>"></sl-icon>
       <small><%= files[i].name %></small>
     </div>
     <small class="grid-col">
       <% if (files[i].size) { %>
-      <sl-format-bytes value="<%= files[i].size %>"></sl-format-bytes>
+        <sl-format-bytes value="<%= files[i].size %>"></sl-format-bytes>
       <% } else { %>
-      --
+        --
       <% } %>
     </small>
     <small class="grid-col"><%= helpers.formatDate(files[i].createdAt) %></small>
   </button>
+
+  <% if (isFolder) { %>
+    </a>
   <% } %>
+
+<% } %>
 </div>

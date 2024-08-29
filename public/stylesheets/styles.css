@@ -203,6 +203,7 @@ sl-tree-item::part(label) {
 }
 
 .grid-container button {
+  width: 100%;
   padding: 0;
 }
 
@@ -483,7 +484,7 @@ sl-input::part(form-control-label) {
   z-index: 1000;
 }
 
-.overlay__wrapper {
+.spinner-container {
   width: 100%;
   height: 100%;
   position: relative;
