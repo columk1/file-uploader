@@ -111,7 +111,7 @@ const closeDeleteFolderDialogButton = deleteFolderDialog.querySelector('sl-butto
 closeDeleteFolderDialogButton.addEventListener('click', () => deleteFolderDialog.hide())
 
 const shareFolderButton = document.querySelector('.share-folder-btn')
-shareFolderButton.addEventListener('click', () => shareFolderDialog.show())
+shareFolderButton?.addEventListener('click', () => shareFolderDialog.show())
 
 const closeShareFolderDialogButton = shareFolderDialog.querySelector('sl-button[slot="footer"]')
 closeShareFolderDialogButton.addEventListener('click', () => shareFolderDialog.hide())
@@ -253,4 +253,11 @@ async function generatePublicFolderUrl() {
       { once: true }
     )
   }
+}
+
+const folderButtons = document.querySelectorAll('[data-action="showSpinner"]')
+for (const button of folderButtons) {
+  button.addEventListener('click', () => {
+    showSpinner()
+  })
 }
