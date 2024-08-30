@@ -24,7 +24,7 @@ header {
   min-height: 69px;
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
+  align-items: center;
   border-bottom: 1px solid var(--sl-color-neutral-200);
 }
 
@@ -32,16 +32,17 @@ header {
   padding: 0 1rem;
 }
 
-nav {
+header nav {
   display: flex;
   gap: 1rem;
   padding: 0 1rem;
+  /* size svg icon */
+  font-size: 1.25rem;
 }
 
-/* footer {
-  min-height: 1rem;
-  margin-top: 1rem;
-} */
+.mobile-footer {
+  background-color: var(--sl-color-neutral-0);
+}
 
 .login,
 .signup {
@@ -203,6 +204,7 @@ sl-tree-item::part(label) {
 }
 
 .grid-container button {
+  width: 100%;
   padding: 0;
 }
 
@@ -323,6 +325,7 @@ nav ul {
 .card-btn {
   width: 100%;
   display: flex;
+  font-size: 1rem;
 }
 
 sl-button.card-btn::part(label) {
@@ -331,21 +334,12 @@ sl-button.card-btn::part(label) {
   align-items: center;
   justify-content: left;
   gap: 0.5rem;
+  padding: 1px 0.5rem;
 }
 
 .card-icon {
   font-size: 1rem;
 }
-
-/* sl-button.card-btn {
-  min-width: 110px;
-  min-height: 80px;
-  --sl-input-height-medium: 80px;
-} */
-
-/* sl-button.card-btn::part(base) {
-  min-height: 80px;
-} */
 
 .card-overview {
   min-width: 110px;
@@ -483,7 +477,7 @@ sl-input::part(form-control-label) {
   z-index: 1000;
 }
 
-.overlay__wrapper {
+.spinner-container {
   width: 100%;
   height: 100%;
   position: relative;
@@ -823,10 +817,11 @@ sl-input::part(form-control-label) {
   --sl-transition-fast: 150ms;
   --sl-transition-x-fast: 50ms;
 
-  --sl-font-mono: SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
-  --sl-font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial,
-    sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
-  --sl-font-serif: Georgia, 'Times New Roman', serif;
+  --sl-font-mono: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
+  --sl-font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+    "Segoe UI Symbol";
+  --sl-font-serif: Georgia, "Times New Roman", serif;
 
   --sl-font-size-2x-small: 0.625rem;
   --sl-font-size-x-small: 0.75rem;
@@ -858,7 +853,8 @@ sl-input::part(form-control-label) {
   --sl-focus-ring-color: var(--sl-color-primary-700);
   --sl-focus-ring-style: solid;
   --sl-focus-ring-width: 3px;
-  --sl-focus-ring: var(--sl-focus-ring-style) var(--sl-focus-ring-width) var(--sl-focus-ring-color);
+  --sl-focus-ring: var(--sl-focus-ring-style) var(--sl-focus-ring-width)
+    var(--sl-focus-ring-color);
   --sl-focus-ring-offset: 1px;
 
   --sl-button-font-size-small: var(--sl-font-size-x-small);
@@ -878,7 +874,7 @@ sl-input::part(form-control-label) {
   --sl-input-border-color-focus: var(--sl-color-primary-600);
   --sl-input-border-color-disabled: var(--sl-color-neutral-400);
   --sl-input-border-width: 1px;
-  --sl-input-required-content: '*';
+  --sl-input-required-content: "*";
   --sl-input-required-content-offset: -2px;
   --sl-input-required-content-color: var(--sl-input-label-color);
 
@@ -990,3 +986,4 @@ sl-input::part(form-control-label) {
 .sl-toast-stack sl-alert::part(base) {
   box-shadow: var(--sl-shadow-large);
 }
+
