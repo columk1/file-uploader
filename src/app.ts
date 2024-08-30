@@ -11,6 +11,7 @@ import morgan from 'morgan'
 import authRouter from '@/auth/auth.router'
 import passport from '@/config/passportConfig'
 import sessionConfig from '@/config/sessionConfig'
+import { helmetConfig } from '@/config/helmetConfig'
 import fileRouter from '@/entity/file/files.router'
 import folderRouter from '@/entity/folder/folders.router'
 import { isAuthenticated } from '@/middleware/isAuthenticated'
@@ -23,7 +24,7 @@ import helmet from 'helmet'
 const PORT = process.env.PORT || 3000
 
 const app = express()
-app.use(helmet())
+app.use(helmet(helmetConfig))
 app.use(compression())
 app.set('views', `${__dirname}/views`)
 app.set('view engine', 'ejs')
