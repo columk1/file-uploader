@@ -14,6 +14,7 @@ export default {
     publicFolder: 'src/javascript/publicFolder.js',
     login: 'src/javascript/login.js',
     signup: 'src/javascript/signup.js',
+    showBody: 'src/javascript/showBody.js',
   },
   output: {
     dir: 'public',
