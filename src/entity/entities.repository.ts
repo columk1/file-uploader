@@ -158,28 +158,40 @@ export const getFolderTree = async (
   userId: number | undefined,
   parentId: number | null
 ): Promise<FolderTreeEntity[]> => {
-  const entities = await prisma.entity.findMany({
-    where: { userId, parentId, type: 'FOLDER' },
-    orderBy: { type: 'asc' },
+  // Fetch all folders for the given user and parentId
+  const allFolders = await prisma.entity.findMany({
+    where: { userId, type: 'FOLDER' },
     select: {
       id: true,
       name: true,
-      // include child entities to build the tree
-      childEntities: {
-        select: {
-          id: true,
-          name: true,
-        },
-      },
+      parentId: true,
     },
   })
 
-  return Promise.all(
-    entities.map(async (entity) => ({
-      ...entity,
-      childEntities: await getFolderTree(userId, entity.id),
-    }))
-  )
+  // Build a map for easy access
+  const folderMap = new Map<number, FolderTreeEntity>()
+  for (const folder of allFolders) {
+    folderMap.set(folder.id, { id: folder.id, name: folder.name, childEntities: [] })
+  }
+
+  // Link child entities to their parents
+  const folderTree: FolderTreeEntity[] = []
+  for (const folder of allFolders) {
+    const folderEntity = folderMap.get(folder.id)
+    if (!folderEntity) continue
+
+    if (folder.parentId) {
+      const parent = folderMap.get(folder.parentId)
+      if (parent) {
+        parent.childEntities.push(folderEntity)
+      }
+    } else {
+      // This is a root folder
+      folderTree.push(folderEntity)
+    }
+  }
+
+  return folderTree
 }
 
 export const getFilename = async (entityId: number) => {
