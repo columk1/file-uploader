@@ -126,23 +126,27 @@ export const isChildOf = async (parentId: number, childId: number) => {
   return false
 }
 
-export const getPathSegments = async (entityId?: number) => {
-  const pathSegments: { id: number; name: string }[] = []
-  if (!entityId) return pathSegments
+type PathSegmentEntity = Pick<Entity, 'id' | 'name' | 'parentId'> | null
 
-  async function buildPath(id: number) {
-    const entity = await prisma.entity.findUnique({
-      where: { id },
-      include: { parentFolder: true },
+export const getPathSegments = async (entityId?: number) => {
+  if (!entityId) return []
+
+  const pathSegments: { id: number; name: string }[] = []
+  let currentId: number | null = entityId
+
+  while (currentId) {
+    const entity: PathSegmentEntity = await prisma.entity.findUnique({
+      where: { id: currentId },
+      select: { id: true, name: true, parentId: true },
     })
     if (entity) {
       pathSegments.unshift({ id: entity.id, name: entity.name })
-      if (entity.parentId) {
-        await buildPath(entity.parentId)
-      }
+      currentId = entity.parentId
+    } else {
+      currentId = null
     }
   }
-  await buildPath(entityId)
+
   return pathSegments
 }
 
