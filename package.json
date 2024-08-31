@@ -1,7 +1,7 @@
 {
   "name": "file-uploader",
   "version": "1.0.0",
-  "description": "",
+  "description": "A folder management app with authenticated sessions and public sharing.",
   "main": "dist/app.js",
   "scripts": {
     "build": "tsc && pnpm run copy",
@@ -12,11 +12,15 @@
     "migrate": "npx prisma db push",
     "start": "NODE_ENV=production node dist/app.js",
     "dev": "tsx watch src/app.ts",
+    "debug": "DEBUG=express:* tsx watch src/app.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage"
   },
-  "keywords": [],
+  "keywords": [
+    "file upload",
+    "folder management"
+  ],
   "author": "columk",
   "license": "MIT",
   "packageManager": "pnpm@9.1.3",
