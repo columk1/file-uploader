@@ -6,7 +6,8 @@ const cacheDuration = 5000
 
 export const cacheMiddleware = (duration: number): RequestHandler => {
   return (req, res, next) => {
-    const key = `__express__${req.originalUrl || req.url}`
+    const userId = req.user?.id || 'anon'
+    const key = `__express__${userId}_${req.originalUrl || req.url}`
     const cachedBody = cache.get(key)
 
     if (cachedBody) {
