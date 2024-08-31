@@ -1,7 +1,6 @@
-// change alias from './src' to './dist' in production
+// change @/ path alias from './src' to './dist' in production
 if (process.env.NODE_ENV === 'production') require('module-alias/register')
 
-import 'dotenv/config.js'
 import path from 'node:path'
 import compression from 'compression'
 import express, { type Request, type Response } from 'express'
