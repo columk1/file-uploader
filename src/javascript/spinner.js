@@ -1,6 +1,5 @@
-const overlay = document.querySelector('.overlay')
-
 export const showSpinner = (delay = 2000) => {
+  const overlay = document.querySelector('.overlay')
   overlay.style.display = 'block'
 
   setTimeout(() => {
@@ -9,5 +8,5 @@ export const showSpinner = (delay = 2000) => {
 }
 
 export const hideSpinner = () => {
-  overlay.style.display = 'none'
+  document.querySelector('.overlay').style.display = 'none'
 }
