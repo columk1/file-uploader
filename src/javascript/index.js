@@ -1,5 +1,5 @@
 import { formatDate } from './formatDate.js'
-import { showSpinner } from './showSpinner.js'
+import { showSpinner, hideSpinner } from './spinner.js'
 
 import '../../public/stylesheets/styles.css'
 
@@ -36,6 +36,7 @@ setBasePath('/vendors/shoelace')
 
 window.formatDate = formatDate
 window.showSpinner = showSpinner
+window.hideSpinner = hideSpinner
 
 // Add a listener to show spinner on navigation
 document.addEventListener('click', (event) => {
@@ -43,6 +44,11 @@ document.addEventListener('click', (event) => {
   if (isNavigationElement(event.target)) {
     window.showSpinner()
   }
+})
+
+// Solves spinner possibly shown on back button after navigation
+window.addEventListener('pageshow', () => {
+  window.hideSpinner()
 })
 
 /* Icons */
