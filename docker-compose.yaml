@@ -1,0 +1,15 @@
+# Database for local dev
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    ports:
+      - 5433:5432
+    environment:
+      - POSTGRES_PASSWORD=uploader_password
+      - POSTGRES_USER=uploader
+      - POSTGRES_DB=file_uploader
+    volumes:
+      - db:/var/lib/postgresql/data
+volumes:
+  db:
