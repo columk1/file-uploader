@@ -16,7 +16,7 @@ const getFolder: RequestHandler = async (req, res, next) => {
     if (!req.user?.id) throw new createError.Unauthorized()
     const { id, username } = req.user
 
-    const folderId = Number(req.params.folderId?.split('&')[0])
+    const folderId = Number(req.params.folderId)
 
     const { sortCriteria } = req
 
@@ -52,7 +52,7 @@ const handleCreateFolder: RequestHandler = async (req, res, next) => {
     const newFolder = await createFolder(userId, parentId, name)
 
     res.redirect(
-      `/folders/${parentId || ''}&success=${encodeURIComponent(`Created folder: ${name}`)}`
+      `/folders/${parentId || ''}?success=${encodeURIComponent(`Created folder: ${name}`)}`
     )
   } catch (err) {
     next(err)
