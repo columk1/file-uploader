@@ -261,3 +261,11 @@ for (const button of folderButtons) {
     showSpinner()
   })
 }
+
+const tree = document.querySelector('sl-tree')
+if (tree) {
+  tree.addEventListener('sl-selection-change', (event) => {
+    const treeItem = event.detail.selection[0]
+    if (treeItem) window.location.href = treeItem.dataset.id
+  })
+}

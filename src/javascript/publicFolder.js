@@ -53,3 +53,11 @@ for (const button of openButtons) {
 }
 const closeButton = drawer.querySelector('.drawer-close-btn')
 closeButton.addEventListener('click', () => drawer.hide())
+
+const tree = document.querySelector('sl-tree')
+if (tree) {
+  tree.addEventListener('sl-selection-change', (event) => {
+    const treeItem = event.detail.selection[0]
+    if (treeItem) window.location.href = treeItem.dataset.id
+  })
+}
