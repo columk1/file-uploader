@@ -55,6 +55,7 @@ const mimeTypeToIcon: { [key: string]: string } = {
   'text/plain': 'file-earmark-text', // Plain text
   'text/html': 'file-earmark-code', // HTML
   'text/css': 'file-earmark-code', // CSS
+  'text/javascript': 'file-earmark-code', // JavaScript
   'application/javascript': 'file-earmark-code', // JavaScript
   'application/json': 'file-earmark-code', // JSON
   'application/xml': 'file-earmark-code', // XML
