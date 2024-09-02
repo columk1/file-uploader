@@ -42,7 +42,8 @@ export const handleDeleteFile: RequestHandler = async (req, res, next) => {
     res.redirect(`/folders/${parentId}?success=${encodeURIComponent('Deleted Successfully')}`)
 
     // Continue to remove from storage
-    process.nextTick(() => storage.deleteFile('files', `${userId}/${name}`))
+    const bucketName = process.env.SUPABASE_BUCKET || ''
+    process.nextTick(() => storage.deleteFile(bucketName, `${userId}/${name}`))
   } catch (err) {
     next(err)
   }

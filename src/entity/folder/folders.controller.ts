@@ -66,7 +66,7 @@ const getUploadUrl: RequestHandler = async (req, res, next) => {
     if (!userId) throw new createError.Unauthorized()
 
     const filename = req.body.filename
-    const bucketName = 'files'
+    const bucketName = process.env.SUPABASE_BUCKET || ''
     const filePath = `${userId}/${filename}`
 
     const fileUploadUrl = await storage.getFileUploadUrl(bucketName, filePath)
@@ -99,8 +99,9 @@ const deleteFolder: RequestHandler = async (req, res, next) => {
 
     // Continue to remove from storage
     const filenames = await getAllFilenames(userId, folderId) // recursively get all filenames
+    const bucketName = process.env.SUPABASE_BUCKET || ''
     for (const filename of filenames) {
-      await storage.deleteFile('files', `${userId}/${filename}`)
+      await storage.deleteFile(bucketName, `${userId}/${filename}`)
     }
   } catch (err) {
     next(err)

@@ -14,7 +14,7 @@ export const uploadFile = async (
 
   const { originalname, mimetype, size, buffer } = file
 
-  const bucketName = 'files'
+  const bucketName = process.env.SUPABASE_BUCKET || ''
   const options = {
     contentType: mimetype,
     upsert: false,

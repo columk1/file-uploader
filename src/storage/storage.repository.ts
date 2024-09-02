@@ -28,8 +28,9 @@ const getFileUrl = async (
   expiresIn: number,
   options: { download?: boolean } = {}
 ) => {
+  const bucketName = process.env.SUPABASE_BUCKET || ''
   const { data, error } = await supabaseAdmin.storage
-    .from('files')
+    .from(bucketName)
     .createSignedUrl(filePath, expiresIn, options)
 
   if (error || !data.signedUrl) {

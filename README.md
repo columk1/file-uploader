@@ -38,9 +38,9 @@ This was a project assignment from The Odin Project's 2024 Node course update. T
 
 <details>
 <summary>Personal Note</summary>
-I found the Express/EJS stack quite limiting in this project. The app worked great locally, but once deployed, the UX of waiting for server responses for navigation events was awful. (Like many of these hobby full-stack projects, it's deployed on a free-tier with slow response times and no choice over the server and database location.) Ultimately, I ended up hacking an event handler to display a spinner on all navigation to make up for this.
+I found the Express/EJS stack quite limiting in this project. Although the app worked great locally, when deployed, the UX of waiting for server responses during navigation events was pretty awful. (Like many of these hobby full-stack projects, it's deployed on a free-tier with slow response times and no choice over the server and database location.) Ultimately, I ended up hacking an event handler to display a spinner on all navigation to make up for this.
 
-Express/EJS isn't an ideal stack for a highly interactive app like this unless you want to go completely overboard with client-side scripting and create a mini-SPA out of the main view template. If I could go back I would create a REST API with a separate React frontend. (HTMX would work well too.)
+Express/EJS isn't an ideal stack for a highly interactive app unless you want to go completely overboard with client-side scripting and create a mini-SPA out of the main view template. The frontend wasn't the focus of this project, but if I could go back I would create a REST API with a separate React frontend. (HTMX would have worked well too.)
 </details>
 
 <!-- GETTING STARTED -->
@@ -55,7 +55,7 @@ To get a local copy up and running follow these steps.
 Set up a local PostgreSQL database using one of the following methods:
 
 - **Option A:** Use `psql` to create the database manually.
-- **Option B:** Use Docker Compose:
+- **Option B:** Use the included Docker Compose file:
 
   ```sh
   docker-compose up
@@ -82,6 +82,7 @@ Create a project and set up a private storage bucket on [Supabase](https://supab
 
    SUPABASE_URL=
    SUPABASE_SERVICE_ROLE_KEY=
+   SUPABASE_BUCKET=
    ```
 4. Migrate the database
    ```sh
