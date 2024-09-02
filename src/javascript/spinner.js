@@ -8,5 +8,6 @@ export const showSpinner = (delay = 2000) => {
 }
 
 export const hideSpinner = () => {
-  document.querySelector('.overlay').style.display = 'none'
+  const overlay = document.querySelector('.overlay')
+  if (overlay) overlay.style.display = 'none'
 }
