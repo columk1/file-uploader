@@ -1,4 +1,4 @@
-import { getError, debounce } from './formHelpers.js'
+import { createErrorMessageLookup, getError, debounce } from './formHelpers.js'
 
 await Promise.all([customElements.whenDefined('sl-input')])
 
@@ -14,6 +14,9 @@ const passwordError = document.querySelector('#password ~ span.error')
 const confirmPassword = document.getElementById('confirm-password')
 const confirmPasswordErrorIcon = document.querySelector('#confirm-password sl-icon')
 const confirmPasswordError = document.querySelector('#confirm-password ~ span.error')
+
+const usernameErrorMessages = createErrorMessageLookup('username', 'Username is available')
+const passwordErrorMessages = createErrorMessageLookup('password')
 
 const getUsernameError = () => getError(username, usernameErrorMessages)
 const getPasswordError = () => getError(password, passwordErrorMessages)
