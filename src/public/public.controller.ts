@@ -25,7 +25,7 @@ export const getPublicFolder: RequestHandler = async (req, res, next) => {
     )
 
     res.render('public-folder', {
-      title: 'File Uploader',
+      title: 'Public Folder',
       sharedFolderId,
       folderId,
       ...publicFolderData,

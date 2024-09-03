@@ -27,7 +27,7 @@ const getFolder: RequestHandler = async (req, res, next) => {
       : await getFolderData(folderId, id, sortCriteria)
 
     res.render('folder', {
-      title: 'File Uploader',
+      title: 'Storage',
       ...folderData,
       folderId,
       rootFolder,
