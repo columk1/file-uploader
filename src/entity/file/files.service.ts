@@ -1,6 +1,6 @@
 import { Readable } from 'node:stream'
 import { createFile } from '@/entity/entities.repository'
-import { defaultErrorQuery } from '@/lib/utils/errorMessages'
+import { defaultError } from '@/lib/utils/errorMessages'
 import { storage } from '@/storage/storage.repository'
 
 export const uploadFile = async (
@@ -36,7 +36,7 @@ export const uploadFile = async (
         return { data: null, error: new Error(error.message) }
       }
     }
-    return { data: null, error: new Error(defaultErrorQuery) }
+    return { data: null, error: new Error(defaultError) }
   }
   // add to database
   await createFile(originalname, mimetype, size, userId, parentId)
