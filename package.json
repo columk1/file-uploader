@@ -4,7 +4,8 @@
   "description": "A folder management app with authenticated sessions and public sharing.",
   "main": "dist/app.js",
   "scripts": {
-    "build": "tsc && pnpm run copy",
+    "prebuild": "pnpm run generate && pnpm run migrate",
+    "build": "tsc && pnpm run bundle && pnpm run copy",
     "bundle": "npx rollup -c",
     "clean": "rm -rf ./dist",
     "copy": "cp -r ./src/views ./dist/",

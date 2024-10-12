@@ -2,16 +2,16 @@
 
 <h3 align="center">File Uploader</h3>
     <p align="center">
-  <b><a href="https://columk-file-uploader.adaptable.app/" >columk-file-uploader.adaptable.app</a></b>
+  <b><a href="https://columk-file-uploader.up.railway.app/" >columk-file-uploader.up.railway.app</a></b>
   </p>
   <p align="center">
-  A cloud storage application built with Express using Prisma, Postgres, PassportJS and EJS. Hosted on Adaptable.
+  A cloud storage application built with Express using Prisma, Postgres, PassportJS and EJS. Hosted on Railway.
   </p>
 </div>
 
 <!-- ABOUT THE PROJECT -->
 
-[![Folder Page Screenshot][folder-screenshot]](https://columk-file-uploader.adaptable.app/)
+[![Folder Page Screenshot][folder-screenshot]](https://columk-file-uploader.up.railway.app/)
 
 ## About The Project
 
@@ -111,7 +111,7 @@ Email: columk1@gmail.com
 Twitter: [@ColumKelly3](https://twitter.com/ColumKelly3)  
 Website: [columkelly.com](https://columkelly.com)
 
-Live Project Link: [columk-file-uploader.adaptable.app](https://columk-file-uploader.adaptable.app/)
+Live Project Link: [columk-file-uploader.up.railway.app](https://columk-file-uploader.up.railway.app/)
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
