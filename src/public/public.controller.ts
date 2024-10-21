@@ -1,9 +1,9 @@
-import type { RequestHandler } from 'express'
-import createError from 'http-errors'
 import { getPublicFolderData } from '@/entity/folder/folders.service'
 import helpers from '@/lib/utils/ejsHelpers'
 import { defaultErrorQuery } from '@/lib/utils/errorMessages'
 import { storage } from '@/storage/storage.repository'
+import type { RequestHandler } from 'express'
+import createError from 'http-errors'
 
 // GET: /public/:sharedFolderId/:folderId
 export const getPublicFolder: RequestHandler = async (req, res, next) => {
@@ -15,7 +15,7 @@ export const getPublicFolder: RequestHandler = async (req, res, next) => {
     }
 
     const folderId = req.params.folderId ? Number(req.params.folderId) : sharedFolder.folderId
-    const rootFolder = { id: sharedFolder.folderId, name: sharedFolder.folder.name }
+    const rootFolder = { id: sharedFolder.folder.id, name: sharedFolder.folder.name }
 
     const publicFolderData = await getPublicFolderData(
       sharedFolder.userId,

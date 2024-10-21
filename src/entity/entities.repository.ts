@@ -1,5 +1,5 @@
-import type { Entity, Prisma } from '@prisma/client'
 import prisma from '@/database/prismaClient'
+import type { Entity, Prisma } from '@prisma/client'
 
 export const getUserEntities = async (
   userId: number,
@@ -189,6 +189,12 @@ export const getFolderTree = async (
       // This is a root folder
       folderTree.push(folderEntity)
     }
+  }
+  // parentId arg is provided when retrieving tree of publicly shared folder
+  // in this case, only include children of this root folder (parentId)
+  if (parentId !== null) {
+    const parentFolder = folderMap.get(parentId)
+    return parentFolder ? parentFolder.childEntities : []
   }
 
   return folderTree
