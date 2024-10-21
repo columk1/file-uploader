@@ -1,4 +1,4 @@
-import { createErrorMessageLookup, getError, debounce } from './formHelpers.js'
+import { createErrorMessageLookup, debounce, getError } from './formHelpers.js'
 
 await Promise.all([customElements.whenDefined('sl-input')])
 
@@ -116,7 +116,7 @@ const validateUniqueUsername = debounce(async (usernameInputValue) => {
 
   try {
     const response = await fetch(
-      `http://localhost:3000/validate-username?username=${encodeURIComponent(usernameInputValue)}`
+      `/validate-username?username=${encodeURIComponent(usernameInputValue)}`
     )
 
     const result = await response.json()

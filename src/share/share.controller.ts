@@ -1,8 +1,9 @@
-import type { RequestHandler } from 'express'
-import createError from 'http-errors'
 import { createSharedFolder, getFileById } from '@/entity/entities.repository'
+import { BASE_URL } from '@/lib/utils/baseUrl'
 import { defaultError } from '@/lib/utils/errorMessages'
 import { storage } from '@/storage/storage.repository'
+import type { RequestHandler } from 'express'
+import createError from 'http-errors'
 
 // GET: /share/file/:fileId
 export const shareFile: RequestHandler = async (req, res, next) => {
@@ -41,7 +42,7 @@ export const shareFolder: RequestHandler = async (req, res, next) => {
       return res.status(500).json({ error: defaultError })
     }
 
-    res.json({ publicUrl: `http:localhost:3000/public/${newSharedFolder.id}` })
+    res.json({ publicUrl: `${BASE_URL}/public/${newSharedFolder.id}` })
   } catch (err) {
     console.log(err)
     return res.status(500).json({ error: defaultError })
