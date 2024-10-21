@@ -112,7 +112,9 @@ username.addEventListener('input', (e) => {
 
 const validateUniqueUsername = debounce(async (usernameInputValue) => {
   // Avoid validating too early
-  if (usernameInputValue.length < username.minlength) return
+  if (usernameInputValue.length < username.minlength) {
+    username.setCustomValidity('')
+  }
 
   try {
     const response = await fetch(
@@ -134,7 +136,7 @@ const validateUniqueUsername = debounce(async (usernameInputValue) => {
   }
 }, 500)
 
-const signupForm = document.getElementById('login-form')
+const signupForm = document.getElementById('sign-up-form')
 const submitButton = document.querySelector('sl-button[type="submit"]')
 
 signupForm.addEventListener('submit', () => {
