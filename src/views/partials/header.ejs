@@ -1,29 +1,33 @@
 <!DOCTYPE html>
 <html lang="en" class="sl-theme-dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/stylesheets/bundle.css" />
+    <!-- <link rel='stylesheet' href='/stylesheets/styles.css' /> -->
+    <link rel="icon" href="https://fav.farm/📁" />
+    <script type="module" src="/scripts/bundle.min.js"></script>
+    <title><%= locals.title ? `${title} - File Uploader` : 'File Uploader' %></title>
+  </head>
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="/stylesheets/bundle.css" />
-  <!-- <link rel='stylesheet' href='/stylesheets/styles.css' /> -->
-  <link rel="icon" href="https://fav.farm/📁" />
-  <script type="module" src="/scripts/bundle.min.js"></script>
-  <title><%= locals.title ? `${title} - File Uploader` : 'File Uploader' %></title>
-</head>
-
-<body style="display: none;"> <!-- solves icons shifting layout -->
-  <header>
-    <div class="logo">
-      <a href="/"><h1>File Uploader</h1></a>
-    </div>
-    <nav class="nav">
-      <% if (currentUser) { %>
-      <sl-tooltip content="Logout" class="logout-btn">
-        <sl-icon-button name="box-arrow-right" href="/logout" label="Logout">Logout</sl-icon-button>
-      </sl-tooltip>
-      <% } else { %>
-      <sl-button onclick="window.location.href='/login'">Login</sl-button>
-      <sl-button onclick="window.location.href='/sign-up'">Sign Up</sl-button>
-      <% } %>
-    </nav>
-  </header>
+  <body style="display: none">
+    <!-- solves icons shifting layout -->
+    <header>
+      <div class="logo">
+        <a href="/"><h1>File Uploader</h1></a>
+      </div>
+      <nav class="nav">
+        <% if (currentUser) { %>
+        <sl-tooltip content="Logout" class="logout-btn">
+          <sl-icon-button name="box-arrow-right" href="/logout" label="Logout"
+            >Logout</sl-icon-button
+          >
+        </sl-tooltip>
+        <% } else { %>
+        <sl-button href="/login">Login</sl-button>
+        <sl-button href="/sign-up">Sign Up</sl-button>
+        <% } %>
+      </nav>
+    </header>
+  </body>
+</html>
